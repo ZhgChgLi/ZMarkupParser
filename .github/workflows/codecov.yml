@@ -1,0 +1,21 @@
+name: Codecov
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Test
+        uses: actions/checkout@v1
+      - name: Build and Test
+        run: xcodebuild test -scheme 'ZMarkupParser' -enableCodeCoverage YES -resultBundlePath 'TestResult.xcresult' -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.1' build test | xcpretty
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.1
+        with:
+          xcode: true
+          xcode_archive_path: 'TestResult.xcresult'
+ 
