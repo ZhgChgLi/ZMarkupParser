@@ -14,6 +14,10 @@ public struct HR_HTMLTagName: HTMLTagName {
         self.dashLength = dashLength
     }
     
+    public init() {
+        
+    }
+    
     public func accept<V>(_ visitor: V) -> V.Result where V : HTMLTagNameVisitor {
         return visitor.visit(self)
     }
