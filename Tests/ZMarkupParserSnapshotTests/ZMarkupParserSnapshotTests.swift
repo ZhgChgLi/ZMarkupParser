@@ -19,6 +19,23 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         안녕하세요안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />
         <span style="color:red">こんにちは</span>こんにちはこんにちは <br />
         """
+    func testMeasureZHTMLParserRender() {
+        measure {
+            let parser = makeSUT()
+            let _ = parser.render(htmlString)
+        }
+    }
+    
+    func testMeasureNativeDocumentTypeHTML() {
+        measure {
+            let data = htmlString.data(using: String.Encoding.utf8)!
+            let attributedOptions:[NSAttributedString.DocumentReadingOptionKey: Any] = [
+                .documentType :NSAttributedString.DocumentType.html,
+                .characterEncoding: String.Encoding.utf8.rawValue
+            ]
+            let _ = try! NSAttributedString(data: data, options: attributedOptions, documentAttributes: nil)
+        }
+    }
     #if canImport(UIKit)
     func testUITextViewSetHTMLString() {
         let parser = makeSUT()
