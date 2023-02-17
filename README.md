@@ -28,7 +28,7 @@ ZMarkupParser helps you to convert HTML String to NSAttributedString with custom
 - [x] Support Markdown Parser additionally (**Not ready to use, only support basic markdown sybmol parse, need contribute**)
 - [x] Support `<ul><ol>` list view and `<hr>` horizontal line...etc
 - [x] Support parse & set style from html tag `style="color:red"` attributes.
-- [x] Support parse HTML Color name to UICOlor/NSColor.
+- [x] Support parse HTML Color name to UIColor/NSColor.
 
 ## Installation
 
