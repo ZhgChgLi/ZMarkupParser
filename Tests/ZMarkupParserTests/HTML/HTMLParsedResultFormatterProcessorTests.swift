@@ -15,7 +15,7 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
         // <Hot><a>linkString<b>linkAndBoldString</a>boldString</b>
         let hotStartItem = HTMLParsedResult.StartItem(tagName: ExtendTagName("Hot"), tagAttributedString: NSAttributedString(string: "<Hot>"), attributes: nil, token: UUID().uuidString)
         let aStartItem = HTMLParsedResult.StartItem(tagName: A_HTMLTagName(), tagAttributedString: NSAttributedString(string: "<a>"), attributes: nil, token: UUID().uuidString)
-        let bStartItem = HTMLParsedResult.StartItem(tagName: B_HTMLTagName(), tagAttributedString: NSAttributedString(string: "<b>"), attributes: nil, token: UUID().uuidString)
+        let bStartItem = HTMLParsedResult.StartItem(tagName: B_HTMLTagName(), tagAttributedString: NSAttributedString(string: "<b rel=\"zhg\">"), attributes: ["rel":"zhg"], token: UUID().uuidString)
         let aCloseItem = HTMLParsedResult.CloseItem(tagName: A_HTMLTagName(), token: UUID().uuidString)
         let bCloseItem = HTMLParsedResult.CloseItem(tagName: B_HTMLTagName(), token: UUID().uuidString)
 
@@ -61,6 +61,8 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
             case 3:
                 if case let HTMLParsedResult.start(startItem) = item {
                     XCTAssertEqual(startItem.token, bStartItem.token, "expected \(bStartItem) at index:\(index).")
+                    XCTAssertEqual(startItem.attributes!["rel"], bStartItem.attributes!["rel"], "expected \(bStartItem) at index:\(index).")
+                    XCTAssertEqual(startItem.tagAttributedString.string, bStartItem.tagAttributedString.string, "expected \(bStartItem) at index:\(index).")
                 } else{
                     XCTFail("expected \(bStartItem) at index:\(index).")
                 }
@@ -85,6 +87,8 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
             case 7:
                 if case let HTMLParsedResult.placeholderStart(startItem) = item {
                     XCTAssertEqual(startItem.token, bStartItem.token, "expected \(bStartItem) at index:\(index).")
+                    XCTAssertEqual(startItem.attributes!["rel"], bStartItem.attributes!["rel"], "expected \(bStartItem) at index:\(index).")
+                    XCTAssertEqual(startItem.tagAttributedString.string, bStartItem.tagAttributedString.string, "expected \(bStartItem) at index:\(index).")
                 } else{
                     XCTFail("expected \(bStartItem) at index:\(index).")
                 }
