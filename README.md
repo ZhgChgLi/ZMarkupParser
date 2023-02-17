@@ -80,6 +80,9 @@ Link{
     NSFont = "<UICTFont: 0x145d18710> font-family: \".SFUI-Semibold\"; font-weight: bold; font-style: normal; font-size: 18.00pt";
 }
 ```
+### Example
+![ZMarkupParser Example](https://user-images.githubusercontent.com/33706588/219700296-47ee305f-b268-45fa-aaf8-ce57cfbc18a6.png)
+
 ## Introduction
 ### HTMLTagName
 Abstract of html tag, there is some pre-defined html tag name down below.
@@ -192,6 +195,11 @@ let selector = parser.selector(htmlString) // HTMLSelector e.g. input: <a><b>Tes
 selector.first("a")?.first("b").attributedString // will return Test
 selector.filter("a").attributedString // will return Test Link
 ```
+
+## Things to know
+- Unsupport Parse `<img>` to NSTextAttacment currently, due to need async task & native textview with NSTextAttacment didn't impletation reuse, insert image throught NSTextAttacment to TextView will lead to Out of memory.
+- Need to set `linkTextAttributes` for UITextView to change .link style
+- UILabel is not allow to change .link text color style throught NSAttributedString.key.foregroundColor
 
 ## Made In Taiwan 🇹🇼🇹🇼🇹🇼
 - [ZhgChg.Li (CH)](https://zhgchg.li/)
