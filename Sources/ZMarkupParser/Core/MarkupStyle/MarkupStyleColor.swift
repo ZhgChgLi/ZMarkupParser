@@ -18,14 +18,21 @@ public struct MarkupStyleColor {
     let blue: Int
     let alpha: CGFloat
     
-    init(red: Int, green: Int, blue: Int, alpha: CGFloat) {
+    init?(red: Int, green: Int, blue: Int, alpha: CGFloat) {
+        guard red >= 0 && red <= 255,
+              green >= 0 && green <= 255,
+              blue >= 0 && blue <= 255,
+              alpha >= 0 && alpha <= 1 else {
+            return nil
+        }
+        
         self.red = red
         self.green = green
         self.blue = blue
         self.alpha = alpha
     }
     
-    public init(name: MarkupStyleColorName) {
+    public init?(name: MarkupStyleColorName) {
         let rgb = name.rgb
         self.init(red: rgb.0, green: rgb.1, blue: rgb.2, alpha: CGFloat(1.0))
     }
@@ -77,19 +84,12 @@ public struct MarkupStyleColor {
                   let green = Int(String(string[rangeGreen])),
                   let blue = Int(String(string[rangeBlue])),
                   let alpha = Float(String(string[rangeAlpha])) {
-            // rgba e.g. rbg(255, 0, 0, 0.5)
+            // rgba e.g. rbga(255, 0, 0, 0.5)
             
             rgba = (red, green, blue, CGFloat(alpha))
         } else if let colorNameRGB = MarkupStyleColorName(string: string)?.rgb {
             rgba = (colorNameRGB.0, colorNameRGB.1, colorNameRGB.2, 1.0)
         } else {
-            return nil
-        }
-        
-        guard rgba.0 >= 0 && rgba.0 <= 255,
-              rgba.1 >= 0 && rgba.1 <= 255,
-              rgba.2 >= 0 && rgba.2 <= 255,
-              rgba.3 >= 0 && rgba.3 <= 1 else {
             return nil
         }
         
