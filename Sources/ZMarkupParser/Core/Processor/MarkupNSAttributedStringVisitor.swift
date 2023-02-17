@@ -35,6 +35,9 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: HorizontalLineMarkup) -> Result {
+        markup.appendChild(markup: BreakLineMarkup())
+        markup.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: String(repeating: "-", count: markup.dashLength))))
+        markup.prependChild(markup: BreakLineMarkup())
         return collectAttributedString(markup)
     }
     

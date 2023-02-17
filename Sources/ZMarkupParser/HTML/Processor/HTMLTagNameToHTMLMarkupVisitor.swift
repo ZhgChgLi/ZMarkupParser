@@ -40,7 +40,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: HR_HTMLTagName) -> Result {
-        return HorizontalLineMarkup(style: style)
+        return HorizontalLineMarkup(dashLength: tagName.dashLength, style: style)
     }
     
     func visit(_ tagName: I_HTMLTagName) -> Result {

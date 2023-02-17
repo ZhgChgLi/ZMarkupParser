@@ -13,6 +13,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         <li><a href="https://zhgchg.li">German design hair remover</a>｜<strong>500</strong> yuan practical gift like this</li>
         <li><a href="https://zhgchg.li">Drink cup</a>｜Fund-raising and praise exceeded 10 million</li>
         </ol>
+        <hr/>
         <p>Before 12/26, place an order and draw a round-trip ticket for two to Japan!</p>
         你好你好<span style="background-color:red">你好你好</span>你好你好 <br />
         안녕하세요안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />

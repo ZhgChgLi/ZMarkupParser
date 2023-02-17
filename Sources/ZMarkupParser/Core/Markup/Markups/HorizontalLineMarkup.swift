@@ -9,11 +9,13 @@ import Foundation
 
 final class HorizontalLineMarkup: Markup {
     let style: MarkupStyle?
+    let dashLength: Int
     
     var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     
-    init(style: MarkupStyle?) {
+    init(dashLength: Int, style: MarkupStyle?) {
+        self.dashLength = dashLength
         self.style = style
     }
     
