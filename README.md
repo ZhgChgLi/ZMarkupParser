@@ -1,12 +1,12 @@
 ![ZMarkupParser](https://user-images.githubusercontent.com/33706588/219608966-20e0c017-d05c-433a-9a52-091bc0cfd403.jpg)
 
 <p align="center">
-  <a href="https://codecov.io/gh/ZhgChgLi/ZMarkupParser"><img src="https://codecov.io/gh/ZhgChgLi/ZMarkupParser/branch/main/graph/badge.svg?token=MPzgO1tnr9"></a>
-  <a href="https://cocoapods.org/pods/ZMarkupParser"><img src="https://img.shields.io/cocoapods/v/ZMarkupParser.svg?style=flat"></a>
-  <a href="https://swift.org/package-manager/"><img src="https://img.shields.io/badge/SPM-supported-DE5C43.svg?style=flat"></a>
+  <a href="https://codecov.io/gh/ZhgChgLi/ZMarkupParser" target="_blank"><img src="https://codecov.io/gh/ZhgChgLi/ZMarkupParser/branch/main/graph/badge.svg?token=MPzgO1tnr9"></a>
+  <a href="https://cocoapods.org/pods/ZMarkupParser" target="_blank"><img src="https://img.shields.io/cocoapods/v/ZMarkupParser.svg?style=flat"></a>
+  <a href="https://swift.org/package-manager/" target="_blank"><img src="https://img.shields.io/badge/SPM-supported-DE5C43.svg?style=flat"></a>
   <br />
-  <a href="https://raw.githubusercontent.com/ZhgChgLi/ZMarkupParser/master/LICENSE"><img src="https://img.shields.io/cocoapods/l/ZMarkupParser.svg?style=flat"></a>
-  <a href="https://github.com/ZhgChgLi/ZMarkupParser"><img src="https://img.shields.io/cocoapods/p/ZMarkupParser.svg?style=flat"></a>
+  <a href="https://raw.githubusercontent.com/ZhgChgLi/ZMarkupParser/master/LICENSE"><img src="https://img.shields.io/cocoapods/l/ZMarkupParser.svg?style=flat" target="_blank"></a>
+  <a href="https://github.com/ZhgChgLi/ZMarkupParser" target="_blank"><img src="https://img.shields.io/cocoapods/p/ZMarkupParser.svg?style=flat"></a>
 </p>
 
 ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag.
@@ -173,12 +173,14 @@ import ZMarkupParser
 
 ### Builder Pattern to Build Parser
 ```swift
-let parser = ZHTMLParserBuilder.initWithDefault().build(MarkupStyle(font: MarkupStyleFont(size: 13))
+let parser = ZHTMLParserBuilder.initWithDefault().set(rootStyle: MarkupStyle(font: MarkupStyleFont(size: 13)).build()
 ```
 
 `initWithDefault()` will add all pre-defined HTMLTagName/HTMLTagStyleAttribute and use Tag's default MarkupStyle to render.
 
-`build(RootStyle)` you need to specify default root style to render, will apply to whole attributed string.
+`set(rootStyle:MarkupStyle)` specify default root style to render, will apply to whole attributed string.
+
+`build()` call build() at the end, to generate parser object.
 
 #### Customized Tag Style/Extend Tag Name
 ```swift
