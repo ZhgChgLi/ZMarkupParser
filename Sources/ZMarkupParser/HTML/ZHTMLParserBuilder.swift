@@ -11,6 +11,7 @@ public final class ZHTMLParserBuilder {
     
     private(set) var htmlTags: [HTMLTag] = []
     private(set) var styleAttributes: [HTMLTagStyleAttribute] = []
+    private(set) var rootStyle: MarkupStyle = MarkupStyle.default
     
     public init() {
         
@@ -27,7 +28,7 @@ public final class ZHTMLParserBuilder {
         return builder
     }
     
-    public func set(_ htmlTagName: HTMLTagName, withCustomStyle markupStyle: MarkupStyle? = nil) -> Self {
+    public func set(_ htmlTagName: HTMLTagName, withCustomStyle markupStyle: MarkupStyle?) -> Self {
         return self.add(htmlTagName, withCustomStyle: markupStyle)
     }
     
@@ -51,7 +52,12 @@ public final class ZHTMLParserBuilder {
         return self
     }
     
-    public func build(_ rootStyle: MarkupStyle) -> ZHTMLParser {
+    public func set(rootStyle: MarkupStyle) -> Self {
+        self.rootStyle = rootStyle
+        return self
+    }
+    
+    public func build() -> ZHTMLParser {
         return ZHTMLParser(htmlTags: htmlTags, styleAttributes: styleAttributes, rootStyle: rootStyle)
     }
 }
