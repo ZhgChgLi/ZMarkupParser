@@ -63,7 +63,7 @@ final class HTMLParsedResultFormatterProcessor: ParserProcessor {
             itemIndex += 1
         case .close(let item), .placeholderClose(let item):
             let reversedStackExpectedStartItems = Array(stackExpectedStartItems.reversed())
-            guard let reversedStackExpectedStartItemsOccurredIndex = reversedStackExpectedStartItems.firstIndex(where: { $0.tagName.isEqualTo(item.tagName.string) }) else {
+            guard let reversedStackExpectedStartItemsOccurredIndex = reversedStackExpectedStartItems.firstIndex(where: { $0.tagName == item.tagName }) else {
                 // isolated end
                 // treat as isolated end
                 newItems[itemIndex] = .isolatedClose(item)

@@ -51,7 +51,7 @@ public struct ZHTMLParser: ZMarkupParser {
     }
     
     private func process(_ attributedString: NSAttributedString) -> RootHTMLSelecor {
-        let parsedResult = HTMLStringToParsedResultProcessor(htmlTagNames: htmlTags.map({ $0.tagName })).process(from: attributedString)
+        let parsedResult = HTMLStringToParsedResultProcessor().process(from: attributedString)
         let formatedParsedResult = HTMLParsedResultFormatterProcessor().process(from: parsedResult)
         let rootSelector = HTMLParsedResultToRootHTMLSelectorProcessor().process(from: formatedParsedResult)
         

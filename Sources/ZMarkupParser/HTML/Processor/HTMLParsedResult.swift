@@ -21,13 +21,13 @@ enum HTMLParsedResult {
 
 extension HTMLParsedResult {
     struct SelfClosingItem {
-        let tagName: HTMLTagName
+        let tagName: String
         let tagAttributedString: NSAttributedString
         let attributes: [String: String]?
     }
     
     struct StartItem {
-        let tagName: HTMLTagName
+        let tagName: String
         let tagAttributedString: NSAttributedString
         let attributes: [String: String]?
         let token: String
@@ -38,7 +38,7 @@ extension HTMLParsedResult {
     }
     
     struct CloseItem {
-        let tagName: HTMLTagName
+        let tagName: String
         let token: String
     }
 }

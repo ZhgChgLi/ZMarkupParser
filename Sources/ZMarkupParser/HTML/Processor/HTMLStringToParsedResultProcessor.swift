@@ -32,13 +32,7 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
     // will match:
     // <!--Test--> / <\!DOCTYPE html> / ` \n `
     static let htmlCommentOrDocumentHeaderRegexPattern: String = #"(\<\!\-\-(?:.*)\-\-\>)|(\<\!DOCTYPE(?:[^>]*)\>)|(\<\!doctype(?:[^>]*)\>)|(\s*\n\s*)"#
-    
-    let htmlTagNames: [HTMLTagName]
-    
-    init(htmlTagNames: [HTMLTagName]) {
-        self.htmlTagNames = htmlTagNames
-    }
-    
+        
     func process(from: From) -> To {
         var items: To = []
         guard let regxr = ParserRegexr(attributedString: from, pattern: Self.htmlTagRegexPattern) else {
@@ -67,19 +61,17 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
                 let matchIsSelfClosingTag = matchResult.attributedString(from, at: 6)?.string.trimmingCharacters(in: .whitespacesAndNewlines) == "/"
                 
                 if let matchAttributedString = matchAttributedString, let matchTag = matchTag {
-                    let htmlTagName = self.htmlTagNames.first(where: { $0.isEqualTo(matchTag) }) ?? ExtendTagName(matchTag)
-            
                     if matchIsSelfClosingTag {
                         // <br/>
-                        items.append(.selfClosing(.init(tagName: htmlTagName, tagAttributedString: matchAttributedString, attributes: matchTagAttributes)))
+                        items.append(.selfClosing(.init(tagName: matchTag, tagAttributedString: matchAttributedString, attributes: matchTagAttributes)))
                     } else {
                         // <a> or </a>
                         if matchIsEndTag {
                             // </a>
-                            items.append(.close(.init(tagName: htmlTagName, token: UUID().uuidString)))
+                            items.append(.close(.init(tagName: matchTag, token: UUID().uuidString)))
                         } else {
                             // <a>
-                            items.append(.start(.init(tagName: htmlTagName, tagAttributedString: matchAttributedString, attributes: matchTagAttributes, token: UUID().uuidString)))
+                            items.append(.start(.init(tagName: matchTag, tagAttributedString: matchAttributedString, attributes: matchTagAttributes, token: UUID().uuidString)))
                         }
                     }
                 }

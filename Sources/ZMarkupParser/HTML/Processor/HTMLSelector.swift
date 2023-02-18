@@ -8,11 +8,11 @@
 import Foundation
 
 public class HTMLTagSelecor: HTMLSelector {
-    public let tagName: HTMLTagName
+    public let tagName: String
     public let tagAttributedString: NSAttributedString
     public let attributes: [String: String]?
     
-    init(tagName: HTMLTagName, tagAttributedString: NSAttributedString, attributes: [String : String]?) {
+    init(tagName: String, tagAttributedString: NSAttributedString, attributes: [String : String]?) {
         self.tagName = tagName
         self.tagAttributedString = tagAttributedString
         self.attributes = attributes
@@ -45,8 +45,12 @@ public class HTMLSelector {
         return self.filter(htmlTagName.string)
     }
     
+    public func filter(_ htmlTagName: WC3HTMLTagName) -> [HTMLSelector] {
+        return self.filter(htmlTagName.rawValue)
+    }
+    
     public func filter(_ htmlTagName: String) -> [HTMLSelector] {
-        return childSelectors.compactMap({ $0 as? HTMLTagSelecor }).filter({ $0.tagName.isEqualTo(htmlTagName) })
+        return childSelectors.compactMap({ $0 as? HTMLTagSelecor }).filter({ $0.tagName == htmlTagName })
     }
     
     public func first(_ htmlTagName: HTMLTagName) -> HTMLSelector? {

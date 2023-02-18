@@ -34,13 +34,14 @@ final class HTMLParsedResultToRootHTMLSelectorProcessor: ParserProcessor {
             let selector = HTMLTagSelecor(tagName: item.tagName, tagAttributedString: item.tagAttributedString, attributes: item.attributes)
             currentSelector.appendChild(selector: selector)
         case .close(let item), .placeholderClose(let item):
-            if stackExpectedStartItems.popLast()?.tagName.isEqualTo(item.tagName.string) ?? false {
+            if let lastTagName = stackExpectedStartItems.popLast()?.tagName,
+               lastTagName == item.tagName {
                 currentSelector = currentSelector.parent ?? currentSelector
             }
         case .rawString(let attributedString):
             currentSelector.appendChild(selector: HTMLTagContentSelecor(attributedString: attributedString))
         case .isolatedStart(let item):
-            if WC3HTMLTagName(rawValue: item.tagName.string) == nil && (item.attributes?.isEmpty ?? true) {
+            if WC3HTMLTagName(rawValue: item.tagName) == nil && (item.attributes?.isEmpty ?? true) {
                 // not a potential html tag
                 currentSelector.appendChild(selector: HTMLTagContentSelecor(attributedString: item.tagAttributedString))
             } else {

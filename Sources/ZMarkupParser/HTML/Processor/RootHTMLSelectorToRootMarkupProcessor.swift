@@ -36,7 +36,8 @@ final class RootHTMLSelectorToRootMarkupProcessor: ParserProcessor {
         case let content as HTMLTagContentSelecor:
             markup = RawStringMarkup(attributedString: content.attributedString)
         case let tag as HTMLTagSelecor:
-            markup = makeMarkup(tagName: tag.tagName, tagAttributedString: tag.tagAttributedString, attributes: tag.attributes)
+            let htmlTagName = self.htmlTags.first(where: { $0.tagName.isEqualTo(tag.tagName) })?.tagName ?? ExtendTagName(tag.tagName)
+            markup = makeMarkup(tagName: htmlTagName, tagAttributedString: tag.tagAttributedString, attributes: tag.attributes)
         default:
             return nil
         }
