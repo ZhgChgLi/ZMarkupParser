@@ -36,14 +36,14 @@ ZMarkupParser helps you to convert HTML String to NSAttributedString with custom
 
 - File > Swift Packages > Add Package Dependency
 - Add `https://github.com/ZhgChgLi/ZMarkupParser.git`
-- Select "Up to Next Major" with "1.0.0"
+- Select "Up to Next Major" with "1.1.0"
 
 or 
 
 ```swift
 ...
 dependencies: [
-  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.0.8"),
+  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.1.0"),
 ]
 ...
 .target(
@@ -62,7 +62,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 1.0'
+  pod 'ZMarkupParser', '~> 1.1.0'
 end
 ```
 
