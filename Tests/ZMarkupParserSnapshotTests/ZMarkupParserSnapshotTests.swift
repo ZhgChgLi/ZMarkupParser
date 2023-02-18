@@ -19,6 +19,17 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         안녕하세요안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />
         <span style="color:red">こんにちは</span>こんにちはこんにちは <br />
         """
+    
+    var attributedHTMLString: NSAttributedString {
+        let attributedString = NSMutableAttributedString(string: htmlString)
+        #if canImport(UIKit)
+        attributedString.addAttributes([.foregroundColor: UIColor.orange], range: NSString(string: attributedString.string).range(of: "round-trip"))
+        #elseif canImport(AppKit)
+        attributedString.addAttributes([.foregroundColor: NSColor.orange], range: NSString(string: attributedString.string).range(of: "round-trip"))
+        #endif
+        return attributedString
+    }
+    
     func testMeasureZHTMLParserRender() {
         measure {
             let parser = makeSUT()
@@ -44,7 +55,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.frame.size.width = 390
         textView.isScrollEnabled = false
         textView.backgroundColor = .white
-        textView.setHtmlString(htmlString, with: parser)
+        textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layoutIfNeeded()
         assertSnapshot(matching: textView, as: .image)
     }
@@ -55,7 +66,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         let textView = NSTextView()
         textView.frame.size.width = 390
         textView.backgroundColor = .white
-        textView.setHtmlString(htmlString, with: parser)
+        textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layout()
         assertSnapshot(matching: textView, as: .image)
     }
@@ -64,7 +75,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
 
 extension ZHTMLToNSAttributedStringSnapshotTests {
     func makeSUT() -> ZHTMLParser {
-        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).build(MarkupStyle(font: MarkupStyleFont(size: 13), paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: 8)))
+        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).set(rootStyle: MarkupStyle(font: MarkupStyleFont(size: 13), paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: 8))).build()
         return parser
     }
 }

@@ -13,11 +13,11 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
     func testFormatterIfStaggered() {
         
         // <Hot><a>linkString<b>linkAndBoldString</a>boldString</b>
-        let hotStartItem = HTMLParsedResult.StartItem(tagName: ExtendTagName("Hot"), tagAttributedString: NSAttributedString(string: "<Hot>"), attributes: nil, token: UUID().uuidString)
-        let aStartItem = HTMLParsedResult.StartItem(tagName: A_HTMLTagName(), tagAttributedString: NSAttributedString(string: "<a>"), attributes: nil, token: UUID().uuidString)
-        let bStartItem = HTMLParsedResult.StartItem(tagName: B_HTMLTagName(), tagAttributedString: NSAttributedString(string: "<b rel=\"zhg\">"), attributes: ["rel":"zhg"], token: UUID().uuidString)
-        let aCloseItem = HTMLParsedResult.CloseItem(tagName: A_HTMLTagName(), token: UUID().uuidString)
-        let bCloseItem = HTMLParsedResult.CloseItem(tagName: B_HTMLTagName(), token: UUID().uuidString)
+        let hotStartItem = HTMLParsedResult.StartItem(tagName: "Hot", tagAttributedString: NSAttributedString(string: "<Hot>"), attributes: nil, token: UUID().uuidString)
+        let aStartItem = HTMLParsedResult.StartItem(tagName: "a", tagAttributedString: NSAttributedString(string: "<a>"), attributes: nil, token: UUID().uuidString)
+        let bStartItem = HTMLParsedResult.StartItem(tagName: "b", tagAttributedString: NSAttributedString(string: "<b rel=\"zhg\">"), attributes: ["rel":"zhg"], token: UUID().uuidString)
+        let aCloseItem = HTMLParsedResult.CloseItem(tagName: "a", token: UUID().uuidString)
+        let bCloseItem = HTMLParsedResult.CloseItem(tagName: "b", token: UUID().uuidString)
 
         let linkString = NSAttributedString(string: "linkString")
         let linkAndBoldString = NSAttributedString(string: "linkAndBoldString")
