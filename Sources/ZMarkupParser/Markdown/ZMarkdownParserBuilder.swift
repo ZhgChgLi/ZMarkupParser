@@ -10,6 +10,7 @@ import Foundation
 public final class ZMarkdownParserBuilder {
     
     private(set) var markdowns: [Markdown] = []
+    private(set) var rootStyle: MarkupStyle = MarkupStyle.default
     
     public init() {
         
@@ -37,7 +38,12 @@ public final class ZMarkdownParserBuilder {
         return self
     }
     
-    public func build(_ rootStyle: MarkupStyle) -> ZMarkdownParser {
+    public func set(rootStyle: MarkupStyle) -> Self {
+        self.rootStyle = rootStyle
+        return self
+    }
+    
+    public func build() -> ZMarkdownParser {
         return ZMarkdownParser(markdowns: markdowns, rootStyle: rootStyle)
     }
 }
