@@ -9,7 +9,22 @@ let package = Package(
     products: [
         .library(name: "ZMarkupParser", targets: ["ZMarkupParser"])
     ],
+    dependencies: [
+         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.11.0")
+    ],
     targets: [
-        .target(name: "ZMarkupParser", path: "Sources")
-    ]
+         .target(
+             name: "ZMarkupParser",
+             dependencies: []),
+         .testTarget(
+             name: "ZMarkupParserTests",
+             dependencies: ["ZMarkupParser"]),
+         .testTarget(
+             name: "ZMarkupParserSnapshotTests",
+             dependencies: [
+                 "ZMarkupParser",
+                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
+             ]
+         )
+     ]
 )
