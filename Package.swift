@@ -15,7 +15,7 @@ let package = Package(
     targets: [
          .target(
              name: "ZMarkupParser",
-             dependencies: []),
+             path: "Sources"),
          .testTarget(
              name: "ZMarkupParserTests",
              dependencies: ["ZMarkupParser"]),
