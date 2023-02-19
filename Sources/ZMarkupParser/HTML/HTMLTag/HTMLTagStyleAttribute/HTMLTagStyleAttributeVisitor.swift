@@ -26,7 +26,7 @@ public extension HTMLTagStyleAttributeVisitor {
     }
 }
 
-public extension ZMarkdownParserBuilder {
+public extension ZHTMLParserBuilder {
     static var styleAttributes: [HTMLTagStyleAttribute] {
         return [
             ColorHTMLTagStyleAttribute(),

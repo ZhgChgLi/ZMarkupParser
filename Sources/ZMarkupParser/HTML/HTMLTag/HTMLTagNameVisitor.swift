@@ -35,7 +35,7 @@ public extension HTMLTagNameVisitor {
     }
 }
 
-public extension ZMarkdownParserBuilder {
+public extension ZHTMLParserBuilder {
     static var htmlTagNames: [HTMLTagName] {
         return [
             A_HTMLTagName(),

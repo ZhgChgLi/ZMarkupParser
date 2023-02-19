@@ -19,10 +19,10 @@ public final class ZHTMLParserBuilder {
     
     public static func initWithDefault() -> Self {
         var builder = Self.init()
-        for htmlTagName in ZMarkdownParserBuilder.htmlTagNames {
+        for htmlTagName in ZHTMLParserBuilder.htmlTagNames {
             builder = builder.add(htmlTagName)
         }
-        for styleAttribute in ZMarkdownParserBuilder.styleAttributes {
+        for styleAttribute in ZHTMLParserBuilder.styleAttributes {
             builder = builder.add(styleAttribute)
         }
         return builder
