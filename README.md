@@ -217,6 +217,7 @@ selector.filter("a").attributedString // will return Test Link
 - Unsupport Parse `<img>` to NSTextAttacment currently, due to need async task & native textview with NSTextAttacment didn't impletation reuse, insert image throught NSTextAttacment to TextView will lead to Out of memory.
 - Need to set `linkTextAttributes` for UITextView to change .link style
 - UILabel is not allow to change .link text color style throught NSAttributedString.key.foregroundColor
+- Due to limitation, colud only use this parser render in partial html, do not use in redner whole huge html (please use webview.loadhtml instead.)
 
 ## Made In Taiwan 🇹🇼🇹🇼🇹🇼
 - [ZhgChg.Li (CH)](https://zhgchg.li/)
