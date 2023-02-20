@@ -101,6 +101,6 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
             }
         }
         
-        return attributes
+        return (attributes.isEmpty) ? (nil) : (attributes)
     }
 }

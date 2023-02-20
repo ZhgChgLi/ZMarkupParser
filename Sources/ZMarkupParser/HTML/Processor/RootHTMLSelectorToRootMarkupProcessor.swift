@@ -12,11 +12,11 @@ final class RootHTMLSelectorToRootMarkupProcessor: ParserProcessor {
     typealias To = RootMarkup
     
     let rootStyle: MarkupStyle
-    let htmlTags: [HTMLTag]
+    let htmlTags: [String: HTMLTag]
     let styleAttributes: [HTMLTagStyleAttribute]
     init(rootStyle: MarkupStyle, htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute]) {
         self.rootStyle = rootStyle
-        self.htmlTags = htmlTags
+        self.htmlTags = Dictionary(uniqueKeysWithValues: htmlTags.map{ ($0.tagName.string, $0) })
         self.styleAttributes = styleAttributes
     }
     
@@ -36,8 +36,8 @@ final class RootHTMLSelectorToRootMarkupProcessor: ParserProcessor {
         case let content as HTMLTagContentSelecor:
             markup = RawStringMarkup(attributedString: content.attributedString)
         case let tag as HTMLTagSelecor:
-            let htmlTagName = self.htmlTags.first(where: { $0.tagName.isEqualTo(tag.tagName) })?.tagName ?? ExtendTagName(tag.tagName)
-            markup = makeMarkup(tagName: htmlTagName, tagAttributedString: tag.tagAttributedString, attributes: tag.attributes)
+            let htmlTag = self.htmlTags[tag.tagName] ?? HTMLTag(tagName: ExtendTagName(tag.tagName))
+            markup = makeMarkup(tag: htmlTag, tagAttributedString: tag.tagAttributedString, attributes: tag.attributes)
         default:
             return nil
         }
@@ -49,13 +49,13 @@ final class RootHTMLSelectorToRootMarkupProcessor: ParserProcessor {
         return markup
     }
     
-    func makeMarkup(tagName: HTMLTagName, tagAttributedString: NSAttributedString, attributes: [String: String]?) -> Markup {
-        let customStyle = htmlTags.first(where: { $0.tagName.isEqualTo(tagName.string) })?.customStyle
+    func makeMarkup(tag: HTMLTag, tagAttributedString: NSAttributedString, attributes: [String: String]?) -> Markup {
+        let customStyle = tag.customStyle
         let markupStyleVisitor = HTMLTagNameToMarkupStyleVisitor(customStyle: customStyle, attributes: attributes, styleAttributes: self.styleAttributes)
-        let style = markupStyleVisitor.visit(tagName: tagName)
+        let style = markupStyleVisitor.visit(tagName: tag.tagName)
         
         let markupVisitor = HTMLTagNameToMarkupVisitor(tagAttributedString: tagAttributedString, attributes: attributes, with: style)
-        let markup = markupVisitor.visit(tagName: tagName)
+        let markup = markupVisitor.visit(tagName: tag.tagName)
         return markup
     }
 }
