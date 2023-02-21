@@ -27,7 +27,7 @@ final class HTMLSelectorToMarkupProcessor: ParserProcessor {
     func walk(_ selector: HTMLSelector) -> Markup {
         let markup: Markup
         switch selector {
-        case let content as HTMLTagContentSelecor:
+        case let content as RawStringSelecor:
             markup = RawStringMarkup(attributedString: content.attributedString)
         case let tag as HTMLTagSelecor:
             let htmlTag = self.htmlTags[tag.tagName] ?? HTMLTag(tagName: ExtendTagName(tag.tagName))

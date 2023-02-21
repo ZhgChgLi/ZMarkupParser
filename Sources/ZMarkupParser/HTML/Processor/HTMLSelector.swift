@@ -19,7 +19,7 @@ public class HTMLTagSelecor: HTMLSelector {
     }
 }
 
-public class HTMLTagContentSelecor: HTMLSelector {
+public class RawStringSelecor: HTMLSelector {
     let _attributedString: NSAttributedString
     
     init(attributedString: NSAttributedString) {
@@ -68,7 +68,7 @@ extension HTMLSelector {
     }
     
     private func attributedString(_ selector: HTMLSelector) -> NSAttributedString {
-        if let contentSelector = selector as? HTMLTagContentSelecor {
+        if let contentSelector = selector as? RawStringSelecor {
             return contentSelector._attributedString
         } else {
             return selector.childSelectors.compactMap({ attributedString($0) }).reduce(NSMutableAttributedString()) { partialResult, attributedString in

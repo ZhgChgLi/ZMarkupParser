@@ -92,6 +92,16 @@ public final class ZHTMLParser: ZMarkupParser {
         }
     }
     
+    public func render(_ selector: HTMLSelector, completionHandler: @escaping (NSAttributedString) -> Void) {
+        ZHTMLParser.dispatchQueue.async {
+            let markup = self.htmlSelectorToMarkup.process(from: selector)
+            let attributedString = self.rootMarkupRender.process(from: markup)
+            DispatchQueue.main.async {
+                completionHandler(attributedString)
+            }
+        }
+    }
+    
     public func render(_ string: String, completionHandler: @escaping (NSAttributedString) -> Void) {
         self.render(NSAttributedString(string: string), completionHandler: completionHandler)
     }

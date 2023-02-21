@@ -4,6 +4,8 @@ import SnapshotTesting
 
 final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     
+    private let testPerformance: Bool = false
+    
     private let htmlString = """
         🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
         The <u>final <del>countdown</del></u> on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon<br />
@@ -30,9 +32,36 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         return attributedString
     }
     
-    private var parser: ZHTMLParser?
+    func performanceReport() {
+        if !testPerformance {
+            return
+        }
+        
+        let parser = makeSUT()
+        for i in 1...1000 {
+            let longString = String(repeating: htmlString, count: i)
+            var startTime = CFAbsoluteTimeGetCurrent()
+            let _ = parser.render(longString)
+            let r1 = CFAbsoluteTimeGetCurrent() - startTime
+            
+            startTime = CFAbsoluteTimeGetCurrent()
+            let data = longString.data(using: String.Encoding.utf8)!
+            let attributedOptions:[NSAttributedString.DocumentReadingOptionKey: Any] = [
+                .documentType :NSAttributedString.DocumentType.html,
+                .characterEncoding: String.Encoding.utf8.rawValue
+            ]
+            let _ = try! NSAttributedString(data: data, options: attributedOptions, documentAttributes: nil)
+            let r2 = CFAbsoluteTimeGetCurrent() - startTime
+            
+            print(longString.count, r1, r2 ,(r1 < r2) ? ("✅") : ("❌"))
+        }
+    }
 
     func testMeasureZHTMLMarkupParser() {
+        if !testPerformance {
+            return
+        }
+        
         let parser = makeSUT()
         measure {
             let _ = parser.render(String(repeating: htmlString, count: 300))
@@ -40,8 +69,12 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     }
     
     func testMeasureNativeDocumentTypeHTML() {
+        if !testPerformance {
+            return
+        }
+        
         measure {
-            let data = String(repeating: htmlString, count: 1).data(using: String.Encoding.utf8)!
+            let data = String(repeating: htmlString, count: 300).data(using: String.Encoding.utf8)!
             let attributedOptions:[NSAttributedString.DocumentReadingOptionKey: Any] = [
                 .documentType :NSAttributedString.DocumentType.html,
                 .characterEncoding: String.Encoding.utf8.rawValue

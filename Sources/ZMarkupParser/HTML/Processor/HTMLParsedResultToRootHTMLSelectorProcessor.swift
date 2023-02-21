@@ -33,7 +33,7 @@ final class HTMLParsedResultToRootHTMLSelectorProcessor: ParserProcessor {
                     currentSelector = currentSelector.parentSelector ?? currentSelector
                 }
             case .rawString(let attributedString):
-                currentSelector.appendChild(selector: HTMLTagContentSelecor(attributedString: attributedString))
+                currentSelector.appendChild(selector: RawStringSelecor(attributedString: attributedString))
             }
         }
         return rootSelector
