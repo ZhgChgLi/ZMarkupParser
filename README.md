@@ -23,6 +23,9 @@ ZMarkupParser helps you to convert HTML String to NSAttributedString with custom
 
 ### Performance Benchmark
 ![chart](https://user-images.githubusercontent.com/33706588/220363059-4a91e183-0fa9-49fb-8147-9488e46f8049.png)
+
+(M2/32GB Ram/2022)
+
 - **x**: html string length
 - **y**: seconds elapsed
 
