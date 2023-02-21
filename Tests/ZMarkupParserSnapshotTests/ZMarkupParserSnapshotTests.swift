@@ -53,7 +53,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
             let _ = try! NSAttributedString(data: data, options: attributedOptions, documentAttributes: nil)
             let r2 = CFAbsoluteTimeGetCurrent() - startTime
             
-            print(longString.count, r1, r2 ,(r1 < r2) ? ("✅") : ("❌"))
+            print(i, longString.count, r1, r2 ,(r1 < r2) ? ("✅") : ("❌"))
         }
     }
 
