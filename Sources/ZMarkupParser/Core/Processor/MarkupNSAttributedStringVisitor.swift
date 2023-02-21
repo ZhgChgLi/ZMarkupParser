@@ -96,6 +96,36 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     }
 }
 
+extension MarkupNSAttributedStringVisitor {
+    // Find continues reduceable breakline and merge it.
+    // e.g. Test\n\n\n\nTest -> Test\nTest
+    func reduceBreaklineInResultNSAttributedString(_ attributedString: NSAttributedString) -> NSAttributedString {
+        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+
+        let totalLength = mutableAttributedString.string.utf16.count
+        mutableAttributedString.enumerateAttribute(.reduceableBreakLine, in: NSMakeRange(0, totalLength)) { reduceableBreakLine, range, _ in
+            if let reduceableBreakLine = reduceableBreakLine as? Bool, reduceableBreakLine == true {
+                if range.location == 0 || range.upperBound == mutableAttributedString.string.utf16.count {
+                    // remove prefix & suffix break line
+                    mutableAttributedString.replaceCharacters(in: range, with: "")
+                } else if range.length >= 2 {
+                    // remove reduntant
+                    mutableAttributedString.replaceCharacters(in: range, with: "\n")
+                }
+            }
+        }
+        
+        return mutableAttributedString
+    }
+    
+    func applyMarkupStyle(_ attributedString: NSAttributedString, with markupStyle: MarkupStyle?) -> NSAttributedString {
+        guard let markupStyle = markupStyle else { return attributedString }
+        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        mutableAttributedString.addAttributes(markupStyle.render(), range: NSMakeRange(0, mutableAttributedString.string.utf16.count))
+        return mutableAttributedString
+    }
+}
+
 private extension MarkupNSAttributedStringVisitor {
     func collectAttributedString(_ markup: Markup) -> NSMutableAttributedString {
         // collect from downstream
@@ -135,47 +165,7 @@ private extension MarkupNSAttributedStringVisitor {
         
         return currentStyle
     }
-    
-    func applyMarkupStyle(_ attributedString: NSAttributedString, with markupStyle: MarkupStyle?) -> NSAttributedString {
-        guard let markupStyle = markupStyle else { return attributedString }
-        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
-        mutableAttributedString.addAttributes(markupStyle.render(), range: NSMakeRange(0, mutableAttributedString.string.utf16.count))
-        return mutableAttributedString
-    }
-    
-    // Find continues reduceable breakline and merge it.
-    // e.g. Test\n\n\n\nTest -> Test\nTest
-    func reduceBreaklineInResultNSAttributedString(_ attributedString: NSAttributedString) -> NSAttributedString {
-        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
-        
-        while true {
-            let totalLength = mutableAttributedString.string.utf16.count
-            var hasReplaceBreakLine = false
-            mutableAttributedString.enumerateAttribute(.reduceableBreakLine, in: NSMakeRange(0, totalLength)) { reduceableBreakLine, range, _ in
-                if !hasReplaceBreakLine {
-                    if let reduceableBreakLine = reduceableBreakLine as? Bool, reduceableBreakLine == true {
-                        if range.length >= 2 {
-                            mutableAttributedString.replaceCharacters(in: range, with: "\n")
-                            hasReplaceBreakLine = true
-                        } else if range.location == 0 {
-                            mutableAttributedString.replaceCharacters(in: range, with: "")
-                            hasReplaceBreakLine = true
-                        } else if range.upperBound == totalLength {
-                            mutableAttributedString.replaceCharacters(in: range, with: "")
-                            hasReplaceBreakLine = true
-                        }
-                    }
-                }
-            }
-            if !hasReplaceBreakLine {
-                break
-            }
-        }
-        
-        return mutableAttributedString
-    }
 }
-
 
 private extension NSAttributedString.Key {
     static let reduceableBreakLine: NSAttributedString.Key = .init("reduceableBreakLine")

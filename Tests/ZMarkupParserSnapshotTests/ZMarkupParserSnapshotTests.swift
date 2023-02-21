@@ -29,17 +29,17 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         #endif
         return attributedString
     }
-    
-    func testMeasureZHTMLParserRender() {
+
+    func testMeasureZHTMLMarkupParser() {
+        let parser = makeSUT()
         measure {
-            let parser = makeSUT()
-            let _ = parser.render(htmlString)
+            let _ = parser.render(String(repeating: htmlString, count: 1))
         }
     }
     
     func testMeasureNativeDocumentTypeHTML() {
         measure {
-            let data = htmlString.data(using: String.Encoding.utf8)!
+            let data = String(repeating: htmlString, count: 1).data(using: String.Encoding.utf8)!
             let attributedOptions:[NSAttributedString.DocumentReadingOptionKey: Any] = [
                 .documentType :NSAttributedString.DocumentType.html,
                 .characterEncoding: String.Encoding.utf8.rawValue
@@ -47,10 +47,10 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
             let _ = try! NSAttributedString(data: data, options: attributedOptions, documentAttributes: nil)
         }
     }
+    
     #if canImport(UIKit)
     func testUITextViewSetHTMLString() {
         let parser = makeSUT()
-        
         let textView = UITextView()
         textView.frame.size.width = 390
         textView.isScrollEnabled = false
@@ -59,6 +59,22 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.layoutIfNeeded()
         assertSnapshot(matching: textView, as: .image)
     }
+    
+    func testUITextViewSetHTMLStringAsync() {
+        let parser = makeSUT()
+        let textView = UITextView()
+        textView.frame.size.width = 390
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .white
+        let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
+        textView.setHtmlString(attributedHTMLString, with: parser) { _ in
+            textView.layoutIfNeeded()
+            assertSnapshot(matching: textView, as: .image)
+            expectation.fulfill()
+        }
+        self.waitForExpectations(timeout: 5, handler: nil)
+    }
+    
     #elseif canImport(AppKit)
     func testNSTextViewSetHTMLString() {
         let parser = makeSUT()
@@ -69,6 +85,20 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layout()
         assertSnapshot(matching: textView, as: .image)
+    }
+    
+    func testNSTextViewSetHTMLStringAsync() {
+        let parser = makeSUT()
+        let textView = NSTextView()
+        textView.frame.size.width = 390
+        textView.backgroundColor = .white
+        let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
+        textView.setHtmlString(attributedHTMLString, with: parser) { _ in
+            textView.layout()
+            assertSnapshot(matching: textView, as: .image)
+            expectation.fulfill()
+        }
+        self.waitForExpectations(timeout: 5, handler: nil)
     }
     #endif
 }
