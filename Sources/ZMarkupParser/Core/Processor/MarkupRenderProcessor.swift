@@ -7,13 +7,13 @@
 
 import Foundation
 
-final class RootMarkupRenderProcessor: ParserProcessor {
-    typealias From = RootMarkup
+final class MarkupRenderProcessor: ParserProcessor {
+    typealias From = Markup
     typealias To = NSAttributedString
     
     private let visitor = MarkupNSAttributedStringVisitor()
     
     func process(from: From) -> To {
-        return visitor.visit(from)
+        return visitor.visit(markup: from)
     }
 }

@@ -29,11 +29,13 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         #endif
         return attributedString
     }
+    
+    private var parser: ZHTMLParser?
 
     func testMeasureZHTMLMarkupParser() {
         let parser = makeSUT()
         measure {
-            let _ = parser.render(String(repeating: htmlString, count: 1))
+            let _ = parser.render(String(repeating: htmlString, count: 300))
         }
     }
     

@@ -30,7 +30,7 @@ final class HTMLParsedResultToRootHTMLSelectorProcessor: ParserProcessor {
             case .close(let item):
                 if let lastTagName = stackExpectedStartItems.popLast()?.tagName,
                    lastTagName == item.tagName {
-                    currentSelector = currentSelector.parent ?? currentSelector
+                    currentSelector = currentSelector.parentSelector ?? currentSelector
                 }
             case .rawString(let attributedString):
                 currentSelector.appendChild(selector: HTMLTagContentSelecor(attributedString: attributedString))

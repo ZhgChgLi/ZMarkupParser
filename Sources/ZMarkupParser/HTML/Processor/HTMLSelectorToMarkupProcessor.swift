@@ -7,9 +7,9 @@
 
 import Foundation
 
-final class RootHTMLSelectorToRootMarkupProcessor: ParserProcessor {
-    typealias From = RootHTMLSelecor
-    typealias To = RootMarkup
+final class HTMLSelectorToMarkupProcessor: ParserProcessor {
+    typealias From = HTMLSelector
+    typealias To = Markup
     
     let rootStyle: MarkupStyle
     let htmlTags: [String: HTMLTag]
@@ -21,16 +21,10 @@ final class RootHTMLSelectorToRootMarkupProcessor: ParserProcessor {
     }
     
     func process(from: From) -> To {
-        let rootMarkup = RootMarkup(style: rootStyle)
-        
-        for childMarkup in from.childSelectors.compactMap({ walk($0) }) {
-            rootMarkup.appendChild(markup: childMarkup)
-        }
-        
-        return rootMarkup
+        return walk(from)
     }
     
-    func walk(_ selector: HTMLSelector) -> Markup? {
+    func walk(_ selector: HTMLSelector) -> Markup {
         let markup: Markup
         switch selector {
         case let content as HTMLTagContentSelecor:
@@ -38,8 +32,10 @@ final class RootHTMLSelectorToRootMarkupProcessor: ParserProcessor {
         case let tag as HTMLTagSelecor:
             let htmlTag = self.htmlTags[tag.tagName] ?? HTMLTag(tagName: ExtendTagName(tag.tagName))
             markup = makeMarkup(tag: htmlTag, tagAttributedString: tag.tagAttributedString, attributes: tag.attributes)
+        case _ as RootHTMLSelecor:
+            markup = RootMarkup(style: rootStyle)
         default:
-            return nil
+            markup = RootMarkup(style: rootStyle)
         }
         
         for childMarkup in selector.childSelectors.compactMap({ walk($0) }) {

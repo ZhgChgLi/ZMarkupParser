@@ -7,8 +7,8 @@
 
 import Foundation
 
-final class RootMarkupStripperProcessor: ParserProcessor {
-    typealias From = RootMarkup
+final class MarkupStripperProcessor: ParserProcessor {
+    typealias From = Markup
     typealias To = NSAttributedString
     
     func process(from: From) -> To {

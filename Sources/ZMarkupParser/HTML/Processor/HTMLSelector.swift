@@ -33,11 +33,11 @@ public class RootHTMLSelecor: HTMLSelector {
 
 public class HTMLSelector {
     
-    public private(set) var parent: HTMLSelector? = nil
+    public private(set) var parentSelector: HTMLSelector? = nil
     public private(set) var childSelectors: [HTMLSelector] = []
     
     func appendChild(selector: HTMLSelector) {
-        selector.parent = self
+        selector.parentSelector = self
         childSelectors.append(selector)
     }
     
