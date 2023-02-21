@@ -11,14 +11,6 @@
 
 ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag throught pure-swift.
 
-## To Do
-- [ ] Full test coverage
-- [ ] Code Arch & Pattern Doc
-- [ ] Documentation
-- [ ] Demo App
-- [ ] Full markdow symobl parse
-- [ ] CI & CD
-
 ## Features
 - [x] Parse HTML String through Rexgex with pure-Swift.
 - [x] Autocorrect invalid HTML string, including mixed or isolated tag. (e.g. `<a>Link<b>LinkBold</a>Bold</b><br>` -> `<a>Link<b>LinkBold</b></a><b>Bold</b><br/>`)
