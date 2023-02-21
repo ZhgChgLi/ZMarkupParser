@@ -99,7 +99,8 @@ Link{
 }
 ```
 ### Example
-![ZMarkupParser Example](https://user-images.githubusercontent.com/33706588/219700296-47ee305f-b268-45fa-aaf8-ce57cfbc18a6.png)
+![ZMarkupParser Exmple](https://user-images.githubusercontent.com/33706588/220371406-d458f810-4dee-4f22-a161-b956fc626ccc.jpg)
+
 
 ## Introduction
 ### HTMLTagName
