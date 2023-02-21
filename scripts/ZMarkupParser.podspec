@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "ZMarkupParser"
-  s.version          = "1.1.6"
+  s.version          = "1.1.7"
   s.summary          = "ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag throught pure-swift."
   s.homepage         = "https://github.com/ZhgChgLi/ZMarkupParser"
   s.license          = { :type => "MIT", :file => "LICENSE" }
