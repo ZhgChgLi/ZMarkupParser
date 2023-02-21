@@ -32,7 +32,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         return attributedString
     }
     
-    func performanceReport() {
+    func testPerformanceReport() {
         if !testPerformance {
             return
         }
