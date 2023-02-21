@@ -9,7 +9,7 @@
   <a href="https://github.com/ZhgChgLi/ZMarkupParser" target="_blank"><img src="https://img.shields.io/cocoapods/p/ZMarkupParser.svg?style=flat"></a>
 </p>
 
-ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag.
+ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag throught pure-swift.
 
 ## To Do
 - [ ] Full test coverage
@@ -27,6 +27,14 @@ ZMarkupParser helps you to convert HTML String to NSAttributedString with custom
 - [x] Support `<ul><ol>` list view and `<hr>` horizontal line...etc
 - [x] Support parse & set style from html tag `style="color:red"` attributes.
 - [x] Support parse HTML Color name to UIColor/NSColor.
+- [x] Higher performance than `NSAttributedString.DocumentType.html`
+
+### Performance Benchmark
+![chart](https://user-images.githubusercontent.com/33706588/220363059-4a91e183-0fa9-49fb-8147-9488e46f8049.png)
+- **x**: html string length
+- **y**: seconds elapsed
+
+Native means `NSAttributedString.DocumentType.html`
 
 ## Installation
 
@@ -212,6 +220,20 @@ let selector = parser.selector(htmlString) // HTMLSelector e.g. input: <a><b>Tes
 selector.first("a")?.first("b").attributedString // will return Test
 selector.filter("a").attributedString // will return Test Link
 ```
+
+### Selector+Render HTML String
+```swift
+let selector = parser.selector(htmlString) // HTMLSelector e.g. input: <a><b>Test</b>Link</a>
+parser.render(selector.first("a")?.first("b"))
+```
+
+### With Async
+```swift
+parser.render(String) { _ in }...
+parser.stripper(String) { _ in }...
+parser.selector(String) { _ in }...
+```
+If you want to render huge html string, please use async instead.
 
 ## Things to know
 - Unsupport Parse `<img>` to NSTextAttacment currently, due to need async task & native textview with NSTextAttacment didn't impletation reuse, insert image throught NSTextAttacment to TextView will lead to Out of memory.
