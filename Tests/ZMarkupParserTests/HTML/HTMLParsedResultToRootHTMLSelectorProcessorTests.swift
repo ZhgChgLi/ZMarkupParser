@@ -13,13 +13,13 @@ final class HTMLParsedResultToRootHTMLSelectorProcessorTests: XCTestCase {
     func testProcessorASTResult() {
         let rootHTMLSelector = HTMLParsedResultToRootHTMLSelectorProcessor().process(from: [
             .rawString(NSAttributedString(string: "Hello")),
-            .start(.init(tagName: "b", tagAttributedString: NSAttributedString(string: "<b>"), attributes: nil, token: UUID().uuidString)),
+            .start(.init(tagName: "b", tagAttributedString: NSAttributedString(string: "<b>"), attributes: nil)),
             .rawString(NSAttributedString(string: "Test")),
-            .start(.init(tagName: "u", tagAttributedString: NSAttributedString(string: "<u>"), attributes: nil, token: UUID().uuidString)),
+            .start(.init(tagName: "u", tagAttributedString: NSAttributedString(string: "<u>"), attributes: nil)),
             .rawString(NSAttributedString(string: "UuDd")),
-            .close(.init(tagName: "u", token: UUID().uuidString)),
+            .close(.init(tagName: "u")),
             .rawString(NSAttributedString(string: "Test2")),
-            .close(.init(tagName: "b", token: UUID().uuidString)),
+            .close(.init(tagName: "b")),
             .rawString(NSAttributedString(string: "World!"))
         ])
         

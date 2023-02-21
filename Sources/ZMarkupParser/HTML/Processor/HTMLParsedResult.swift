@@ -12,33 +12,46 @@ enum HTMLParsedResult {
     case close(CloseItem)
     case selfClosing(SelfClosingItem)
     case rawString(NSAttributedString)
-    
-    case placeholderStart(StartItem)
-    case placeholderClose(CloseItem)
-    case isolatedStart(StartItem)
-    case isolatedClose(CloseItem)
 }
 
 extension HTMLParsedResult {
-    struct SelfClosingItem {
+    class SelfClosingItem {
         let tagName: String
         let tagAttributedString: NSAttributedString
         let attributes: [String: String]?
-    }
-    
-    struct StartItem {
-        let tagName: String
-        let tagAttributedString: NSAttributedString
-        let attributes: [String: String]?
-        let token: String
         
-        func convertToCloseParsedItem() -> CloseItem {
-            return CloseItem(tagName: self.tagName, token: self.token)
+        init(tagName: String, tagAttributedString: NSAttributedString, attributes: [String : String]?) {
+            self.tagName = tagName
+            self.tagAttributedString = tagAttributedString
+            self.attributes = attributes
         }
     }
     
-    struct CloseItem {
+    class StartItem {
         let tagName: String
-        let token: String
+        let tagAttributedString: NSAttributedString
+        let attributes: [String: String]?
+        var isIsolated: Bool = false
+        
+        init(tagName: String, tagAttributedString: NSAttributedString, attributes: [String : String]?) {
+            self.tagName = tagName
+            self.tagAttributedString = tagAttributedString
+            self.attributes = attributes
+        }
+        
+        func convertToCloseParsedItem() -> CloseItem {
+            return CloseItem(tagName: self.tagName)
+        }
+        
+        func convertToSelfClosingParsedItem() -> SelfClosingItem {
+            return SelfClosingItem(tagName: self.tagName, tagAttributedString: self.tagAttributedString, attributes: self.attributes)
+        }
+    }
+    
+    class CloseItem {
+        let tagName: String
+        init(tagName: String) {
+            self.tagName = tagName
+        }
     }
 }

@@ -13,11 +13,11 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
     func testFormatterIfStaggered() {
         
         // <Hot><a>linkString<b>linkAndBoldString</a>boldString</b>
-        let hotStartItem = HTMLParsedResult.StartItem(tagName: "Hot", tagAttributedString: NSAttributedString(string: "<Hot>"), attributes: nil, token: UUID().uuidString)
-        let aStartItem = HTMLParsedResult.StartItem(tagName: "a", tagAttributedString: NSAttributedString(string: "<a>"), attributes: nil, token: UUID().uuidString)
-        let bStartItem = HTMLParsedResult.StartItem(tagName: "b", tagAttributedString: NSAttributedString(string: "<b rel=\"zhg\">"), attributes: ["rel":"zhg"], token: UUID().uuidString)
-        let aCloseItem = HTMLParsedResult.CloseItem(tagName: "a", token: UUID().uuidString)
-        let bCloseItem = HTMLParsedResult.CloseItem(tagName: "b", token: UUID().uuidString)
+        let hotStartItem = HTMLParsedResult.StartItem(tagName: "Hot", tagAttributedString: NSAttributedString(string: "<Hot>"), attributes: nil)
+        let aStartItem = HTMLParsedResult.StartItem(tagName: "a", tagAttributedString: NSAttributedString(string: "<a>"), attributes: nil)
+        let bStartItem = HTMLParsedResult.StartItem(tagName: "b", tagAttributedString: NSAttributedString(string: "<b rel=\"zhg\">"), attributes: ["rel":"zhg"])
+        let aCloseItem = HTMLParsedResult.CloseItem(tagName: "a")
+        let bCloseItem = HTMLParsedResult.CloseItem(tagName: "b")
 
         let linkString = NSAttributedString(string: "linkString")
         let linkAndBoldString = NSAttributedString(string: "linkAndBoldString")
@@ -41,14 +41,14 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
         for (index, item) in result.enumerated() {
             switch index {
             case 0:
-                if case let HTMLParsedResult.isolatedStart(startItem) = item {
-                    XCTAssertEqual(startItem.token, hotStartItem.token, "expected \(hotStartItem) at index:\(index).")
+                if case let HTMLParsedResult.start(startItem) = item {
+                    XCTAssertTrue(startItem === hotStartItem, "expected \(hotStartItem) at index:\(index).")
                 } else{
                     XCTFail("expected \(hotStartItem) at index:\(index).")
                 }
             case 1:
                 if case let HTMLParsedResult.start(startItem) = item {
-                    XCTAssertEqual(startItem.token, aStartItem.token, "expected \(aStartItem) at index:\(index).")
+                    XCTAssertTrue(startItem === aStartItem, "expected \(aStartItem) at index:\(index).")
                 } else{
                     XCTFail("expected \(aStartItem) at index:\(index).")
                 }
@@ -60,7 +60,7 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
                 }
             case 3:
                 if case let HTMLParsedResult.start(startItem) = item {
-                    XCTAssertEqual(startItem.token, bStartItem.token, "expected \(bStartItem) at index:\(index).")
+                    XCTAssertTrue(startItem === bStartItem, "expected \(bStartItem) at index:\(index).")
                     XCTAssertEqual(startItem.attributes!["rel"], bStartItem.attributes!["rel"], "expected \(bStartItem) at index:\(index).")
                     XCTAssertEqual(startItem.tagAttributedString.string, bStartItem.tagAttributedString.string, "expected \(bStartItem) at index:\(index).")
                 } else{
@@ -73,20 +73,20 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
                     XCTFail("expected \(linkAndBoldString) at index:\(index).")
                 }
             case 5:
-                if case let HTMLParsedResult.placeholderClose(closeItem) = item {
-                    XCTAssertEqual(closeItem.token, bStartItem.token, "expected \(bStartItem) at index:\(index).")
+                if case let HTMLParsedResult.close(closeItem) = item {
+                    XCTAssertEqual(closeItem.tagName, bStartItem.tagName, "expected \(bStartItem) at index:\(index).")
                 } else{
                     XCTFail("expected \(bStartItem) at index:\(index).")
                 }
             case 6:
                 if case let HTMLParsedResult.close(closeItem) = item {
-                    XCTAssertEqual(closeItem.token, aCloseItem.token, "expected \(aCloseItem) at index:\(index).")
+                    XCTAssertTrue(closeItem === aCloseItem, "expected \(aCloseItem) at index:\(index).")
                 } else{
                     XCTFail("expected \(aCloseItem) at index:\(index).")
                 }
             case 7:
-                if case let HTMLParsedResult.placeholderStart(startItem) = item {
-                    XCTAssertEqual(startItem.token, bStartItem.token, "expected \(bStartItem) at index:\(index).")
+                if case let HTMLParsedResult.start(startItem) = item {
+                    XCTAssertTrue(startItem === bStartItem, "expected \(bStartItem) at index:\(index).")
                     XCTAssertEqual(startItem.attributes!["rel"], bStartItem.attributes!["rel"], "expected \(bStartItem) at index:\(index).")
                     XCTAssertEqual(startItem.tagAttributedString.string, bStartItem.tagAttributedString.string, "expected \(bStartItem) at index:\(index).")
                 } else{
@@ -100,7 +100,7 @@ final class HTMLParsedResultFormatterProcessorTests: XCTestCase {
                 }
             case 9:
                 if case let HTMLParsedResult.close(closeItem) = item {
-                    XCTAssertEqual(closeItem.token, bCloseItem.token, "expected \(bCloseItem) at index:\(index).")
+                    XCTAssertTrue(closeItem === bCloseItem, "expected \(bCloseItem) at index:\(index).")
                 } else{
                     XCTFail("expected \(bCloseItem) at index:\(index).")
                 }

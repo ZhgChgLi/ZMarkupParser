@@ -7,9 +7,14 @@
 
 import Foundation
 
+struct HTMLStringToParsedResultProcessorResult {
+    let needFormatter: Bool
+    let items: [HTMLParsedResult]
+}
+
 final class HTMLStringToParsedResultProcessor: ParserProcessor {
     typealias From = NSAttributedString
-    typealias To = [HTMLParsedResult]
+    typealias To = (HTMLStringToParsedResultProcessorResult)
     
     // e.g 1. <br rel="test"/>
     // match.range(at: 2): br
@@ -34,10 +39,13 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
     static let htmlCommentOrDocumentHeaderRegexPattern: String = #"(\<\!\-\-(?:.*)\-\-\>)|(\<\!DOCTYPE(?:[^>]*)\>)|(\<\!doctype(?:[^>]*)\>)|(\s*\n\s*)"#
         
     func process(from: From) -> To {
-        var items: To = []
+        var items: [HTMLParsedResult] = []
         guard let regxr = ParserRegexr(attributedString: from, pattern: Self.htmlTagRegexPattern) else {
-            return items
+            return HTMLStringToParsedResultProcessorResult(needFormatter: false, items: items)
         }
+        
+        var stackStartItems: [HTMLParsedResult.StartItem] = []
+        var needForamatter: Bool = false
         
         regxr.enumerateMatches(using: { match in
             switch match {
@@ -68,16 +76,32 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
                         // <a> or </a>
                         if matchIsEndTag {
                             // </a>
-                            items.append(.close(.init(tagName: matchTag, token: UUID().uuidString)))
+                            if let index = stackStartItems.lastIndex(where: { $0.tagName == matchTag }) {
+                                if index != stackStartItems.count - 1 {
+                                    needForamatter = true
+                                }
+                                items.append(.close(.init(tagName: matchTag)))
+                                stackStartItems.remove(at: index)
+                            } else {
+                                // isolated/reduntant close tag </a>
+                            }
                         } else {
                             // <a>
-                            items.append(.start(.init(tagName: matchTag, tagAttributedString: matchAttributedString, attributes: matchTagAttributes, token: UUID().uuidString)))
+                            let startItem: HTMLParsedResult.StartItem = HTMLParsedResult.StartItem(tagName: matchTag, tagAttributedString: matchAttributedString, attributes: matchTagAttributes)
+                            items.append(.start(startItem))
+                            stackStartItems.append(startItem)
                         }
                     }
                 }
             }
         })
-        return items
+        
+        for stackStartItem in stackStartItems {
+            stackStartItem.isIsolated = true
+            needForamatter = true
+        }
+        
+        return HTMLStringToParsedResultProcessorResult(needFormatter: needForamatter, items: items)
     }
 
     
