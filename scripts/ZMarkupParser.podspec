@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = "ZMarkupParser"
   s.version          = "1.1.6"
-  s.summary          = "ZMediumToMarkdown lets you download Medium post and convert it to markdown format easily."
+  s.summary          = "ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag throught pure-swift."
   s.homepage         = "https://github.com/ZhgChgLi/ZMarkupParser"
   s.license          = { :type => "MIT", :file => "LICENSE" }
   s.author           = { "ZhgChgLi" => "me@zhgchg.li" }
