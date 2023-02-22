@@ -22,7 +22,8 @@ ZMarkupParser helps you to convert HTML String to NSAttributedString with custom
 - [x] Higher performance than `NSAttributedString.DocumentType.html`
 
 ## Try it!
-![Simulator Screen Shot - iPhone 14 - 2023-02-22 at 18 20 21](https://user-images.githubusercontent.com/33706588/220594721-828eb404-dd2b-4bae-a7e6-56a92042e9a1.png)
+<img src="https://user-images.githubusercontent.com/33706588/220594721-828eb404-dd2b-4bae-a7e6-56a92042e9a1.png" width="30%" height="30%"/>
+
 downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupParser-Demo` run it! have fun!
 
 ### Performance Benchmark
