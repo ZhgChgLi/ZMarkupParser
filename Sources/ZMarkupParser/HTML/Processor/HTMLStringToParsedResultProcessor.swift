@@ -52,7 +52,7 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
                 let commentAndDocumentHeaderRegxer = ParserRegexr(attributedString: rawStringAttributedString, pattern: Self.htmlCommentOrDocumentHeaderRegexPattern)
                 commentAndDocumentHeaderRegxer?.enumerateMatches(using: { commentAndDocumentHeaderMatch in
                     switch commentAndDocumentHeaderMatch {
-                    case .match(let matchResult):
+                    case .match:
                         // match <!--HTML Comment--> or <!DOCTYPE html> or ` \n `
                         // ignore it
                         break
