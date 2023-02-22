@@ -21,6 +21,12 @@ class ViewController: UIViewController {
         outputTextView.setHtmlString(inputTextView.text, with: parser)
         let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
         tipsLabel.text = "Time elapsed for ZHTMLParserBuilder.render\n\(String(format: "%.4f", timeElapsed)) s."
+        view.endEditing(false)
+    }
+    
+    @IBAction func pasteAndRenderBtnDidTapped(_ sender: Any) {
+        inputTextView.text = UIPasteboard.general.string
+        renderBtnDidTapped(sender)
     }
     
     override func viewDidLoad() {

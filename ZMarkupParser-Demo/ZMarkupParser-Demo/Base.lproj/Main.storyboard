@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ywd-8Q-zez">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ywd-8Q-zez">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -35,9 +35,9 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="h0m-Ya-0jH">
-                                <rect key="frame" x="25" y="171" width="340" height="222.33333333333337"/>
+                                <rect key="frame" x="25" y="171" width="340" height="214.66666666666663"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <mutableString key="text">🎄🎄🎄 &lt;Hottest&gt; &lt;b&gt;Christmas gi&lt;u&gt;fts&lt;/b&gt; are here&lt;/u&gt;! Give you more gift-giving inspiration~&lt;br /&gt;
+                                <string key="text">🎄🎄🎄 &lt;Hottest&gt; &lt;b&gt;Christmas gi&lt;u&gt;fts&lt;/b&gt; are here&lt;/u&gt;! Give you more gift-giving inspiration~&lt;br /&gt;
         The &lt;u&gt;final &lt;del&gt;countdown&lt;/del&gt;&lt;/u&gt; on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon&lt;br /&gt;
         &lt;zhgchgli&gt;Top 10 Popular &lt;b&gt;&lt;span style="color:green"&gt;Christmas&lt;/span&gt; Gift&lt;/b&gt; Recommendations 👉&lt;/zhgchgli&gt;&lt;br&gt;
         &lt;ol&gt;
@@ -49,7 +49,7 @@
         &lt;p&gt;Before 12/26, place an order and draw a round-trip ticket for two to Japan!&lt;/p&gt;
         你好你好&lt;span style="background-color:red"&gt;你好你好&lt;/span&gt;你好你好 &lt;br /&gt;
         안녕하세요안녕하세&lt;span style="color:red"&gt;요안녕하세&lt;/span&gt;요안녕하세요안녕하세요안녕하세요 &lt;br /&gt;
-        &lt;span style="color:red"&gt;こんにちは&lt;/span&gt;こんにちはこんにちは &lt;br /&gt;</mutableString>
+        &lt;span style="color:red"&gt;こんにちは&lt;/span&gt;こんにちはこんにちは &lt;br /&gt;</string>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -61,41 +61,55 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wFU-vZ-Tey">
-                                <rect key="frame" x="132.33333333333334" y="418.33333333333331" width="125.66666666666666" height="35"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" image="paintbrush.pointed.fill" catalog="system" title="Render It!"/>
-                                <connections>
-                                    <action selector="renderBtnDidTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tSs-JV-am9"/>
-                                </connections>
-                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="ZMarkupParser" textAlignment="right" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rgj-dw-qEz">
                                 <rect key="frame" x="25" y="769.33333333333337" width="340" height="15.666666666666629"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleFootnote"/>
                                 <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="2Kn-oU-7r4">
+                                <rect key="frame" x="103.33333333333333" y="395.66666666666669" width="183.66666666666669" height="72.666666666666686"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wFU-vZ-Tey">
+                                        <rect key="frame" x="0.0" y="0.0" width="183.66666666666666" height="34.333333333333336"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" image="paintbrush.pointed.fill" catalog="system" title="Render It!"/>
+                                        <connections>
+                                            <action selector="renderBtnDidTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tSs-JV-am9"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gSZ-kJ-4ih">
+                                        <rect key="frame" x="0.0" y="38.333333333333314" width="183.66666666666666" height="34.333333333333343"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" image="clipboard.fill" catalog="system" title="Paste &amp; Render It!"/>
+                                        <connections>
+                                            <action selector="pasteAndRenderBtnDidTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="wEV-90-htO"/>
+                                            <action selector="renderBtnDidTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uLS-DK-mms"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemGray6Color"/>
                         <constraints>
                             <constraint firstItem="SpM-To-tyA" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.25" id="69h-Xu-z8z"/>
+                            <constraint firstItem="2Kn-oU-7r4" firstAttribute="top" secondItem="h0m-Ya-0jH" secondAttribute="bottom" constant="10" id="71d-fy-f2a"/>
+                            <constraint firstItem="2Kn-oU-7r4" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="9od-B8-j8X"/>
                             <constraint firstItem="h0m-Ya-0jH" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="25" id="C7h-A3-AfA"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="rgj-dw-qEz" secondAttribute="trailing" constant="25" id="Cy6-ZV-Drt"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="EN6-3W-sHf" secondAttribute="trailing" constant="25" id="Do7-rK-GVV"/>
-                            <constraint firstItem="wFU-vZ-Tey" firstAttribute="top" secondItem="h0m-Ya-0jH" secondAttribute="bottom" constant="25" id="Jr7-Vz-oXg"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="h0m-Ya-0jH" secondAttribute="trailing" constant="25" id="NPJ-Rz-0pT"/>
                             <constraint firstItem="GKO-Mu-gtj" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="25" id="Qsc-q6-BUd"/>
                             <constraint firstItem="SpM-To-tyA" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="25" id="SCT-TI-h7T"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="GKO-Mu-gtj" secondAttribute="trailing" constant="25" id="VhP-q8-7cB"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="rgj-dw-qEz" secondAttribute="bottom" constant="25" id="Wuh-nC-DnF"/>
                             <constraint firstItem="rgj-dw-qEz" firstAttribute="top" secondItem="SpM-To-tyA" secondAttribute="bottom" constant="25" id="YfE-Hx-xSN"/>
+                            <constraint firstItem="GKO-Mu-gtj" firstAttribute="top" secondItem="2Kn-oU-7r4" secondAttribute="bottom" constant="10" id="ah6-4o-xJ8"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="SpM-To-tyA" secondAttribute="trailing" constant="25" id="bEX-c0-AoL"/>
                             <constraint firstItem="SpM-To-tyA" firstAttribute="top" secondItem="GKO-Mu-gtj" secondAttribute="bottom" constant="25" id="bWq-Nt-bCs"/>
                             <constraint firstItem="h0m-Ya-0jH" firstAttribute="top" secondItem="EN6-3W-sHf" secondAttribute="bottom" constant="25" id="gaO-Wc-a2D"/>
-                            <constraint firstItem="wFU-vZ-Tey" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="gee-VQ-UYE"/>
                             <constraint firstItem="EN6-3W-sHf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="25" id="tX1-KM-RYi"/>
-                            <constraint firstItem="GKO-Mu-gtj" firstAttribute="top" secondItem="wFU-vZ-Tey" secondAttribute="bottom" constant="25" id="toN-gb-6ol"/>
                             <constraint firstItem="EN6-3W-sHf" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="25" id="v6i-yc-Po3"/>
                             <constraint firstItem="rgj-dw-qEz" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="25" id="xLc-ln-8nA"/>
                         </constraints>
@@ -131,6 +145,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="clipboard.fill" catalog="system" width="103" height="128"/>
         <image name="paintbrush.pointed.fill" catalog="system" width="128" height="118"/>
         <systemColor name="labelColor">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
