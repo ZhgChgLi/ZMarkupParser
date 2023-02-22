@@ -10,7 +10,7 @@ import Foundation
 public final class ZHTMLParser: ZMarkupParser {
     let htmlTags: [HTMLTag]
     let styleAttributes: [HTMLTagStyleAttribute]
-    let rootStyle: MarkupStyle
+    let rootStyle: MarkupStyle?
     
     let parsedResultToRootMarkup: HTMLParsedResultToRootMarkupProcessor
     let htmlSelectorToMarkup: HTMLSelectorToMarkupProcessor
@@ -20,7 +20,7 @@ public final class ZHTMLParser: ZMarkupParser {
     lazy var rootMarkupStripper: MarkupStripperProcessor = MarkupStripperProcessor()
     lazy var rootMarkupRender: MarkupRenderProcessor = MarkupRenderProcessor()
     
-    init(htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute], rootStyle: MarkupStyle) {
+    init(htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute], rootStyle: MarkupStyle?) {
         self.htmlTags = htmlTags
         self.styleAttributes = styleAttributes
         self.rootStyle = rootStyle

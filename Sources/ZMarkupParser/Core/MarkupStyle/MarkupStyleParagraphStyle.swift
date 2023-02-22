@@ -12,7 +12,7 @@ import UIKit
 import AppKit
 #endif
 
-public struct MarkupStyleParagraphStyle {
+public struct MarkupStyleParagraphStyle: MarkupStyleItem {
     public var lineSpacing:CGFloat? = nil
     public var paragraphSpacing:CGFloat? = nil
     public var alignment:NSTextAlignment? = nil
@@ -110,11 +110,35 @@ public struct MarkupStyleParagraphStyle {
         self.allowsDefaultTighteningForTruncation = self.allowsDefaultTighteningForTruncation ?? from?.allowsDefaultTighteningForTruncation
         self.lineBreakStrategy = self.lineBreakStrategy ?? from?.lineBreakStrategy
     }
+    
+    func isNil() -> Bool {
+        return !([lineSpacing,
+                 paragraphSpacing,
+                 alignment,
+                 headIndent,
+                 tailIndent,
+                 firstLineHeadIndent,
+                 minimumLineHeight,
+                 maximumLineHeight,
+                 lineBreakMode,
+                 baseWritingDirection,
+                 lineHeightMultiple,
+                 paragraphSpacingBefore,
+                 hyphenationFactor,
+                 usesDefaultHyphenation,
+                 tabStops,
+                 defaultTabInterval,
+                 textLists,
+                 allowsDefaultTighteningForTruncation,
+                 lineBreakStrategy] as [Any?]).contains(where: { $0 != nil})
+    }
 }
 
 extension MarkupStyleParagraphStyle {
     
-    func getParagraphStyle() -> NSParagraphStyle {
+    func getParagraphStyle() -> NSParagraphStyle? {
+        guard !isNil() else { return nil }
+        
         let mutableParagraphStyle = NSMutableParagraphStyle()
         
         if let lineSpacing = self.lineSpacing {

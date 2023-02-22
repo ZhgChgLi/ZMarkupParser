@@ -66,4 +66,9 @@ final class MarkupStyleTests: XCTestCase {
         XCTAssertEqual(attributes[.strikethroughStyle] as? Int, style.strikethroughStyle?.rawValue, "markup style should convert strikethroughStyle setting.")
         XCTAssertEqual(attributes[.link] as? URL, style.link, "markup style should convert strikethroughStyle setting.")
     }
+    
+    func testNSParagraphStyleShoudBeNilIfNotSet() {
+        let markupStyle = MarkupStyle()
+        XCTAssertTrue(markupStyle.render().isEmpty, "Default init MarkupStyle() should be empty")
+    }
 }

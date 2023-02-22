@@ -12,8 +12,13 @@ import UIKit
 import AppKit
 #endif
 
+protocol MarkupStyleItem {
+    mutating func fillIfNil(from: Self?)
+    func isNil() -> Bool
+}
+
 #if canImport(UIKit)
-public struct MarkupStyle {
+public struct MarkupStyle: MarkupStyleItem {
     public var font:MarkupStyleFont
     public var paragraphStyle:MarkupStyleParagraphStyle
     public var foregroundColor:MarkupStyleColor? = nil
@@ -95,11 +100,39 @@ public struct MarkupStyle {
         self.verticalGlyphForm = self.verticalGlyphForm ?? from.verticalGlyphForm
     }
     
+    func isNil() -> Bool {
+        return !([foregroundColor,
+                 backgroundColor,
+                 ligature,
+                 kern,
+                 tracking,
+                 strikethroughStyle,
+                 underlineStyle,
+                 strokeColor,
+                 strokeWidth,
+                 shadow,
+                 textEffect,
+                 attachment,
+                 link,
+                 baselineOffset,
+                 underlineColor,
+                 strikethroughColor,
+                 obliqueness,
+                 expansion,
+                 writingDirection,
+                 verticalGlyphForm] as [Any?]).contains(where: { $0 != nil}) && paragraphStyle.isNil() && font.isNil()
+    }
+    
     func render() -> [NSAttributedString.Key: Any] {
         var data: [NSAttributedString.Key: Any] = [:]
         
-        data[.font] = font.getFont()
-        data[.paragraphStyle] = paragraphStyle.getParagraphStyle()
+        if let font = font.getFont() {
+            data[.font] = font
+        }
+
+        if let paragraphStyle = paragraphStyle.getParagraphStyle() {
+            data[.paragraphStyle] = paragraphStyle
+        }
         
         if let foregroundColor = self.foregroundColor {
             data[.foregroundColor] = foregroundColor.getColor()
@@ -276,8 +309,13 @@ public struct MarkupStyle {
     func render() -> [NSAttributedString.Key: Any] {
         var data: [NSAttributedString.Key: Any] = [:]
         
-        data[.font] = font.getFont()
-        data[.paragraphStyle] = paragraphStyle.getParagraphStyle()
+        if let font = font.getFont() {
+            data[.font] = font
+        }
+
+        if let paragraphStyle = paragraphStyle.getParagraphStyle() {
+            data[.paragraphStyle] = paragraphStyle
+        }
         
         if let foregroundColor = self.foregroundColor {
             data[.foregroundColor] = foregroundColor.getColor()
