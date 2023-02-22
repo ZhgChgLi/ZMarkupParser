@@ -21,6 +21,10 @@ ZMarkupParser helps you to convert HTML String to NSAttributedString with custom
 - [x] Support parse HTML Color name to UIColor/NSColor.
 - [x] Higher performance than `NSAttributedString.DocumentType.html`
 
+## Try it!
+![Simulator Screen Shot - iPhone 14 - 2023-02-22 at 18 20 21](https://user-images.githubusercontent.com/33706588/220594721-828eb404-dd2b-4bae-a7e6-56a92042e9a1.png)
+downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupParser-Demo` run it! have fun!
+
 ### Performance Benchmark
 ![chart](https://user-images.githubusercontent.com/33706588/220363059-4a91e183-0fa9-49fb-8147-9488e46f8049.png)
 
