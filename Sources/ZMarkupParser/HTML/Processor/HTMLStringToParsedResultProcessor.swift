@@ -17,26 +17,25 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
     typealias To = (HTMLStringToParsedResultProcessorResult)
     
     // e.g 1. <br rel="test"/>
-    // match.range(at: 2): br
-    // match.range(at: 3):  rel="test"
-    // match.range(at: 6): /
+    // tagName = br
+    // tagAttributes = rel="test"
+    // selfClosingTag = /
     // e.g 2. <span style="color:#ff00ff;">
-    // match.range(at: 2) span
-    // match.range(at: 3):  style="color:#ff00ff;"
+    // tagName = span
+    // tagAttributes = style="color:#ff00ff;"
     // e.g 3. </span>
-    // match.range(at: 1) /
-    // match.range(at: 2) span
-    static let htmlTagRegexPattern: String = #"<(?:(\/)?([A-Za-z]+)((?:\s*(\w+)\s*=\s*(["|']).*?\5)*)\s*(\/)?>)"#
+    // selfClosingTag = /
+    // tagName = span
+    static let htmlTagRegexPattern: String = #"<(?:(?<closeTag>\/)?(?<tagName>[A-Za-z]+)(?<tagAttributes>(?:\s*(\w+)\s*=\s*(["|']).*?\5)*)\s*(?<selfClosingTag>\/)?>)"#
     
     // e.g. href="https://zhgchg.li"
-    // match.range: href="https://zhgchg.li"
-    // match.range(at: 1): href
-    // match.range(at: 3): https://zhgchg.li
-    static let htmlTagAttributesRegexPattern: String = #"\s*((?:\w+))\s*={1}\s*(["|']){1}(.*?)\2\s*"#
+    // name = href
+    // value = https://zhgchg.li
+    static let htmlTagAttributesRegexPattern: String = #"\s*(?<name>(?:\w+))\s*={1}\s*(["|']){1}(?<value>.*?)\2\s*"#
     
     // will match:
     // <!--Test--> / <\!DOCTYPE html> / ` \n `
-    static let htmlCommentOrDocumentHeaderRegexPattern: String = #"(\<\!\-\-(?:.*)\-\-\>)|(\<\!DOCTYPE(?:[^>]*)\>)|(\<\!doctype(?:[^>]*)\>)|(\s*\n\s*)"#
+    static let htmlCommentOrDocumentHeaderRegexPattern: String = #"(\<\!\-\-(?:.*)\-\-\>)|(\<\!DOCTYPE(?:[^>]*)\>)|(\<\!doctype(?:[^>]*)\>)|(\s*\n\s*$)|(^\s*\n\s*)"#
         
     func process(from: From) -> To {
         var items: [HTMLParsedResult] = []
@@ -53,7 +52,7 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
                 let commentAndDocumentHeaderRegxer = ParserRegexr(attributedString: rawStringAttributedString, pattern: Self.htmlCommentOrDocumentHeaderRegexPattern)
                 commentAndDocumentHeaderRegxer?.enumerateMatches(using: { commentAndDocumentHeaderMatch in
                     switch commentAndDocumentHeaderMatch {
-                    case .match:
+                    case .match(let matchResult):
                         // match <!--HTML Comment--> or <!DOCTYPE html> or ` \n `
                         // ignore it
                         break
@@ -63,10 +62,10 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
                 })
             case .match(let matchResult):
                 let matchAttributedString = matchResult.attributedString(from, with: matchResult.range)
-                let matchTag = matchResult.attributedString(from, at: 2)?.string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-                let matchIsEndTag = matchResult.attributedString(from, at: 1)?.string.trimmingCharacters(in: .whitespacesAndNewlines) == "/"
-                let matchTagAttributes = parseAttributes(matchResult.attributedString(from, at: 3))
-                let matchIsSelfClosingTag = matchResult.attributedString(from, at: 6)?.string.trimmingCharacters(in: .whitespacesAndNewlines) == "/"
+                let matchTag = matchResult.attributedString(from, with: "tagName")?.string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                let matchIsEndTag = matchResult.attributedString(from, with: "closeTag")?.string.trimmingCharacters(in: .whitespacesAndNewlines) == "/"
+                let matchTagAttributes = parseAttributes(matchResult.attributedString(from, with: "tagAttributes"))
+                let matchIsSelfClosingTag = matchResult.attributedString(from, with: "selfClosingTag")?.string.trimmingCharacters(in: .whitespacesAndNewlines) == "/"
                 
                 if let matchAttributedString = matchAttributedString, let matchTag = matchTag {
                     if matchIsSelfClosingTag {
@@ -118,8 +117,8 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
             case .rawString:
                 break
             case .match(let matchResult):
-                if let key = matchResult.attributedString(attributedString, at: 1)?.string,
-                   let value = matchResult.attributedString(attributedString, at: 3)?.string {
+                if let key = matchResult.attributedString(attributedString, with: "name")?.string,
+                   let value = matchResult.attributedString(attributedString, with: "value")?.string {
                     attributes[key.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()] = value.trimmingCharacters(in: .whitespacesAndNewlines)
                 }
             }

@@ -11,10 +11,10 @@ final class HTMLSelectorToMarkupProcessor: ParserProcessor {
     typealias From = HTMLSelector
     typealias To = Markup
     
-    let rootStyle: MarkupStyle
+    let rootStyle: MarkupStyle?
     let htmlTags: [String: HTMLTag]
     let styleAttributes: [HTMLTagStyleAttribute]
-    init(rootStyle: MarkupStyle, htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute]) {
+    init(rootStyle: MarkupStyle?, htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute]) {
         self.rootStyle = rootStyle
         self.htmlTags = Dictionary(uniqueKeysWithValues: htmlTags.map{ ($0.tagName.string, $0) })
         self.styleAttributes = styleAttributes

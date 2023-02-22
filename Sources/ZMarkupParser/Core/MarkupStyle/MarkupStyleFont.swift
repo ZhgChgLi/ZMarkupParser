@@ -13,7 +13,7 @@ import UIKit
 import AppKit
 #endif
 
-public struct MarkupStyleFont {
+public struct MarkupStyleFont: MarkupStyleItem {
     public enum FontWeight {
         case style(FontWeightStyle)
         case rawValue(CGFloat)
@@ -54,6 +54,12 @@ public struct MarkupStyleFont {
         self.weight = self.weight ?? from?.weight
         self.italic = self.italic ?? from?.italic
     }
+    
+    func isNil() -> Bool {
+        return !([size,
+                 weight,
+                 italic] as [Any?]).contains(where: { $0 != nil})
+    }
 }
 
 #if canImport(UIKit)
@@ -69,6 +75,8 @@ extension MarkupStyleFont {
     }
     
     func getFont() -> UIFont? {
+        guard !isNil() else { return nil }
+        
         let size = (self.size ?? MarkupStyle.default.font.size) ?? UIFont.systemFontSize
         
         if let italic = self.italic, italic == true {
@@ -164,6 +172,8 @@ extension MarkupStyleFont {
     }
     
     func getFont() -> NSFont? {
+        guard !isNil() else { return nil }
+        
         let size = (self.size ?? MarkupStyle.default.font.size) ?? NSFont.systemFontSize
         
         if let italic = self.italic, italic == true {

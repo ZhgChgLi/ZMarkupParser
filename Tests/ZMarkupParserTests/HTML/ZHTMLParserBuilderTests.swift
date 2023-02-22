@@ -13,7 +13,7 @@ final class ZHTMLParserBuilderTests: XCTestCase {
     func testSetRootStyle() {
         let markupStyle = MarkupStyle(kern: 9999)
         let builder = ZHTMLParserBuilder().set(rootStyle: markupStyle)
-        XCTAssertEqual(builder.rootStyle.kern, 9999, "\(markupStyle) should be set as rootStyle.")
+        XCTAssertEqual(builder.rootStyle?.kern, 9999, "\(markupStyle) should be set as rootStyle.")
     }
     
     func testAddTagName() {
@@ -64,7 +64,7 @@ final class ZHTMLParserBuilderTests: XCTestCase {
         
         let parser = ZHTMLParserBuilder().add(ExtendTagName("zhgchgli"), withCustomStyle: zhgchgliTagMarkupStyle).add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", style: zhgchgliStyleMarkupStyle)).set(rootStyle: rootMarkupStyle).build()
         
-        XCTAssertEqual(parser.rootStyle.kern, rootMarkupStyle.kern, "rootStyle should be set in parser result")
+        XCTAssertEqual(parser.rootStyle?.kern, rootMarkupStyle.kern, "rootStyle should be set in parser result")
         XCTAssertEqual(parser.htmlTags.count, 1, "htmlTags should have 1 element in parser result")
         XCTAssertEqual(parser.styleAttributes.count, 1, "styleAttributes should have 1 element in parser result")
         XCTAssertEqual(parser.htmlTags[0].tagName.string, "zhgchgli", "htmlTags should have zhgchgli tag name element in parser result")
