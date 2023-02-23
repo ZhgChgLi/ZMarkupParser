@@ -21,10 +21,4 @@ final class RawStringMarkup: Markup {
     func accept<V>(_ visitor: V) -> V.Result where V : MarkupVisitor {
         return visitor.visit(self)
     }
-    
-    
-    
-    deinit {
-        print("\(self) Deinit")
-    }
 }
