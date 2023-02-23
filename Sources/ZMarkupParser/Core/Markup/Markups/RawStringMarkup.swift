@@ -15,10 +15,16 @@ final class RawStringMarkup: Markup {
         self.attributedString = attributedString
     }
     
-    var parentMarkup: Markup? = nil
+    weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     
     func accept<V>(_ visitor: V) -> V.Result where V : MarkupVisitor {
         return visitor.visit(self)
+    }
+    
+    
+    
+    deinit {
+        print("\(self) Deinit")
     }
 }

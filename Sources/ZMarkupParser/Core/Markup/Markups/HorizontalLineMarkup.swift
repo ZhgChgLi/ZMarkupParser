@@ -11,7 +11,7 @@ final class HorizontalLineMarkup: Markup {
     let style: MarkupStyle?
     let dashLength: Int
     
-    var parentMarkup: Markup? = nil
+    weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     
     init(dashLength: Int, style: MarkupStyle?) {

@@ -10,7 +10,7 @@ import Foundation
 final class ListItemMarkup: Markup {
     let style: MarkupStyle?
     
-    var parentMarkup: Markup? = nil
+    weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     
     init(style: MarkupStyle?) {

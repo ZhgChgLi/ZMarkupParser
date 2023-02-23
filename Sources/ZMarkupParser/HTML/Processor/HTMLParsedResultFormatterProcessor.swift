@@ -66,9 +66,4 @@ final class HTMLParsedResultFormatterProcessor: ParserProcessor {
         
         return newItems
     }
-    
-    func walk(_ thisItem: HTMLParsedResult, newItems: inout [HTMLParsedResult], itemIndex: inout Int, stackExpectedStartItems: inout [HTMLParsedResult.StartItem]) {
-        
-
-    }
 }

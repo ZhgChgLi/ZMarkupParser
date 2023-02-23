@@ -16,7 +16,7 @@ final class BreakLineMarkup: Markup {
         self.style = style
     }
     
-    var parentMarkup: Markup? = nil
+    weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     
     func accept<V>(_ visitor: V) -> V.Result where V : MarkupVisitor {
