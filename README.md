@@ -27,14 +27,14 @@ ZMarkupParser helps you to convert HTML String to NSAttributedString with custom
 downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupParser-Demo` run it! have fun!
 
 ### Performance Benchmark
-![chart](https://user-images.githubusercontent.com/33706588/220363059-4a91e183-0fa9-49fb-8147-9488e46f8049.png)
+<img width="1236" alt="harry-li-2023-02-23_18-13-56" src="https://user-images.githubusercontent.com/33706588/220881355-f73bcc69-8f5d-4d65-8f34-7daefcc8f3d5.png">
 
-(M2/32GB Ram/2022)
+(2022/M2/24GB Memory/macOS 13.2/XCode 14.1)
 
 - **x**: html string length
-- **y**: seconds elapsed
+- **y**: time elapsed(second)/memory usage(GB)
 
-Native means `NSAttributedString.DocumentType.html`
+`.documentType` means use `NSAttributedString.DocumentType.html` to render string.
 
 ## Installation
 
