@@ -31,10 +31,12 @@ downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupP
 
 (2022/M2/24GB Memory/macOS 13.2/XCode 14.1)
 
+`.documentType` means use `NSAttributedString.DocumentType.html` to render string.
+
+`.documentType` **crashed after render 54,600+ length of string.**
+
 - **x**: html string length
 - **y**: time elapsed(second)/memory usage(GB)
-
-`.documentType` means use `NSAttributedString.DocumentType.html` to render string.
 
 ## Installation
 
