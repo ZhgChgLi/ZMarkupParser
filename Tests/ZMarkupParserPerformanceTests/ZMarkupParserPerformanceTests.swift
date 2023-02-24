@@ -30,10 +30,11 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
         }
     }
     
-    func test2ZMarkupParserPerformance() {
+    func testZMarkupParserPerformance() {
+        executionTimeAllowance = TimeInterval(60 * 100)
         let parser = makeSUT()
         var result:[Any] = []
-        for i in 1...300 {
+        for i in 1...1000 {
             autoreleasepool {
                 let longString = String(repeating: htmlString, count: i)
                 let startTime = CFAbsoluteTimeGetCurrent()
@@ -47,9 +48,10 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
         makeResultReport(result)
     }
     
-    func test1DocumentTypeHTMLPerformance() {
+    func testDocumentTypeHTMLPerformance() {
+        executionTimeAllowance = TimeInterval(60 * 100)
         var result:[Any] = []
-        for i in 1...300 {
+        for i in 1...1000 {
             autoreleasepool {
                 let longString = String(repeating: htmlString, count: i)
                 let startTime = CFAbsoluteTimeGetCurrent()
