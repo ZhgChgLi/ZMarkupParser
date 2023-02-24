@@ -1,0 +1,41 @@
+{
+  "configurations" : [
+    {
+      "id" : "5C12F341-0341-4D5C-866B-69C9811C70E2",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:",
+          "identifier" : "ZMarkupParser",
+          "name" : "ZMarkupParser"
+        }
+      ]
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ZMarkupParserSnapshotTests",
+        "name" : "ZMarkupParserSnapshotTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ZMarkupParserTests",
+        "name" : "ZMarkupParserTests"
+      }
+    }
+  ],
+  "version" : 1
+}

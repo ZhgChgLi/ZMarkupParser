@@ -25,6 +25,12 @@ let package = Package(
                  "ZMarkupParser",
                  .product(name: "SnapshotTesting", package: "swift-snapshot-testing")
              ]
+         ),
+         .testTarget(
+             name: "ZMarkupParserPerformanceTests",
+             dependencies: [
+                 "ZMarkupParser"
+             ]
          )
      ]
 )
