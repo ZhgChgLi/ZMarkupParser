@@ -67,12 +67,39 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         self.waitForExpectations(timeout: 5, handler: nil)
     }
     
+    func testUILabelSetHTMLString() {
+        let parser = makeSUT()
+        let label = UILabel()
+        label.frame.size.width = 390
+        label.backgroundColor = .white
+        label.numberOfLines = 0
+        label.setHtmlString(attributedHTMLString, with: parser)
+        label.layoutIfNeeded()
+        assertSnapshot(matching: label, as: .image)
+    }
+    
+    func testUILabelSetHTMLStringAsync() {
+        let parser = makeSUT()
+        let label = UILabel()
+        label.frame.size.width = 390
+        label.backgroundColor = .white
+        label.numberOfLines = 0
+        let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
+        label.setHtmlString(attributedHTMLString, with: parser) { _ in
+            label.layoutIfNeeded()
+            assertSnapshot(matching: label, as: .image)
+            expectation.fulfill()
+        }
+        self.waitForExpectations(timeout: 5, handler: nil)
+    }
+    
     #elseif canImport(AppKit)
     func testNSTextViewSetHTMLString() {
         let parser = makeSUT()
         
         let textView = NSTextView()
         textView.frame.size.width = 390
+        textView.frame.size.height = 500
         textView.backgroundColor = .white
         textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layout()
@@ -83,11 +110,41 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         let parser = makeSUT()
         let textView = NSTextView()
         textView.frame.size.width = 390
+        textView.frame.size.height = 500
         textView.backgroundColor = .white
         let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
         textView.setHtmlString(attributedHTMLString, with: parser) { _ in
             textView.layout()
             assertSnapshot(matching: textView, as: .image)
+            expectation.fulfill()
+        }
+        self.waitForExpectations(timeout: 5, handler: nil)
+    }
+    
+    func testNSTextFieldSetHTMLString() {
+        let parser = makeSUT()
+        
+        let textField = NSTextField()
+        textField.frame.size.width = 390
+        textField.frame.size.height = 500
+        textField.backgroundColor = .white
+        textField.textColor = .black
+        textField.setHtmlString(attributedHTMLString, with: parser)
+        textField.layout()
+        assertSnapshot(matching: textField, as: .image)
+    }
+    
+    func testNSTextFieldSetHTMLStringAsync() {
+        let parser = makeSUT()
+        let textField = NSTextField()
+        textField.frame.size.width = 390
+        textField.frame.size.height = 500
+        textField.backgroundColor = .white
+        textField.textColor = .black
+        let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
+        textField.setHtmlString(attributedHTMLString, with: parser) { _ in
+            textField.layout()
+            assertSnapshot(matching: textField, as: .image)
             expectation.fulfill()
         }
         self.waitForExpectations(timeout: 5, handler: nil)

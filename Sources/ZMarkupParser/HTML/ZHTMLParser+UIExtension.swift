@@ -57,8 +57,6 @@ public extension UILabel {
     }
 }
 #elseif canImport(AppKit)
-import AppKit
-
 public extension NSTextView {
     func setHtmlString(_ string: String, with parser: ZHTMLParser) {
         self.setHtmlString(NSAttributedString(string: string), with: parser)
@@ -97,6 +95,7 @@ public extension NSTextField {
     
     func setHtmlString(_ string: NSAttributedString, with parser: ZHTMLParser, completionHandler: ((NSAttributedString) -> Void)? = nil) {
         parser.render(string) { attributedString in
+            self.attributedStringValue = attributedString
             completionHandler?(attributedString)
         }
     }

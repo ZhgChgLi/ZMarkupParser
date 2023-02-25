@@ -20,6 +20,14 @@ final class ZHTMLParserTests: XCTestCase {
         XCTAssertEqual(renderResult.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 999)
         
         XCTAssertEqual(renderResult.attributedSubstring(from: NSString(string: renderResult.string).range(of: "Qoo")).attributes(at: 0, effectiveRange: nil)[.link] as? URL, URL(string: "https://zhgchg.li"))
+        
+        let expectation = XCTestExpectation(description: #function)
+        parser.render(string) { renderResult in
+            XCTAssertEqual(renderResult.string, "TestQooDDD")
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 3.0)
     }
     
     func testSelector() {
@@ -46,8 +54,16 @@ final class ZHTMLParserTests: XCTestCase {
     }
     
     func testStripper() {
-        let string = "Test<a href=\"https://zhgchg.li\">Qoo</a>DDD"
-        let stripperResult = parser.stripper(string)
-        XCTAssertEqual(stripperResult, "TestQooDDD")
+        let attributedString = NSAttributedString(string: "Test<a href=\"https://zhgchg.li\">Qoo</a>DDD")
+        let stripperResult = parser.stripper(attributedString)
+        XCTAssertEqual(stripperResult.string, "TestQooDDD")
+        
+        let expectation = XCTestExpectation(description: #function)
+        parser.stripper(attributedString) { stripperResult in
+            XCTAssertEqual(stripperResult.string, "TestQooDDD")
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 3.0)
     }
 }
