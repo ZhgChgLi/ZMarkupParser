@@ -10,6 +10,15 @@ import Foundation
 public struct FontWeightHTMLTagStyleAttribute: HTMLTagStyleAttribute {
     public let styleName: String = "font-weight"
     
+    public enum FontWeight {
+        case style(FontWeightStyle)
+        case rawValue(CGFloat)
+    }
+    public enum FontWeightStyle: String {
+        case normal, bold
+
+    }
+    
     public init() {
         
     }

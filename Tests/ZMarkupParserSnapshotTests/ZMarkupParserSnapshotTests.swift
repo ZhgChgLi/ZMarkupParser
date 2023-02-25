@@ -13,14 +13,18 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     private let htmlString = """
         🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
         The <u>final <del>countdown</del></u> on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon<br />
-        <zhgchgli>Top 10 Popular <b><span style="color:green">Christmas</span> Gift</b> Recommendations 👉</zhgchgli><br>
+        <zhgchgli>Top 10 Popular <b><span style="color:green;">Christmas</span> Gift</b> Recommendations 👉</zhgchgli><br>
         <ol>
         <li><a href="https://zhgchg.li">Christmas Mini Diffuser Gift Box</a>｜The first choice for exchanging gifts</li>
         <li><a href="https://zhgchg.li">German design hair remover</a>｜<strong>500</strong> yuan practical gift like this</li>
         <li><a href="https://zhgchg.li">Drink cup</a>｜Fund-raising and praise exceeded 10 million</li>
         </ol>
+        <ul>
+            <li>Test1</li>
+            <li>Test2Test2<i>Test2</i>Test2</li>
+        </ul>
         <hr/>
-        <p>Before 12/26, place an order and draw a round-trip ticket for two to Japan!</p>
+        <p>Before <span style="color:green;background-color:blue;font-size:18px;font-weight:bold;line-height:10;word-spacing:8px">12/26</span>, place an order and draw a round-trip ticket for two to Japan!</p>
         你好你好<span style="background-color:red">你好你好</span>你好你好 <br />
         안녕하세요안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />
         <span style="color:red">こんにちは</span>こんにちはこんにちは <br />
