@@ -21,12 +21,21 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
         return ((Memory.memoryFootprint() ?? 0) / 1024 / 1024) // GB
     }
     
-    func testZMarkupParserMemoryLeakDetector() {
+    func testZMarkupParserMemoryLeakDetector1() {
         let parsedResult = HTMLStringToParsedResultProcessor().process(from: NSAttributedString(string: htmlString))
         let markup = HTMLParsedResultToRootMarkupProcessor(rootStyle: nil, htmlTags: ZHTMLParserBuilder.htmlTagNames.map({ HTMLTag(tagName: $0) }), styleAttributes: ZHTMLParserBuilder.styleAttributes).process(from: parsedResult.items)
         
         addTeardownBlock { [weak markup] in
             XCTAssertNil(markup, "`markup` should have been deallocated. Potential memory leak!")
+        }
+    }
+    
+    func testZMarkupParserMemoryLeakDetector2() {
+        let parsedResult = HTMLStringToParsedResultProcessor().process(from: NSAttributedString(string: htmlString))
+        let selector = HTMLParsedResultToRootHTMLSelectorProcessor().process(from: parsedResult.items)
+        
+        addTeardownBlock { [weak selector] in
+            XCTAssertNil(selector, "`selector` should have been deallocated. Potential memory leak!")
         }
     }
     

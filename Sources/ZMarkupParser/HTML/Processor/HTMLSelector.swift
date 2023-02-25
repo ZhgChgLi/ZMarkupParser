@@ -33,7 +33,7 @@ public class RootHTMLSelecor: HTMLSelector {
 
 public class HTMLSelector {
     
-    public private(set) var parentSelector: HTMLSelector? = nil
+    public private(set) weak var parentSelector: HTMLSelector? = nil
     public private(set) var childSelectors: [HTMLSelector] = []
     
     func appendChild(selector: HTMLSelector) {
@@ -41,23 +41,27 @@ public class HTMLSelector {
         childSelectors.append(selector)
     }
     
-    public func filter(_ htmlTagName: HTMLTagName) -> [HTMLSelector] {
+    public func filter(_ htmlTagName: HTMLTagName) -> [HTMLTagSelecor] {
         return self.filter(htmlTagName.string)
     }
     
-    public func filter(_ htmlTagName: WC3HTMLTagName) -> [HTMLSelector] {
+    public func filter(_ htmlTagName: WC3HTMLTagName) -> [HTMLTagSelecor] {
         return self.filter(htmlTagName.rawValue)
     }
     
-    public func filter(_ htmlTagName: String) -> [HTMLSelector] {
+    public func filter(_ htmlTagName: String) -> [HTMLTagSelecor] {
         return childSelectors.compactMap({ $0 as? HTMLTagSelecor }).filter({ $0.tagName == htmlTagName })
     }
     
-    public func first(_ htmlTagName: HTMLTagName) -> HTMLSelector? {
+    public func first(_ htmlTagName: WC3HTMLTagName) -> HTMLTagSelecor? {
+        return self.filter(htmlTagName.rawValue).first
+    }
+    
+    public func first(_ htmlTagName: HTMLTagName) -> HTMLTagSelecor? {
         return self.filter(htmlTagName).first
     }
     
-    public func first(_ htmlTagName: String) -> HTMLSelector? {
+    public func first(_ htmlTagName: String) -> HTMLTagSelecor? {
         return self.filter(htmlTagName).first
     }
 }
