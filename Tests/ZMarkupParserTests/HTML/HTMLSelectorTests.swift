@@ -5,31 +5,26 @@
 //  Created by zhgchgli on 2023/2/25.
 //
 
+import Foundation
+@testable import ZMarkupParser
 import XCTest
 
 final class HTMLSelectorTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+    func testSelectorFirst() {
+        let rawStringSelector = RawStringSelecor(attributedString: NSAttributedString(string: "test"))
+        let aSelector = HTMLTagSelecor(tagName: "a", tagAttributedString: NSAttributedString(string: "<a>"), attributes: nil)
+        let bSelector = HTMLTagSelecor(tagName: "b", tagAttributedString: NSAttributedString(string: "<b>"), attributes: nil)
+        let uSelector = HTMLTagSelecor(tagName: "u", tagAttributedString: NSAttributedString(string: "<u>"), attributes: nil)
+        let rootSelector = RootHTMLSelecor()
+    
+        rootSelector.appendChild(selector: aSelector)
+        aSelector.appendChild(selector: bSelector)
+        aSelector.appendChild(selector: uSelector)
+        uSelector.appendChild(selector: rawStringSelector)
+        
+        XCTAssertEqual(rootSelector.first(.a)?.tagName, aSelector.tagName, "Should filter tag a.")
+        XCTAssertEqual(rootSelector.first(A_HTMLTagName())?.tagName, aSelector.tagName, "Should filter tag a.")
+        XCTAssertEqual(rootSelector.first("a")?.tagName, aSelector.tagName, "Should filter tag a.")
+        XCTAssertEqual(rootSelector.first("a")?.first("u")?.attributedString.string, "test", "attributedString should be test.")
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
 }

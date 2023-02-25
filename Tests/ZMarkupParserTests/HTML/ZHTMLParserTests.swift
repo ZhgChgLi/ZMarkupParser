@@ -29,6 +29,20 @@ final class ZHTMLParserTests: XCTestCase {
         let renderResult = parser.render(selectorResult.first("a")!)
         XCTAssertEqual(renderResult.string, "Qfsafasfoo")
         XCTAssertEqual(renderResult.attributedSubstring(from: NSString(string: renderResult.string).range(of: "Qfsafasfoo")).attributes(at: 0, effectiveRange: nil)[.link] as? URL, URL(string: "https://zhgchg.li"))
+        
+        let expectation1 = XCTestExpectation(description: #function)
+        parser.selector(string) { selectorResult in
+            XCTAssertEqual(selectorResult.first("a")?.first("b")?.attributedString.string, "fas")
+            expectation1.fulfill()
+        }
+        
+        let expectation2 = XCTestExpectation(description: #function)
+        parser.render(selectorResult.first("a")!) { renderResult in
+            XCTAssertEqual(renderResult.string, "Qfsafasfoo")
+            expectation2.fulfill()
+        }
+        
+        wait(for: [expectation1, expectation2], timeout: 3.0)
     }
     
     func testStripper() {

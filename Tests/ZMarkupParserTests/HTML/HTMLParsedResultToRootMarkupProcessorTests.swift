@@ -13,14 +13,14 @@ final class HTMLParsedResultToRootMarkupProcessorTests: XCTestCase {
     func testProcessor() {
         let rootMarkup = HTMLParsedResultToRootMarkupProcessor(rootStyle: MarkupStyle(kern: 999), htmlTags: ZHTMLParserBuilder.htmlTagNames.map({ HTMLTag(tagName: $0) }), styleAttributes: ZHTMLParserBuilder.styleAttributes).process(from: [
             .rawString(NSAttributedString(string: "Hello")),
-            .start(.init(tagName: "b", tagAttributedString: NSAttributedString(string: "<b>"), attributes: nil)),
+            .start(.init(tagName: "i", tagAttributedString: NSAttributedString(string: "<i>"), attributes: nil)),
             .rawString(NSAttributedString(string: "Test")),
             .selfClosing(.init(tagName: "br", tagAttributedString: NSAttributedString(string: "<br/>"), attributes: nil)),
             .start(.init(tagName: "u", tagAttributedString: NSAttributedString(string: "<u>"), attributes: nil)),
             .rawString(NSAttributedString(string: "UuDd")),
             .close(.init(tagName: "u")),
             .rawString(NSAttributedString(string: "Test2")),
-            .close(.init(tagName: "b")),
+            .close(.init(tagName: "i")),
             .rawString(NSAttributedString(string: "World!"))
         ])
         
@@ -37,7 +37,7 @@ final class HTMLParsedResultToRootMarkupProcessorTests: XCTestCase {
         
         XCTAssertEqual(rootMarkup.childMarkups.count, 3, "Expected 3 childs at root in AST.")
         XCTAssertEqual((rootMarkup.childMarkups[0] as? RawStringMarkup)?.attributedString.string, "Hello", "Expected `Hello` child at root.childs[0] in AST.")
-        XCTAssertTrue(rootMarkup.childMarkups[1] is BoldMarkup, "Expected `BoldMarkup` child at root.childs[1] in AST.")
+        XCTAssertTrue(rootMarkup.childMarkups[1] is ItalicMarkup, "Expected `ItalicMarkup` child at root.childs[1] in AST.")
         XCTAssertEqual((rootMarkup.childMarkups[2] as? RawStringMarkup)?.attributedString.string, "World!", "Expected `World!` child at root.childs[0] in AST.")
         XCTAssertEqual(rootMarkup.childMarkups[1].childMarkups.count, 4, "Expected 4 childs at root.childs[1].childs in AST.")
         XCTAssertEqual((rootMarkup.childMarkups[1].childMarkups[0] as? RawStringMarkup)?.attributedString.string, "Test", "Expected `Test` child at root.childs[1].childs[0] in AST.")
