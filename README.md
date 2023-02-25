@@ -28,7 +28,7 @@ downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupP
 
 ### Performance Benchmark
 
-[![chart (1)](https://user-images.githubusercontent.com/33706588/221120878-d5bcb131-f13d-48f4-8ed2-aac0c545a23b.png)](https://quickchart.io/chart-maker/view/zm-a8243b19-d59d-4ae2-81c6-2ebb5797e017)
+[![Performance Benchmark](https://user-images.githubusercontent.com/33706588/221342800-d7891cb3-af1a-4fe9-a8f1-c7b963e11f95.png)](https://quickchart.io/chart-maker/view/zm-73887470-e667-4ca3-8df0-fe3563832b0b)
 
 (2022/M2/24GB Memory/macOS 13.2/XCode 14.1)
 
