@@ -17,6 +17,7 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 ## Features
 - [x] Parse HTML strings using pure-Swift and regular expressions.
 - [x] Automatically correct invalid HTML strings, including mixed or isolated tags (e.g., `<a>Link<b>LinkBold</a>Bold</b><br>` -> `<a>Link<b>LinkBold</b></a><b>Bold</b><br/>`).
+- [x] More compatible with HTML tags than a parser that is based on XMLParser.
 - [x] Customizable HTML tag parser with painless extended tag support and the ability to customize tag styles.
 - [x] Support for HTML rendering, stripping, and selecting.
 - [x] Support for `<ul>` and `<ol>` list views and `<hr>` horizontal lines, and more.
