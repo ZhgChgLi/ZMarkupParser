@@ -126,6 +126,7 @@ RootMarkup
 |--B(font=18pt, bold=true)
 ```
 6. Use Visitor Pattern to visit every tree leaf Markup/MarkupStyle and combine it to NSAttributedString through recursion.
+
 Result:
 ```
 Link{
@@ -309,11 +310,12 @@ If you want to render huge html string, please use async instead.
 
 [Pinkoi.com](https://en.pinkoi.com) is Asia's leading online marketplace for original design goods, digital creations, and workshop experiences.
 
-## Made In Taiwan 🇹🇼🇹🇼🇹🇼
+## About
 - [ZhgChg.Li (CH)](https://zhgchg.li/)
 - [ZhgChgLi's Medium (CH)](https://blog.zhgchg.li/)
 
 [![Buy Me A Coffe](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20beer!&emoji=%F0%9F%8D%BA&slug=zhgchgli&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/zhgchgli)
 
 If you find this library helpful, please consider starring the repo or recommending it to your friends.
+
 Feel free to open an issue or submit a fix/contribution via pull request. :)
