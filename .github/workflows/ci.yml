@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, reopened]
+  push:
+    branches:
+    - main
 
 jobs:
   build:
