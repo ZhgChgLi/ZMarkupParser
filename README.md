@@ -9,24 +9,24 @@
   <a href="https://github.com/ZhgChgLi/ZMarkupParser" target="_blank"><img src="https://img.shields.io/cocoapods/p/ZMarkupParser.svg?style=flat"></a>
 </p>
 
-ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag through pure-Swift.
+ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to NSAttributedString with customized style and tags.
 
 [中文](https://medium.com/zrealm-ios-dev/zmarkupparser-html-string-%E8%BD%89%E6%8F%9B-nsattributedstring-%E5%B7%A5%E5%85%B7-a5643de271e4)
 
 ## Features
-- [x] Parse HTML String through Rexgex with pure-Swift.
-- [x] Autocorrect invalid HTML string, including mixed or isolated tag. (e.g. `<a>Link<b>LinkBold</a>Bold</b><br>` -> `<a>Link<b>LinkBold</b></a><b>Bold</b><br/>`)
-- [x] Painless extended HTML Tag Parser and customized HTML Tag Style you wish.
-- [x] Support HTML Render/HTML Stripper/HTML Selector
-- [x] Support `<ul><ol>` list view and `<hr>` horizontal line...etc
-- [x] Support parse & set style from html tag `style="color:red"` attributes.
-- [x] Support parse HTML Color name to UIColor/NSColor.
-- [x] Higher performance than `NSAttributedString.DocumentType.html`
+- [x] Parse HTML strings using pure-Swift and regular expressions.
+- [x] Automatically correct invalid HTML strings, including mixed or isolated tags (e.g., <a>Link<b>LinkBold</a>Bold</b><br> -> <a>Link<b>LinkBold</b></a><b>Bold</b><br/>).
+- [x] Customizable HTML tag parser with painless extended tag support and the ability to customize tag styles.
+- [x] Support for HTML rendering, stripping, and selecting.
+- [x] Support for <ul> and <ol> list views and <hr> horizontal lines, and more.
+- [x] Support for parsing and setting styles from HTML tag attributes such as style="color:red".
+- [x] Support for parsing HTML color names into UIColor/NSColor.
+- [x] Better performance compared to NSAttributedString.DocumentType.html.
 
 ## Try it!
 <img src="https://user-images.githubusercontent.com/33706588/220594721-828eb404-dd2b-4bae-a7e6-56a92042e9a1.png" width="30%" height="30%"/>
 
-downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupParser-Demo` run it! have fun!
+To run the ZMarkupParser demo, download the repository and open ZMarkupParser.xcworkspace. Then, select the ZMarkupParser-Demo target and run it to start exploring the library. Enjoy!
 
 ### Performance Benchmark
 
@@ -34,10 +34,9 @@ downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupP
 
 (2022/M2/24GB Memory/macOS 13.2/XCode 14.1)
 
-`NSAttributedString.DocumentType.html` **will crashed when render more than 54,600+ length of string.**
+Note that rendering an NSAttributedString with the DocumentType.html option can cause a crash when the length of the HTML string exceeds 54,600+ characters. To avoid this issue, consider using ZMarkupParser instead.
 
-- **x**: html string length
-- **y**: time elapsed(second)
+The chart above shows the elapsed time (in seconds) to render different HTML string lengths (x). As you can see, ZMarkupParser performs better than NSAttributedString.DocumentType.html, especially for larger HTML strings.
 
 ## Installation
 
@@ -76,23 +75,56 @@ end
 ```
 
 ## How it works? (explain with Pseudocode)
-1. Input html string: `<a>Link<b>LinkBold</a>Bold</b>`
-2. Convert string to array of tag element through Regex: `[{tagStrat: a}, {string: Link}, {tagStart: b}, {string: LinkBold}, {tagClose: a}, {string: Bold}, {tagClose: b}]`
-3. Traversal tag element array to autocorrent mixed tag and find isolated tag: `[{tagStrat: a}, {string: Link}, {tagStart: b}, {string: LinkBold}, {tagClose: b}, {tagClose: a}, {tagStart: b}, {string: Bold}, {tagClose: b}]`
+1. Input html string: <a>Link<b>LinkBold</a>Bold</b>
+2. Convert string to array of tag element through Regex:
+```
+[
+  {tagStart: "a"},
+  {string: "Link"},
+  {tagStart: "b"},
+  {string: "LinkBold"},
+  {tagClose: "a"},
+  {string: "Bold"},
+  {tagClose: "b"}
+]
+```
+3. Traverse tag element array to autocorrect mixed tags and find isolated tags:
+```
+[
+  {tagStart: "a"},
+  {string: "Link"},
+  {tagStart: "b"},
+  {string: "LinkBold"},
+  {tagClose: "b"},
+  {tagClose: "a"},
+  {tagStart: "b"},
+  {string: "Bold"},
+  {tagClose: "b"}
+]
+```
 4. Convert tag element array to abstract syntax tree:
 ```
-//                     RootMarkup
-//                  /               \
-//                 A                 B
-//          /             \          |
-//    String("Link")       B    String("Bold")  
-//                         |
-//                  String("LinkBold")
-//                                
+RootMarkup
+|--A
+|  |--String("Link")
+|  |--B
+|     |--String("LinkBold")
+|
+|--B
+   |--String("Bold")
 ```
-5. Mapping tag to abstract Markup/MarkupStyle
+5. Map tag to abstract Markup/MarkupStyle:
+```
+RootMarkup
+|--A(underline=true)
+|  |--String("Link")(color=blue, font=13pt)
+|  |--B
+|     |--String("LinkBold")(color=blue, font=18pt, bold=true)
+|
+|--B(font=18pt, bold=true)
+```
 6. Use Visitor Pattern to visit every tree leaf Markup/MarkupStyle and combine it to NSAttributedString through recursion.
-7. Result:
+Result:
 ```
 Link{
     NSColor = "UIExtendedSRGBColorSpace 0 0.478431 1 1";
@@ -106,17 +138,22 @@ Link{
     NSFont = "<UICTFont: 0x145d18710> font-family: \".SFUI-Semibold\"; font-weight: bold; font-style: normal; font-size: 18.00pt";
 }
 ```
+
 ### Example
 ![ZMarkupParser Exmple](https://user-images.githubusercontent.com/33706588/220371406-d458f810-4dee-4f22-a161-b956fc626ccc.jpg)
 
 
 ## Introduction
 ### HTMLTagName
-Abstract of html tag, there is some pre-defined html tag name down below.
+
+ZMarkupParser provides a set of pre-defined tag names that map to abstract markup classes, such as A_HTMLTagName() for <a></a>, B_HTMLTagName() for <b></b>, and so on. This mapping is used to create instances of the corresponding markup classes during the parsing process.
+
+In addition, if there is a tag that is not defined or you want to customize your own tag, you can use the `ExtendTagName(tagName: String)` method to create a custom tag name and map it to an abstract markup class of your own design.
+
 ```swift
 A_HTMLTagName(), // <a></a>
 B_HTMLTagName(), // <b></b>
-BR_HTMLTagName(), // <br></br>
+BR_HTMLTagName(), // <br></br> and also <br/>
 DIV_HTMLTagName(), // <div></div>
 HR_HTMLTagName(), // <hr></hr>
 I_HTMLTagName(), // <i></i>
@@ -130,10 +167,9 @@ UL_HTMLTagName(), // <ul></ul>
 DEL_HTMLTagName(), // <del></del>
 ...
 ```
-If there is HTML tag not be defined or customized tag, you could use `ExtendTagName("tagName")` to wrapped it.
 
 ### MarkupStyle/MarkupStyleColor/MarkupStyleParagraphStyle
-Wrapper of `NSAttributedStrin.Key` because of inheritable puerpose.
+The MarkupStyle wrapper contains various properties that are used to define the attributes of an NSAttributedString. These properties includes:
 ```swift
 var font:MarkupStyleFont
 var paragraphStyle:MarkupStyleParagraphStyle
@@ -159,13 +195,16 @@ var writingDirection:NSNumber? = nil
 var verticalGlyphForm:NSNumber? = nil
 ...
 ```
-You could init or define MarkupStyle you want.
+
+For example, you can initialize or define a MarkupStyle object with the properties you want, such as setting the font size to 13 and the background color to aquamarine:
 ```swift
 MarkupStyle(font: MarkupStyleFont(size: 13), backgroundColor: MarkupStyleColor(name: .aquamarine))
 ```
 
 ### HTMLTagStyleAttribute
-Abstract of html style attributes, there is some pre-defined attributes down below.
+
+These are pre-defined style attributes that can be used in the conversion of HTML tags to NSAttributedString attributes. Each style attribute has a corresponding class that defines its behavior and how it should be applied to the NSAttributedString.
+
 ```swift
 ColorHTMLTagStyleAttribute(), // color
 BackgroundColorHTMLTagStyleAttribute(), // background-color
@@ -174,8 +213,10 @@ FontWeightHTMLTagStyleAttribute(), // font-weight
 LineHeightHTMLTagStyleAttribute(), // line-height
 WordSpacingHTMLTagStyleAttribute(), // word-spacing
 ```
-If there is Style attribute not be defined, you could use ExtendHTMLTagStyleAttribute:
 
+If there is a style attribute that is not defined, the ExtendHTMLTagStyleAttribute class can be used to define it. This class takes in a style name and a closure that takes in an existing style and the value of the new style attribute and returns a new style with the new attribute applied.
+
+For exmaple: `style="text-decoration"`
 ```swift
 ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { fromStyle, value in
   var newStyle = fromStyle
@@ -198,21 +239,25 @@ import ZMarkupParser
 let parser = ZHTMLParserBuilder.initWithDefault().set(rootStyle: MarkupStyle(font: MarkupStyleFont(size: 13)).build()
 ```
 
-`initWithDefault()` will add all pre-defined HTMLTagName/HTMLTagStyleAttribute and use Tag's default MarkupStyle to render.
+The code initializes a new ZHTMLParserBuilder object with default settings using the `initWithDefault()` method. This method adds all pre-defined HTML tag names and style attributes, and sets the tag's default MarkupStyle to render.
 
-`set(rootStyle:MarkupStyle)` specify default root style to render, will apply to whole attributed string.
+Then, the `set(rootStyle: MarkupStyle)` method is called to specify the default root style to render. This root style will be applied to the entire attributed string that is generated by the parser.
 
-`build()` call build() at the end, to generate parser object.
+Finally, the `build()` method is called at the end to generate the parser object.
 
 #### Customized Tag Style/Extend Tag Name
+
+These code snippets demonstrate how to customize the style of a tag or extend the tag name:
+
+To customize the style of a tag, you can use the add method of the ZHTMLParserBuilder class and provide an instance of HTMLTagName and a MarkupStyle object as parameters. For example, the following code snippet will use a custom markup style to render the <b></b> tag:
 ```swift
-let parser = ZHTMLParserBuilder.initWithDefault().add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).build() // will use markupstyle you specify to render <b></b> instead of default bold markup style
+let parser = ZHTMLParserBuilder.initWithDefault().add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).build()
 ```
 
+To extend the tag name and customize its style, you can use the ExtendTagName class and the add method of the ZHTMLParserBuilder class. For example, the following code snippet will extend the tag name to <zhgchgli></zhgchgli> and use a custom markup style to render it:
 ```swift
-let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).build() // will use markupstyle you specify to render extend html tag <zhgchgli></zhgchgli>
+let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).build()
 ```
-
 
 ### Parse HTML String
 ```swift
@@ -252,10 +297,10 @@ parser.selector(String) { _ in }...
 If you want to render huge html string, please use async instead.
 
 ## Things to know
-- Unsupport Parse `<img>` to NSTextAttacment currently, due to need async task & native textview with NSTextAttacment didn't impletation reuse, insert image throught NSTextAttacment to TextView will lead to Out of memory.
-- Need to set `linkTextAttributes` for UITextView to change .link style
-- UILabel is not allow to change .link text color style throught NSAttributedString.key.foregroundColor
-- Due to limitation, colud only use this parser render in partial html, do not use in redner whole huge html (please use webview.loadhtml instead.)
+- Parsing <img> tags is currently not supported because inserting images using NSTextAttachment in UITextView can lead to out-of-memory issues, especially when parsing large amounts of HTML.
+- To change the style of links in UITextView, you need to set the linkTextAttributes property to an NSAttributedString.Key value that includes the desired style properties.
+- If you're using a UILabel to render attributed strings, note that you can't change the color of .link text using the NSAttributedString.Key.foregroundColor attribute.
+- The ZHTMLParser library is intended for rendering partial HTML content, and may not be suitable for rendering very large or complex HTML documents. For these use cases, it's better to use a web view to render the HTML content.
 
 ## Who is using
 [![pinkoi](https://user-images.githubusercontent.com/33706588/221343295-3e3831e6-f76d-430a-87e3-4daf9815297d.jpg)](https://en.pinkoi.com)
@@ -266,9 +311,7 @@ If you want to render huge html string, please use async instead.
 - [ZhgChg.Li (CH)](https://zhgchg.li/)
 - [ZhgChgLi's Medium (CH)](https://blog.zhgchg.li/)
 
-
 [![Buy Me A Coffe](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20beer!&emoji=%F0%9F%8D%BA&slug=zhgchgli&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/zhgchgli)
 
-If this is helpful, please help to star the repo or recommend it to your friends.
-
-Please feel free to open an Issue or submit a fix/contribution via Pull Request. :)
+If you find this library helpful, please consider starring the repo or recommending it to your friends.
+Feel free to open an issue or submit a fix/contribution via pull request. :)
