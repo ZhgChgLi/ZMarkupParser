@@ -9,13 +9,13 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Test
-        uses: actions/checkout@v3
-      - name: Build and Test
-        run: xcodebuild test -scheme 'ZMarkupParser' -enableCodeCoverage YES -resultBundlePath './scripts/TestResult.xcresult' -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' build test | xcpretty
+      - uses: actions/checkout@v3
+      - name: spm build and test
+        run: |
+          set -o pipefail
+          xcodebuild test -scheme 'ZMarkupParser' -enableCodeCoverage YES -resultBundlePath './scripts/TestResult.xcresult' -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' build test | xcpretty
       - name: Codecov
         uses: codecov/codecov-action@v3.1.1
         with:
           xcode: true
           xcode_archive_path: './scripts/TestResult.xcresult'
- 
