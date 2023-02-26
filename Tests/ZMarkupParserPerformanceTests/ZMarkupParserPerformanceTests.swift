@@ -54,6 +54,8 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
             }
         }
         
+        
+        
         makeResultReport(result)
     }
     
