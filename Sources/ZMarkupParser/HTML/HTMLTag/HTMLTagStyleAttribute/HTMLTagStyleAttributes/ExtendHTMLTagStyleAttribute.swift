@@ -9,11 +9,11 @@ import Foundation
 
 public struct ExtendHTMLTagStyleAttribute: HTMLTagStyleAttribute {
     public let styleName: String
-    public let style: MarkupStyle?
+    public let render: ((MarkupStyle, String) -> (MarkupStyle))
     
-    public init(styleName: String, style: MarkupStyle?) {
+    public init(styleName: String, render: @escaping ((MarkupStyle, String) -> (MarkupStyle))) {
         self.styleName = styleName
-        self.style = style
+        self.render = render
     }
     
     public func accept<V>(_ visitor: V) -> V.Result where V : HTMLTagStyleAttributeVisitor {

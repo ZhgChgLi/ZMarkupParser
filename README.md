@@ -11,6 +11,8 @@
 
 ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag through pure-Swift.
 
+[中文](https://medium.com/zrealm-ios-dev/zmarkupparser-html-string-%E8%BD%89%E6%8F%9B-nsattributedstring-%E5%B7%A5%E5%85%B7-a5643de271e4)
+
 ## Features
 - [x] Parse HTML String through Rexgex with pure-Swift.
 - [x] Autocorrect invalid HTML string, including mixed or isolated tag. (e.g. `<a>Link<b>LinkBold</a>Bold</b><br>` -> `<a>Link<b>LinkBold</b></a><b>Bold</b><br/>`)
@@ -172,7 +174,19 @@ FontWeightHTMLTagStyleAttribute(), // font-weight
 LineHeightHTMLTagStyleAttribute(), // line-height
 WordSpacingHTMLTagStyleAttribute(), // word-spacing
 ```
-If there is Style attribute not be defined, you could use `ExtendHTMLTagStyleAttribute("styleAttributeName", MarkupStyle)` to wrapped it.
+If there is Style attribute not be defined, you could use ExtendHTMLTagStyleAttribute:
+
+```swift
+ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { fromStyle, value in
+  var newStyle = fromStyle
+  if value == "underline" {
+    newStyle.underline = NSUnderlineStyle.single
+  } else {
+    // ...  
+  }
+  return newStyle
+})
+```
 
 ## Usage
 ```swift
@@ -192,11 +206,11 @@ let parser = ZHTMLParserBuilder.initWithDefault().set(rootStyle: MarkupStyle(fon
 
 #### Customized Tag Style/Extend Tag Name
 ```swift
-let parser = ZHTMLParserBuilder.initWithDefault().add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))) // will use markupstyle you specify to render <b></b> instead of default bold markup style
+let parser = ZHTMLParserBuilder.initWithDefault().add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).build() // will use markupstyle you specify to render <b></b> instead of default bold markup style
 ```
 
 ```swift
-let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))) // will use markupstyle you specify to render extend html tag <zhgchgli></zhgchgli>
+let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).build() // will use markupstyle you specify to render extend html tag <zhgchgli></zhgchgli>
 ```
 
 

@@ -31,11 +31,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     }
     
     func visit(_ styleAttribute: ExtendHTMLTagStyleAttribute) -> Result {
-        guard var styleAttributeStyle = styleAttribute.style else {
-            return fromStyle
-        }
-        styleAttributeStyle.fillIfNil(from: fromStyle)
-        return styleAttributeStyle
+        return styleAttribute.render(fromStyle, value)
     }
     
     func visit(_ styleAttribute: BackgroundColorHTMLTagStyleAttribute) -> Result {

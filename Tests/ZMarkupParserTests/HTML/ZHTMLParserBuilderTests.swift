@@ -52,7 +52,9 @@ final class ZHTMLParserBuilderTests: XCTestCase {
     func testAddHTMLTagStyleAttribute() {
         var builder = ZHTMLParserBuilder()
         XCTAssertEqual(builder.styleAttributes.count, 0, "styleAttributes should be empty after init.")
-        builder = builder.add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", style: nil))
+        builder = builder.add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", render: { markupStyle, _ in
+            return markupStyle
+        }))
         XCTAssertEqual(builder.styleAttributes.count, 1, "styleAttributes should have 1 element.")
         XCTAssertEqual(builder.styleAttributes[0].styleName, "zhgchgli", "styleAttributes should have zhgchgli style name element.")
     }
@@ -62,7 +64,9 @@ final class ZHTMLParserBuilderTests: XCTestCase {
         let zhgchgliTagMarkupStyle = MarkupStyle(kern: 8888)
         let zhgchgliStyleMarkupStyle = MarkupStyle(kern: 7777)
         
-        let parser = ZHTMLParserBuilder().add(ExtendTagName("zhgchgli"), withCustomStyle: zhgchgliTagMarkupStyle).add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", style: zhgchgliStyleMarkupStyle)).set(rootStyle: rootMarkupStyle).build()
+        let parser = ZHTMLParserBuilder().add(ExtendTagName("zhgchgli"), withCustomStyle: zhgchgliTagMarkupStyle).add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", render: { _, _ in
+            return zhgchgliStyleMarkupStyle
+        })).set(rootStyle: rootMarkupStyle).build()
         
         XCTAssertEqual(parser.rootStyle?.kern, rootMarkupStyle.kern, "rootStyle should be set in parser result")
         XCTAssertEqual(parser.htmlTags.count, 1, "htmlTags should have 1 element in parser result")
@@ -72,7 +76,9 @@ final class ZHTMLParserBuilderTests: XCTestCase {
         
         XCTAssertEqual(parser.styleAttributes.count, 1, "styleAttributes should have 1 element in parser result")
         XCTAssertEqual(parser.styleAttributes[0].styleName, "zhgchgli", "styleAttributes should have zhgchgli style element in parser result")
-        XCTAssertEqual((parser.styleAttributes[0] as? ExtendHTMLTagStyleAttribute)?.style?.kern, zhgchgliStyleMarkupStyle.kern, "styleAttributes should have zhgchgli style element with custom style in parser result")
+        
+        
+        XCTAssertEqual((parser.styleAttributes[0] as? ExtendHTMLTagStyleAttribute)?.render(MarkupStyle(),"").kern, zhgchgliStyleMarkupStyle.kern, "styleAttributes should have zhgchgli style element with custom style in parser result")
 
     }
 }
