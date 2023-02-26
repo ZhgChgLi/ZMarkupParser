@@ -15,10 +15,10 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 
 ## Features
 - [x] Parse HTML strings using pure-Swift and regular expressions.
-- [x] Automatically correct invalid HTML strings, including mixed or isolated tags (e.g., <a>Link<b>LinkBold</a>Bold</b><br> -> <a>Link<b>LinkBold</b></a><b>Bold</b><br/>).
+- [x] Automatically correct invalid HTML strings, including mixed or isolated tags (e.g., `<a>Link<b>LinkBold</a>Bold</b><br>` -> `<a>Link<b>LinkBold</b></a><b>Bold</b><br/>`).
 - [x] Customizable HTML tag parser with painless extended tag support and the ability to customize tag styles.
 - [x] Support for HTML rendering, stripping, and selecting.
-- [x] Support for <ul> and <ol> list views and <hr> horizontal lines, and more.
+- [x] Support for `<ul>` and `<ol>` list views and `<hr>` horizontal lines, and more.
 - [x] Support for parsing and setting styles from HTML tag attributes such as style="color:red".
 - [x] Support for parsing HTML color names into UIColor/NSColor.
 - [x] Better performance compared to NSAttributedString.DocumentType.html.
@@ -75,7 +75,7 @@ end
 ```
 
 ## How it works? (explain with Pseudocode)
-1. Input html string: <a>Link<b>LinkBold</a>Bold</b>
+1. Input html string: `<a>Link<b>LinkBold</a>Bold</b>`
 2. Convert string to array of tag element through Regex:
 ```
 [
