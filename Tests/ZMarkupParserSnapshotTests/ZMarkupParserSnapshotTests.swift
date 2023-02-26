@@ -10,17 +10,20 @@ import XCTest
 import SnapshotTesting
 
 final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
+    
+    private let record: Bool = false
+    
     private let htmlString = """
         🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
         The <u>final <del>countdown</del></u> on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon<br />
-        <zhgchgli>Top 10 Popular <b><span style="color:green;">Christmas</span> Gift</b> Recommendations 👉</zhgchgli><br>
+        <abbr>Top 10 Popular <b><span style="color:green;">Christmas</span> Gift</b> Recommendations 👉</abbr><br>
         <ol>
         <li><a href="https://zhgchg.li">Christmas Mini Diffuser Gift Box</a>｜The first choice for exchanging gifts</li>
         <li><a href="https://zhgchg.li">German design hair remover</a>｜<strong>500</strong> yuan practical gift like this</li>
         <li><a href="https://zhgchg.li">Drink cup</a>｜Fund-raising and praise exceeded 10 million</li>
         </ol>
         <ul>
-            <li>Test1</li>
+            <li style="text-decoration:underline;">Test1</li>
             <li>Test2Test2<i>Test2</i>Test2</li>
         </ul>
         <hr/>
@@ -41,7 +44,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     }
     
     #if canImport(UIKit)
-    func testUITextViewSetHTMLString() {
+    func testShouldKeppNSAttributedString() {
         let parser = makeSUT()
         let textView = UITextView()
         textView.frame.size.width = 390
@@ -49,7 +52,18 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.backgroundColor = .white
         textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layoutIfNeeded()
-        assertSnapshot(matching: textView, as: .image)
+        assertSnapshot(matching: textView, as: .image, record: self.record)
+    }
+    
+    func testUITextViewSetHTMLString() {
+        let parser = makeSUT()
+        let textView = UITextView()
+        textView.frame.size.width = 390
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .white
+        textView.setHtmlString(htmlString, with: parser)
+        textView.layoutIfNeeded()
+        assertSnapshot(matching: textView, as: .image, record: self.record)
     }
     
     func testUITextViewSetHTMLStringAsync() {
@@ -59,9 +73,9 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.isScrollEnabled = false
         textView.backgroundColor = .white
         let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
-        textView.setHtmlString(attributedHTMLString, with: parser) { _ in
+        textView.setHtmlString(htmlString, with: parser) { _ in
             textView.layoutIfNeeded()
-            assertSnapshot(matching: textView, as: .image)
+            assertSnapshot(matching: textView, as: .image, record: self.record)
             expectation.fulfill()
         }
         self.waitForExpectations(timeout: 5, handler: nil)
@@ -73,9 +87,9 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         label.frame.size.width = 390
         label.backgroundColor = .white
         label.numberOfLines = 0
-        label.setHtmlString(attributedHTMLString, with: parser)
+        label.setHtmlString(htmlString, with: parser)
         label.layoutIfNeeded()
-        assertSnapshot(matching: label, as: .image)
+        assertSnapshot(matching: label, as: .image, record: self.record)
     }
     
     func testUILabelSetHTMLStringAsync() {
@@ -84,10 +98,10 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         label.frame.size.width = 390
         label.backgroundColor = .white
         label.numberOfLines = 0
-        let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
-        label.setHtmlString(attributedHTMLString, with: parser) { _ in
+        let expectation = self.expectation(description: "testUILabelSetHTMLStringAsync")
+        label.setHtmlString(htmlString, with: parser) { _ in
             label.layoutIfNeeded()
-            assertSnapshot(matching: label, as: .image)
+            assertSnapshot(matching: label, as: .image, record: self.record)
             expectation.fulfill()
         }
         self.waitForExpectations(timeout: 5, handler: nil)
@@ -101,9 +115,9 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.frame.size.width = 390
         textView.frame.size.height = 500
         textView.backgroundColor = .white
-        textView.setHtmlString(attributedHTMLString, with: parser)
+        textView.setHtmlString(htmlString, with: parser)
         textView.layout()
-        assertSnapshot(matching: textView, as: .image)
+        assertSnapshot(matching: textView, as: .image, record: self.record)
     }
     
     func testNSTextViewSetHTMLStringAsync() {
@@ -112,10 +126,10 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.frame.size.width = 390
         textView.frame.size.height = 500
         textView.backgroundColor = .white
-        let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
-        textView.setHtmlString(attributedHTMLString, with: parser) { _ in
+        let expectation = self.expectation(description: "testNSTextViewSetHTMLStringAsync")
+        textView.setHtmlString(htmlString, with: parser) { _ in
             textView.layout()
-            assertSnapshot(matching: textView, as: .image)
+            assertSnapshot(matching: textView, as: .image, record: self.record)
             expectation.fulfill()
         }
         self.waitForExpectations(timeout: 5, handler: nil)
@@ -129,9 +143,9 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textField.frame.size.height = 500
         textField.backgroundColor = .white
         textField.textColor = .black
-        textField.setHtmlString(attributedHTMLString, with: parser)
+        textField.setHtmlString(htmlString, with: parser)
         textField.layout()
-        assertSnapshot(matching: textField, as: .image)
+        assertSnapshot(matching: textField, as: .image, record: self.record)
     }
     
     func testNSTextFieldSetHTMLStringAsync() {
@@ -141,10 +155,10 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textField.frame.size.height = 500
         textField.backgroundColor = .white
         textField.textColor = .black
-        let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
-        textField.setHtmlString(attributedHTMLString, with: parser) { _ in
+        let expectation = self.expectation(description: "testNSTextFieldSetHTMLStringAsync")
+        textField.setHtmlString(htmlString, with: parser) { _ in
             textField.layout()
-            assertSnapshot(matching: textField, as: .image)
+            assertSnapshot(matching: textField, as: .image, record: self.record)
             expectation.fulfill()
         }
         self.waitForExpectations(timeout: 5, handler: nil)
@@ -154,7 +168,13 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
 
 extension ZHTMLToNSAttributedStringSnapshotTests {
     func makeSUT() -> ZHTMLParser {
-        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).set(rootStyle: MarkupStyle(font: MarkupStyleFont(size: 13), paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: 8))).build()
+        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName(.abbr), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).add(ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { fromStyle, value in
+            var newStyle = fromStyle
+            if value == "underline" {
+                newStyle.underlineStyle = .single
+            }
+            return newStyle
+        })).set(rootStyle: MarkupStyle(font: MarkupStyleFont(size: 13), paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: 8))).build()
         return parser
     }
 }

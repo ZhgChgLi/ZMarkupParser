@@ -71,4 +71,8 @@ final class MarkupStyleTests: XCTestCase {
         let markupStyle = MarkupStyle()
         XCTAssertTrue(markupStyle.render().isEmpty, "Default init MarkupStyle() should be empty")
     }
+    
+    func testFontWeight() {
+        
+    }
 }

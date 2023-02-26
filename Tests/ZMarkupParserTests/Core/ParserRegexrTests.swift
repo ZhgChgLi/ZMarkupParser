@@ -25,4 +25,9 @@ final class ParserRegexrTests: XCTestCase {
         XCTAssertEqual(regxer.resetString(lastMatch: matches.last)?.string, "456789", "resetString should be `456789` in \(regxer.attributedString.string) with pattern `\(regxer.expression.pattern)`")
         XCTAssertEqual(regxer.resetString(lastMatch: nil)?.string, regxer.attributedString.string, "resetString should be whole string in \(regxer.attributedString.string) with pattern `\(regxer.expression.pattern)`, when lastMatch is nil")
     }
+    
+    func testStringTotoalLength() {
+        let string = "Test😄😄😄👨‍👨‍👧‍👧Test"
+        XCTAssertEqual(ParserRegexr(attributedString: NSAttributedString(string: string), pattern: "(Z)")?.stringTotoalLength(), string.utf16.count, "Expected utf 16 count string.")
+    }
 }
