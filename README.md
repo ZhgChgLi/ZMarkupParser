@@ -45,14 +45,14 @@ downloaded repo and open `ZMarkupParser.xcworkspace`, select target to `ZMarkupP
 
 - File > Swift Packages > Add Package Dependency
 - Add `https://github.com/ZhgChgLi/ZMarkupParser.git`
-- Select "Up to Next Major" with "1.2.4"
+- Select "Up to Next Major" with "1.2.5"
 
 or 
 
 ```swift
 ...
 dependencies: [
-  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.2.4"),
+  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.2.5"),
 ]
 ...
 .target(
@@ -71,7 +71,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 1.2.4'
+  pod 'ZMarkupParser', '~> 1.2.5'
 end
 ```
 
