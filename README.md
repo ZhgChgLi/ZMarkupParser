@@ -29,6 +29,7 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 ## ToDo
 - [ ] Write a technical post about developing ZMarkupParser (Chinese only).
 - [ ] Fully documented
+- [ ] Support render `<img>` and `<table>`
 - [ ] Create a class diagram and documentation for the architecture and design patterns of ZMarkupParser.
 - [ ] Support Markdown because the Markup object is a high-level abstraction.
 
@@ -309,7 +310,7 @@ parser.selector(String) { _ in }...
 If you want to render huge html string, please use async instead.
 
 ## Things to know
-- Parsing <img> tags is currently not supported because inserting images using NSTextAttachment in UITextView can lead to out-of-memory issues, especially when parsing large amounts of HTML.
+- Parsing `<img>` tags is currently not supported because inserting images using NSTextAttachment in UITextView can lead to out-of-memory issues, especially when parsing large amounts of HTML.
 - To change the style of links in UITextView, you need to set the linkTextAttributes property to an NSAttributedString.Key value that includes the desired style properties.
 - If you're using a UILabel to render attributed strings, note that you can't change the color of .link text using the NSAttributedString.Key.foregroundColor attribute.
 - The ZHTMLParser library is intended for rendering partial HTML content, and may not be suitable for rendering very large or complex HTML documents. For these use cases, it's better to use a web view to render the HTML content.
