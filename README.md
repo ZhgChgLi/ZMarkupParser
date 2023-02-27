@@ -25,6 +25,13 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 - [x] Support for parsing HTML color names into UIColor/NSColor.
 - [x] Better performance compared to `NSAttributedString.DocumentType.html`.
 
+## ToDo
+- [ ] Write a technical post about developing ZMarkupParser (Chinese only).
+- [ ] Create a class diagram and documentation for the architecture and design patterns of ZMarkupParser.
+- [ ] Support Markdown because the Markup object is a high-level abstraction.
+
+Please feel free to contribute.
+
 ## Try it!
 <img src="https://user-images.githubusercontent.com/33706588/220594721-828eb404-dd2b-4bae-a7e6-56a92042e9a1.png" width="30%" height="30%"/>
 
