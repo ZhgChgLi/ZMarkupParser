@@ -85,6 +85,10 @@ struct HTMLTagNameToMarkupStyleVisitor: HTMLTagNameVisitor {
     func visit(_ tagName: DEL_HTMLTagName) -> Result {
         return defaultVisit(customStyle ?? MarkupStyle.deleteline)
     }
+    
+    func visit(_ tagName: IMG_HTMLTagName) -> Result {
+        return defaultVisit(customStyle)
+    }
 }
 
 extension HTMLTagNameToMarkupStyleVisitor {

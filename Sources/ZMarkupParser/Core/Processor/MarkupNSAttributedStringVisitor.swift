@@ -94,6 +94,10 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     func visit(_ markup: DeletelineMarkup) -> NSAttributedString {
         return collectAttributedString(markup)
     }
+    
+    func visit(_ markup: ImageMarkup) -> NSAttributedString {
+        return collectAttributedString(markup)
+    }
 }
 
 extension MarkupNSAttributedStringVisitor {

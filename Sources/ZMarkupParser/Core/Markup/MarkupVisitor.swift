@@ -28,6 +28,7 @@ protocol MarkupVisitor {
     func visit(_ markup: ParagraphMarkup) -> Result
     func visit(_ markup: UnderlineMarkup) -> Result
     func visit(_ markup: DeletelineMarkup) -> Result
+    func visit(_ markup: ImageMarkup) -> Result
 }
 
 extension MarkupVisitor {
