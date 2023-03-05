@@ -17,12 +17,23 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 ## Features
 - [x] Parse HTML strings using pure-Swift and regular expressions.
 - [x] Automatically correct invalid HTML strings, including mixed or isolated tags (e.g., `<a>Link<b>LinkBold</a>Bold</b><br>` -> `<a>Link<b>LinkBold</b></a><b>Bold</b><br/>`).
+- [x] More compatible with HTML tags than a parser that is based on XMLParser.
 - [x] Customizable HTML tag parser with painless extended tag support and the ability to customize tag styles.
 - [x] Support for HTML rendering, stripping, and selecting.
 - [x] Support for `<ul>` and `<ol>` list views and `<hr>` horizontal lines, and more.
 - [x] Support for parsing and setting styles from HTML tag attributes such as style="color:red".
 - [x] Support for parsing HTML color names into UIColor/NSColor.
 - [x] Better performance compared to `NSAttributedString.DocumentType.html`.
+- [x] Fully test cases and test coverage.
+
+## ToDo
+- [ ] Write a technical post about developing ZMarkupParser (Chinese only).
+- [ ] Fully documented
+- [ ] Support render `<img>` and `<table>`
+- [ ] Create a class diagram and documentation for the architecture and design patterns of ZMarkupParser.
+- [ ] Support Markdown because the Markup object is a high-level abstraction.
+
+Please feel free to contribute.
 
 ## Try it!
 <img src="https://user-images.githubusercontent.com/33706588/220594721-828eb404-dd2b-4bae-a7e6-56a92042e9a1.png" width="30%" height="30%"/>
@@ -125,6 +136,7 @@ RootMarkup
 |--B(font=18pt, bold=true)
 ```
 6. Use Visitor Pattern to visit every tree leaf Markup/MarkupStyle and combine it to NSAttributedString through recursion.
+
 Result:
 ```
 Link{
@@ -298,7 +310,7 @@ parser.selector(String) { _ in }...
 If you want to render huge html string, please use async instead.
 
 ## Things to know
-- Parsing <img> tags is currently not supported because inserting images using NSTextAttachment in UITextView can lead to out-of-memory issues, especially when parsing large amounts of HTML.
+- Parsing `<img>` tags is currently not supported because inserting images using NSTextAttachment in UITextView can lead to out-of-memory issues, especially when parsing large amounts of HTML.
 - To change the style of links in UITextView, you need to set the linkTextAttributes property to an NSAttributedString.Key value that includes the desired style properties.
 - If you're using a UILabel to render attributed strings, note that you can't change the color of .link text using the NSAttributedString.Key.foregroundColor attribute.
 - The ZHTMLParser library is intended for rendering partial HTML content, and may not be suitable for rendering very large or complex HTML documents. For these use cases, it's better to use a web view to render the HTML content.
@@ -308,11 +320,12 @@ If you want to render huge html string, please use async instead.
 
 [Pinkoi.com](https://en.pinkoi.com) is Asia's leading online marketplace for original design goods, digital creations, and workshop experiences.
 
-## Made In Taiwan 🇹🇼🇹🇼🇹🇼
+## About
 - [ZhgChg.Li (CH)](https://zhgchg.li/)
 - [ZhgChgLi's Medium (CH)](https://blog.zhgchg.li/)
 
 [![Buy Me A Coffe](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20beer!&emoji=%F0%9F%8D%BA&slug=zhgchgli&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/zhgchgli)
 
 If you find this library helpful, please consider starring the repo or recommending it to your friends.
+
 Feel free to open an issue or submit a fix/contribution via pull request. :)
