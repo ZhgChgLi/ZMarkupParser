@@ -31,7 +31,7 @@ public final class ZHTMLParser: ZMarkupParser {
         self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes)
     }
     
-    static let dispatchQueue: DispatchQueue = DispatchQueue(label: "ZHTMLParser.Queue", qos: .userInteractive)
+    static let dispatchQueue: DispatchQueue = DispatchQueue(label: "ZHTMLParser.Queue")
     
     public var linkTextAttributes: [NSAttributedString.Key: Any] {
         var style = self.htmlTags.first(where: { $0.tagName.isEqualTo(WC3HTMLTagName.a.rawValue) })?.customStyle ?? MarkupStyle.link

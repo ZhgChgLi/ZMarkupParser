@@ -29,6 +29,7 @@ protocol MarkupVisitor {
     func visit(_ markup: DeletelineMarkup) -> Result
     func visit(_ markup: TableRowMarkup) -> Result
     func visit(_ markup: TableColumnMarkup) -> Result
+    func visit(_ markup: ImageMarkup) -> Result
 }
 
 extension MarkupVisitor {

@@ -20,6 +20,7 @@ final class AllMarkupsHasAddToBuilderDefaultListTests: XCTestCase {
 }
 
 private class StubVisitor: HTMLTagNameVisitor {
+    
     typealias Result = Int
     
     private(set) var count: Int = 0
@@ -109,6 +110,11 @@ private class StubVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: TH_HTMLTagName) -> Int {
+        count += 1
+        return count
+    }
+    
+    func visit(_ tagName: IMG_HTMLTagName) -> Int {
         count += 1
         return count
     }
