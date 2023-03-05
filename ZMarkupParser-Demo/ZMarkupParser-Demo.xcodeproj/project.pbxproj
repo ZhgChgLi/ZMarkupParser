@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1E60123029A2641300F5AAEA /* ZMarkupParser in Frameworks */ = {isa = PBXBuildFile; productRef = 1E60122F29A2641300F5AAEA /* ZMarkupParser */; };
+		1E73641B29B4F37D00DD21CE /* LabelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E73641A29B4F37D00DD21CE /* LabelViewController.swift */; };
 		1EA0D8C729A25F5F00183D79 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0D8C629A25F5F00183D79 /* AppDelegate.swift */; };
 		1EA0D8C929A25F5F00183D79 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0D8C829A25F5F00183D79 /* SceneDelegate.swift */; };
 		1EA0D8CB29A25F5F00183D79 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EA0D8CA29A25F5F00183D79 /* ViewController.swift */; };
@@ -17,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1E73641A29B4F37D00DD21CE /* LabelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelViewController.swift; sourceTree = "<group>"; };
 		1EA0D8C329A25F5F00183D79 /* ZMarkupParser-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ZMarkupParser-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1EA0D8C629A25F5F00183D79 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1EA0D8C829A25F5F00183D79 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -70,6 +72,7 @@
 			children = (
 				1EA0D8C629A25F5F00183D79 /* AppDelegate.swift */,
 				1EA0D8C829A25F5F00183D79 /* SceneDelegate.swift */,
+				1E73641A29B4F37D00DD21CE /* LabelViewController.swift */,
 				1EA0D8CA29A25F5F00183D79 /* ViewController.swift */,
 				1EA0D8CC29A25F5F00183D79 /* Main.storyboard */,
 				1EA0D8CF29A25F6000183D79 /* Assets.xcassets */,
@@ -161,6 +164,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1E73641B29B4F37D00DD21CE /* LabelViewController.swift in Sources */,
 				1EA0D8CB29A25F5F00183D79 /* ViewController.swift in Sources */,
 				1EA0D8C729A25F5F00183D79 /* AppDelegate.swift in Sources */,
 				1EA0D8C929A25F5F00183D79 /* SceneDelegate.swift in Sources */,
