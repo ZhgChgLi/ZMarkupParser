@@ -13,43 +13,34 @@ import AppKit
 #endif
 
 struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
-    typealias Result = MarkupStyle
+    typealias Result = MarkupStyle?
     
-    let fromStyle: MarkupStyle
     let value: String
     
-    init(fromStyle: MarkupStyle, value: String) {
-        self.fromStyle = fromStyle
+    init(value: String) {
         self.value = value
     }
     
     func visit(_ styleAttribute: ColorHTMLTagStyleAttribute) -> Result {
-        var newStyle = fromStyle
-        guard let color = MarkupStyleColor(string: value) else { return newStyle }
-        newStyle.foregroundColor = color
-        return newStyle
+        guard let color = MarkupStyleColor(string: value) else { return nil }
+        return MarkupStyle(foregroundColor: color)
     }
     
     func visit(_ styleAttribute: ExtendHTMLTagStyleAttribute) -> Result {
-        return styleAttribute.render(fromStyle, value)
+        return styleAttribute.render(value)
     }
     
     func visit(_ styleAttribute: BackgroundColorHTMLTagStyleAttribute) -> Result {
-        var newStyle = fromStyle
-        guard let color = MarkupStyleColor(string: value) else { return newStyle }
-        newStyle.backgroundColor = color
-        return newStyle
+        guard let color = MarkupStyleColor(string: value) else { return nil }
+        return MarkupStyle(backgroundColor: color)
     }
     
     func visit(_ styleAttribute: FontSizeHTMLTagStyleAttribute) -> Result {
-        var newStyle = fromStyle
-        guard let size = self.convert(fromPX: value) else { return newStyle }
-        newStyle.font.size = CGFloat(size)
-        return newStyle
+        guard let size = self.convert(fromPX: value) else { return nil }
+        return MarkupStyle(font: MarkupStyleFont(size: CGFloat(size)))
     }
     
     func visit(_ styleAttribute: FontWeightHTMLTagStyleAttribute) -> Result {
-        var newStyle = fromStyle
         var weightStyle: FontWeightHTMLTagStyleAttribute.FontWeight?
         if let fontWeightStyle = FontWeightHTMLTagStyleAttribute.FontWeightStyle(rawValue: value) {
             weightStyle = .style(fontWeightStyle)
@@ -57,36 +48,29 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
             weightStyle = .rawValue(CGFloat(fontWeightFloat))
         }
         
-        guard let weightStyle = weightStyle else { return newStyle }
+        guard let weightStyle = weightStyle else { return nil }
         
         switch weightStyle {
         case .style(let style):
             switch style {
             case .bold:
-                newStyle.font.weight = .style(.bold)
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.bold)))
             case .normal:
-                newStyle.font.weight = .style(.regular)
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.regular)))
             }
         case .rawValue(let value):
-            newStyle.font.weight = .rawValue(value)
+            return MarkupStyle(font: MarkupStyleFont(weight: .rawValue(value)))
         }
-        
-        return newStyle
     }
     
     func visit(_ styleAttribute: LineHeightHTMLTagStyleAttribute) -> Result {
-        var newStyle = fromStyle
-        guard let lineHeightFloat = Float(value) else { return newStyle }
-        newStyle.paragraphStyle.minimumLineHeight = CGFloat(lineHeightFloat)
-        newStyle.paragraphStyle.maximumLineHeight = CGFloat(lineHeightFloat)
-        return newStyle
+        guard let lineHeightFloat = Float(value) else { return nil }
+        return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(minimumLineHeight: CGFloat(lineHeightFloat), maximumLineHeight: CGFloat(lineHeightFloat)))
     }
     
     func visit(_ styleAttribute: WordSpacingHTMLTagStyleAttribute) -> Result {
-        var newStyle = fromStyle
-        guard let lineSpacing = self.convert(fromPX: value) else { return newStyle }
-        newStyle.paragraphStyle.lineSpacing = CGFloat(lineSpacing)
-        return newStyle
+        guard let lineSpacing = self.convert(fromPX: value) else { return nil }
+        return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: CGFloat(lineSpacing)))
     }
     
     func convert(fromPX string: String) -> Int? {

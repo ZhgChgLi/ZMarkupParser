@@ -8,14 +8,6 @@
 import Foundation
 
 final class BreakLineMarkup: Markup {
-    var style: MarkupStyle?
-    let reduceable: Bool
-    
-    init(reduceable: Bool = true, style: MarkupStyle? = nil) {
-        self.reduceable = reduceable
-        self.style = style
-    }
-    
     weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     

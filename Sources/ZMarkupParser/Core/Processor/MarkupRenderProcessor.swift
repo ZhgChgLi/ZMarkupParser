@@ -8,12 +8,16 @@
 import Foundation
 
 final class MarkupRenderProcessor: ParserProcessor {
-    typealias From = Markup
+    typealias From = (Markup, [StyleMarkupComponent])
     typealias To = NSAttributedString
     
-    private let visitor = MarkupNSAttributedStringVisitor()
+    let rootStyle: MarkupStyle?
+    init(rootStyle: MarkupStyle?) {
+        self.rootStyle = rootStyle
+    }
     
     func process(from: From) -> To {
-        return visitor.visit(markup: from)
+        let visitor = MarkupNSAttributedStringVisitor(components: from.1, rootStyle: rootStyle)
+        return visitor.visit(markup: from.0)
     }
 }

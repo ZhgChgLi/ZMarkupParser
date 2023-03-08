@@ -10,7 +10,7 @@ import Foundation
 public struct HR_HTMLTagName: HTMLTagName {
     public let string: String = WC3HTMLTagName.hr.rawValue
     public let dashLength: Int
-    init(dashLength: Int = 7) {
+    public init(dashLength: Int = 7) {
         self.dashLength = dashLength
     }
     
