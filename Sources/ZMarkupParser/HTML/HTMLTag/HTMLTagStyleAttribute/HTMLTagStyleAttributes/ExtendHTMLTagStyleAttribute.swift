@@ -9,9 +9,9 @@ import Foundation
 
 public struct ExtendHTMLTagStyleAttribute: HTMLTagStyleAttribute {
     public let styleName: String
-    public let render: ((MarkupStyle, String) -> (MarkupStyle))
+    public let render: ((String) -> (MarkupStyle?))
     
-    public init(styleName: String, render: @escaping ((MarkupStyle, String) -> (MarkupStyle))) {
+    public init(styleName: String, render: @escaping ((String) -> (MarkupStyle?))) {
         self.styleName = styleName
         self.render = render
     }

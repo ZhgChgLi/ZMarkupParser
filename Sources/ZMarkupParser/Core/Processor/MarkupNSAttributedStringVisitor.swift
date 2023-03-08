@@ -10,16 +10,15 @@ import Foundation
 struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     typealias Result = NSAttributedString
     
+    let components: [StyleMarkupComponent]
+    let rootStyle: MarkupStyle?
+    
     func visit(_ markup: RootMarkup) -> Result {
         return reduceBreaklineInResultNSAttributedString(collectAttributedString(markup))
     }
     
     func visit(_ markup: BreakLineMarkup) -> Result {
-        if markup.reduceable {
-            return visit(RawStringMarkup(attributedString: NSAttributedString(string: "\n", attributes: [.reduceableBreakLine: true])))
-        } else {
-            return visit(RawStringMarkup(attributedString: NSAttributedString(string: "\n")))
-        }
+        return makeBreakLine(in: markup)
     }
     
     func visit(_ markup: RawStringMarkup) -> Result {
@@ -35,10 +34,12 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: HorizontalLineMarkup) -> Result {
-        markup.appendChild(markup: BreakLineMarkup())
-        markup.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: String(repeating: "-", count: markup.dashLength))))
-        markup.prependChild(markup: BreakLineMarkup())
-        return collectAttributedString(markup)
+        let attributedString = collectAttributedString(markup)
+        
+        attributedString.append(makeBreakLine(in: markup))
+        attributedString.append(makeString(in: markup, string: String(repeating: "-", count: markup.dashLength)))
+        attributedString.insert(makeBreakLine(in: markup), at: 0)
+        return attributedString
     }
     
     func visit(_ markup: InlineMarkup) -> Result {
@@ -54,45 +55,85 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ListItemMarkup) -> Result {
+        let attributedString = collectAttributedString(markup)
         
-        let isOrder = markup.parentMarkup is OrderListMarkup
-        let siblingListItems = markup.parentMarkup?.childMarkups.compactMap({ $0 as? ListItemMarkup }) ?? []
-        let currentListItemIndex = siblingListItems.firstIndex(where: { $0 === markup }) ?? 0
+        // We don't set NSTextList to NSParagraphStyle directly, because NSTextList have abnormal extra spaces.
+        // ref: https://stackoverflow.com/questions/66714650/nstextlist-formatting
         
-        if isOrder {
-            markup.prependChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "\(currentListItemIndex + 1).")))
-        } else {
-            markup.prependChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "•")))
+        if let parentMarkup = markup.parentMarkup as? ListMarkup {
+            if parentMarkup.styleList.type.isOrder() {
+                let siblingListItems = markup.parentMarkup?.childMarkups.filter({ $0 is ListItemMarkup }) ?? []
+                let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentMarkup.styleList.startingItemNumber
+                attributedString.insert(makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: position)), at: 0)
+            } else {
+                attributedString.insert(makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: parentMarkup.styleList.startingItemNumber)), at: 0)
+            }
+            
+            attributedString.append(makeBreakLine(in: markup))
         }
         
-        markup.appendChild(markup: BreakLineMarkup())
-        return collectAttributedString(markup)
+        return attributedString
     }
     
-    func visit(_ markup: UnorderListMarkup) -> Result {
-        markup.prependChild(markup: BreakLineMarkup())
-        markup.appendChild(markup: BreakLineMarkup())
-        return collectAttributedString(markup)
-    }
-    
-    func visit(_ markup: OrderListMarkup) -> Result {
-        markup.prependChild(markup: BreakLineMarkup())
-        markup.appendChild(markup: BreakLineMarkup())
-        return collectAttributedString(markup)
+    func visit(_ markup: ListMarkup) -> Result {
+        let attributedString = collectAttributedString(markup)
+        attributedString.append(makeBreakLine(in: markup))
+        attributedString.insert(makeBreakLine(in: markup), at: 0)
+        return attributedString
     }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
-        markup.appendChild(markup: BreakLineMarkup(reduceable: false))
-        markup.prependChild(markup: BreakLineMarkup(reduceable: false))
-        return collectAttributedString(markup)
+        let attributedString = collectAttributedString(markup)
+        attributedString.append(makeBreakLine(in: markup, reduceable: false))
+        attributedString.insert(makeBreakLine(in: markup, reduceable: false), at: 0)
+        return attributedString
     }
     
     func visit(_ markup: UnderlineMarkup) -> Result {
         return collectAttributedString(markup)
     }
     
-    func visit(_ markup: DeletelineMarkup) -> NSAttributedString {
+    func visit(_ markup: DeletelineMarkup) -> Result {
         return collectAttributedString(markup)
+    }
+    
+    func visit(_ markup: TableColumnMarkup) -> Result {
+        let attributedString = collectAttributedString(markup)
+        let siblingColumns = markup.parentMarkup?.childMarkups.filter({ $0 is TableColumnMarkup }) ?? []
+        let position = (siblingColumns.firstIndex(where: { $0 === markup }) ?? 0)
+        
+        var maxLength: Int? = markup.fixedMaxLength
+        if maxLength == nil {
+            if let tableRowMarkup = markup.parentMarkup as? TableRowMarkup,
+               let firstTableRow = tableRowMarkup.parentMarkup?.childMarkups.first(where: { $0 is TableRowMarkup }) as? TableRowMarkup {
+                let firstTableRowColumns = firstTableRow.childMarkups.filter({ $0 is TableColumnMarkup })
+                if firstTableRowColumns.indices.contains(position) {
+                    let firstTableRowColumnAttributedString = collectAttributedString(firstTableRowColumns[position])
+                    let length = firstTableRowColumnAttributedString.string.utf16.count
+                    maxLength = length
+                }
+            }
+        }
+        
+        if let maxLength = maxLength {
+            if attributedString.string.utf16.count > maxLength {
+                attributedString.mutableString.setString(String(attributedString.string.prefix(maxLength))+"...")
+            } else {
+                attributedString.mutableString.setString(attributedString.string.padding(toLength: maxLength, withPad: " ", startingAt: 0))
+            }
+        }
+        
+        if position < siblingColumns.count - 1 {
+            attributedString.append(makeString(in: markup, string: "\t"))
+        }
+        
+        return attributedString
+    }
+    
+    func visit(_ markup: TableRowMarkup) -> Result {
+        let attributedString = collectAttributedString(markup)
+        attributedString.append(makeBreakLine(in: markup))
+        return attributedString
     }
 }
 
@@ -124,6 +165,24 @@ extension MarkupNSAttributedStringVisitor {
         mutableAttributedString.addAttributes(markupStyle.render(), range: NSMakeRange(0, mutableAttributedString.string.utf16.count))
         return mutableAttributedString
     }
+    
+    func makeBreakLine(in markup: Markup, reduceable: Bool = true) -> NSAttributedString {
+        if reduceable {
+            return makeString(in: markup, string: "\n", attributes: [.reduceableBreakLine: true])
+        } else {
+            return makeString(in: markup, string: "\n")
+        }
+    }
+    
+    func makeString(in markup: Markup, string: String, attributes attrs: [NSAttributedString.Key : Any]? = nil) -> NSAttributedString {
+        let attributedString: NSAttributedString
+        if let attrs = attrs, !attrs.isEmpty {
+            attributedString = NSAttributedString(string: string, attributes: attrs)
+        } else {
+            attributedString = NSAttributedString(string: string)
+        }
+        return applyMarkupStyle(attributedString, with: collectMarkupStyle(markup))
+    }
 }
 
 private extension MarkupNSAttributedStringVisitor {
@@ -146,9 +205,9 @@ private extension MarkupNSAttributedStringVisitor {
         // Result: style: Bold+Italic
         
         var currentMarkup: Markup? = markup.parentMarkup
-        var currentStyle = markup.style
+        var currentStyle = components.value(markup: markup)
         while let thisMarkup = currentMarkup {
-            guard let thisMarkupStyle = thisMarkup.style else {
+            guard let thisMarkupStyle = components.value(markup: thisMarkup) else {
                 currentMarkup = thisMarkup.parentMarkup
                 continue
             }
@@ -162,6 +221,8 @@ private extension MarkupNSAttributedStringVisitor {
 
             currentMarkup = thisMarkup.parentMarkup
         }
+        
+        currentStyle?.fillIfNil(from: rootStyle)
         
         return currentStyle
     }

@@ -97,4 +97,19 @@ private class StubVisitor: HTMLTagNameVisitor {
         count += 1
         return count
     }
+    
+    func visit(_ tagName: TR_HTMLTagName) -> Int {
+        count += 1
+        return count
+    }
+    
+    func visit(_ tagName: TD_HTMLTagName) -> Int {
+        count += 1
+        return count
+    }
+    
+    func visit(_ tagName: TH_HTMLTagName) -> Int {
+        count += 1
+        return count
+    }
 }

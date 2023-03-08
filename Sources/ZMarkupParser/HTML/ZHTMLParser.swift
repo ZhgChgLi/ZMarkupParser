@@ -12,20 +12,23 @@ public final class ZHTMLParser: ZMarkupParser {
     let styleAttributes: [HTMLTagStyleAttribute]
     let rootStyle: MarkupStyle?
     
-    let parsedResultToRootMarkup: HTMLParsedResultToRootMarkupProcessor
-    let htmlSelectorToMarkup: HTMLSelectorToMarkupProcessor
-    lazy var parsedResultToRootHTMLSelector: HTMLParsedResultToRootHTMLSelectorProcessor = HTMLParsedResultToRootHTMLSelectorProcessor()
-    lazy var parsedResultFormatter: HTMLParsedResultFormatterProcessor = HTMLParsedResultFormatterProcessor()
-    lazy var stringToParsedResult: HTMLStringToParsedResultProcessor = HTMLStringToParsedResultProcessor()
-    lazy var rootMarkupStripper: MarkupStripperProcessor = MarkupStripperProcessor()
-    lazy var rootMarkupRender: MarkupRenderProcessor = MarkupRenderProcessor()
+    let htmlParsedResultToHTMLElementWithRootMarkupProcessor: HTMLParsedResultToHTMLElementWithRootMarkupProcessor
+    let htmlElementWithMarkupToMarkupStyleProcessor: HTMLElementWithMarkupToMarkupStyleProcessor
+    let markupRenderProcessor: MarkupRenderProcessor
+    
+    lazy var htmlParsedResultFormatter: HTMLParsedResultFormatterProcessor = HTMLParsedResultFormatterProcessor()
+    lazy var htmlStringToParsedResult: HTMLStringToParsedResultProcessor = HTMLStringToParsedResultProcessor()
+    lazy var markupStripperProcessor: MarkupStripperProcessor = MarkupStripperProcessor()
     
     init(htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute], rootStyle: MarkupStyle?) {
         self.htmlTags = htmlTags
         self.styleAttributes = styleAttributes
         self.rootStyle = rootStyle
-        self.parsedResultToRootMarkup = HTMLParsedResultToRootMarkupProcessor(rootStyle: rootStyle, htmlTags: htmlTags, styleAttributes: styleAttributes)
-        self.htmlSelectorToMarkup = HTMLSelectorToMarkupProcessor(rootStyle: rootStyle, htmlTags: htmlTags, styleAttributes: styleAttributes)
+        
+        self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle)
+        
+        self.htmlParsedResultToHTMLElementWithRootMarkupProcessor = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: htmlTags)
+        self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes)
     }
     
     static let dispatchQueue: DispatchQueue = DispatchQueue(label: "ZHTMLParser.Queue", qos: .userInteractive)
@@ -42,8 +45,9 @@ public final class ZHTMLParser: ZMarkupParser {
     
     public func selector(_ attributedString: NSAttributedString) -> HTMLSelector {
         let items = process(attributedString)
-        let rootSelector = parsedResultToRootHTMLSelector.process(from: items)
-        return rootSelector
+        let reuslt = htmlParsedResultToHTMLElementWithRootMarkupProcessor.process(from: items)
+        
+        return HTMLSelector(markup: reuslt.markup, componets: reuslt.htmlElementComponents)
     }
     
     public func render(_ string: String) -> NSAttributedString {
@@ -51,17 +55,16 @@ public final class ZHTMLParser: ZMarkupParser {
     }
     
     public func render(_ selector: HTMLSelector) -> NSAttributedString {
-        let markup = htmlSelectorToMarkup.process(from: selector)
-        let attributedString = rootMarkupRender.process(from: markup)
-        return attributedString
+        let styleComponets = htmlElementWithMarkupToMarkupStyleProcessor.process(from: (selector.markup, selector.componets))
+        return markupRenderProcessor.process(from: (selector.markup, styleComponets))
     }
     
     public func render(_ attributedString: NSAttributedString) -> NSAttributedString {
         let items = process(attributedString)
-        let rootMarkup = parsedResultToRootMarkup.process(from: items)
-        let attributedString = rootMarkupRender.process(from: rootMarkup)
+        let reuslt = htmlParsedResultToHTMLElementWithRootMarkupProcessor.process(from: items)
+        let styleComponets = htmlElementWithMarkupToMarkupStyleProcessor.process(from: (reuslt.markup, reuslt.htmlElementComponents))
         
-        return attributedString
+        return markupRenderProcessor.process(from: (reuslt.markup, styleComponets))
     }
     
     public func stripper(_ string: String) -> String {
@@ -70,8 +73,8 @@ public final class ZHTMLParser: ZMarkupParser {
     
     public func stripper(_ attributedString: NSAttributedString) -> NSAttributedString {
         let items = process(attributedString)
-        let rootMarkup = parsedResultToRootMarkup.process(from: items)
-        let attributedString = rootMarkupStripper.process(from: rootMarkup)
+        let reuslt = htmlParsedResultToHTMLElementWithRootMarkupProcessor.process(from: items)
+        let attributedString = markupStripperProcessor.process(from: reuslt.markup)
         
         return attributedString
     }
@@ -84,18 +87,16 @@ public final class ZHTMLParser: ZMarkupParser {
     
     public func selector(_ attributedString: NSAttributedString, completionHandler: @escaping (HTMLSelector) -> Void) {
         ZHTMLParser.dispatchQueue.async {
-            let items = self.process(attributedString)
-            let rootSelector = self.parsedResultToRootHTMLSelector.process(from: items)
+            let selector = self.selector(attributedString)
             DispatchQueue.main.async {
-                completionHandler(rootSelector)
+                completionHandler(selector)
             }
         }
     }
     
     public func render(_ selector: HTMLSelector, completionHandler: @escaping (NSAttributedString) -> Void) {
         ZHTMLParser.dispatchQueue.async {
-            let markup = self.htmlSelectorToMarkup.process(from: selector)
-            let attributedString = self.rootMarkupRender.process(from: markup)
+            let attributedString = self.render(selector)
             DispatchQueue.main.async {
                 completionHandler(attributedString)
             }
@@ -108,11 +109,9 @@ public final class ZHTMLParser: ZMarkupParser {
     
     public func render(_ attributedString: NSAttributedString, completionHandler: @escaping (NSAttributedString) -> Void) {
         ZHTMLParser.dispatchQueue.async {
-            let items = self.process(attributedString)
-            let rootMarkup = self.parsedResultToRootMarkup.process(from: items)
-            let result = self.rootMarkupRender.process(from: rootMarkup)
+            let attributedString = self.render(attributedString)
             DispatchQueue.main.async {
-                completionHandler(result)
+                completionHandler(attributedString)
             }
         }
     }
@@ -125,9 +124,7 @@ public final class ZHTMLParser: ZMarkupParser {
     
     public func stripper(_ attributedString: NSAttributedString, completionHandler: @escaping (NSAttributedString) -> Void) {
         ZHTMLParser.dispatchQueue.async {
-            let items = self.process(attributedString)
-            let rootMarkup = self.parsedResultToRootMarkup.process(from: items)
-            let attributedString = self.rootMarkupStripper.process(from: rootMarkup)
+            let attributedString = self.stripper(attributedString)
             DispatchQueue.main.async {
                 completionHandler(attributedString)
             }
@@ -137,10 +134,10 @@ public final class ZHTMLParser: ZMarkupParser {
 
 private extension ZHTMLParser {
     func process(_ attributedString: NSAttributedString) -> [HTMLParsedResult] {
-        let parsedResult = stringToParsedResult.process(from: attributedString)
+        let parsedResult = htmlStringToParsedResult.process(from: attributedString)
         var items = parsedResult.items
         if parsedResult.needFormatter {
-            items = parsedResultFormatter.process(from: items)
+            items = htmlParsedResultFormatter.process(from: items)
         }
         
         return items

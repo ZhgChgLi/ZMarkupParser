@@ -17,17 +17,18 @@ protocol MarkupVisitor {
     func visit(_ markup: BreakLineMarkup) -> Result
     func visit(_ markup: ExtendMarkup) -> Result
     
-    func visit(_ markup: UnorderListMarkup) -> Result
     func visit(_ markup: BoldMarkup) -> Result
     func visit(_ markup: HorizontalLineMarkup) -> Result
     func visit(_ markup: InlineMarkup) -> Result
     func visit(_ markup: ItalicMarkup) -> Result
     func visit(_ markup: LinkMarkup) -> Result
     func visit(_ markup: ListItemMarkup) -> Result
-    func visit(_ markup: OrderListMarkup) -> Result
+    func visit(_ markup: ListMarkup) -> Result
     func visit(_ markup: ParagraphMarkup) -> Result
     func visit(_ markup: UnderlineMarkup) -> Result
     func visit(_ markup: DeletelineMarkup) -> Result
+    func visit(_ markup: TableRowMarkup) -> Result
+    func visit(_ markup: TableColumnMarkup) -> Result
 }
 
 extension MarkupVisitor {

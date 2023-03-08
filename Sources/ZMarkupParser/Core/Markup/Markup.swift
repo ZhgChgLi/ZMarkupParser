@@ -10,7 +10,6 @@ import Foundation
 protocol Markup: AnyObject {
     var parentMarkup: Markup? { get set }
     var childMarkups: [Markup] { get set }
-    var style: MarkupStyle? { get }
     
     func appendChild(markup: Markup)
     func prependChild(markup: Markup)

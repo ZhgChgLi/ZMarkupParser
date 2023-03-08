@@ -27,6 +27,10 @@ public protocol HTMLTagNameVisitor {
     func visit(_ tagName: U_HTMLTagName) -> Result
     func visit(_ tagName: UL_HTMLTagName) -> Result
     func visit(_ tagName: DEL_HTMLTagName) -> Result
+    
+    func visit(_ tagName: TR_HTMLTagName) -> Result
+    func visit(_ tagName: TD_HTMLTagName) -> Result
+    func visit(_ tagName: TH_HTMLTagName) -> Result
 }
 
 public extension HTMLTagNameVisitor {
@@ -51,7 +55,10 @@ public extension ZHTMLParserBuilder {
             STRONG_HTMLTagName(),
             U_HTMLTagName(),
             UL_HTMLTagName(),
-            DEL_HTMLTagName()
+            DEL_HTMLTagName(),
+            TR_HTMLTagName(),
+            TD_HTMLTagName(),
+            TH_HTMLTagName()
         ]
     }
 }
