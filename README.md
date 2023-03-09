@@ -15,12 +15,12 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 [中文](https://medium.com/zrealm-ios-dev/zmarkupparser-html-string-%E8%BD%89%E6%8F%9B-nsattributedstring-%E5%B7%A5%E5%85%B7-a5643de271e4)
 
 ## Features
-- [x] Parse HTML strings using pure-Swift and regular expressions
+- [x] Parse HTML strings using pure-Swift and regular expressions.
 - [x] Automatically correct invalid HTML strings, including mixed or isolated tags (e.g., `<a>Link<b>LinkBold</a>Bold</b><br>` -> `<a>Link<b>LinkBold</b></a><b>Bold</b><br/>`).
 - [x] More compatible with HTML tags than a parser that is based on XMLParser.
 - [x] Customizable HTML tag parser with painless extended tag support and the ability to customize tag styles.
 - [x] Support for HTML rendering, stripping, and selecting.
-- [x] Support for `<ul>` and `<ol>` list views and `<hr>` horizontal lines, and more.
+- [x] Support for `<ul>` list views, `<tr><td>` table view, `<img>` image, also `<hr>` horizontal lines, and more.
 - [x] Support for parsing and setting styles from HTML tag attributes such as style="color:red".
 - [x] Support for parsing HTML color names into UIColor/NSColor.
 - [x] Better performance compared to `NSAttributedString.DocumentType.html`.
@@ -29,7 +29,7 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 ## ToDo
 - [ ] Write a technical post about developing ZMarkupParser (Chinese only).
 - [ ] Fully documented
-- [ ] Support render `<img>` and `<table>`
+- [ ] Increase test coverage to 95%
 - [ ] Create a class diagram and documentation for the architecture and design patterns of ZMarkupParser.
 - [ ] Support Markdown because the Markup object is a high-level abstraction.
 
@@ -56,14 +56,14 @@ The chart above shows the elapsed time (in seconds) to render different HTML str
 
 - File > Swift Packages > Add Package Dependency
 - Add `https://github.com/ZhgChgLi/ZMarkupParser.git`
-- Select "Up to Next Major" with "1.2.5"
+- Select "Up to Next Major" with "1.3.0"
 
 or 
 
 ```swift
 ...
 dependencies: [
-  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.2.5"),
+  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.3.0"),
 ]
 ...
 .target(
@@ -82,7 +82,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 1.2.5'
+  pod 'ZMarkupParser', '~> 1.3.0'
 end
 ```
 
@@ -178,7 +178,11 @@ STRONG_HTMLTagName(), // <strong></strong>
 U_HTMLTagName(), // <u></u>
 UL_HTMLTagName(), // <ul></ul>
 DEL_HTMLTagName(), // <del></del>
-...
+IMG_HTMLTagName(handler: ZNSTextAttachmentHandler), // <img> and image downloader
+TR_HTMLTagName(), // <tr>
+TD_HTMLTagName(), // <td>
+TH_HTMLTagName(), // <th>
+...and more
 ```
 
 ### MarkupStyle/MarkupStyleColor/MarkupStyleParagraphStyle
@@ -292,7 +296,9 @@ parser.stripper(htmlString) // NSAttributedString
 ```swift
 let selector = parser.selector(htmlString) // HTMLSelector e.g. input: <a><b>Test</b>Link</a>
 selector.first("a")?.first("b").attributedString // will return Test
-selector.filter("a").attributedString // will return Test Link
+selector.filter("a").get() // will return dict struct
+selector.filter("a") // will return json string of dict
+
 ```
 
 ### Selector+Render HTML String
@@ -310,7 +316,6 @@ parser.selector(String) { _ in }...
 If you want to render huge html string, please use async instead.
 
 ## Things to know
-- Parsing `<img>` tags is currently not supported because inserting images using NSTextAttachment in UITextView can lead to out-of-memory issues, especially when parsing large amounts of HTML.
 - To change the style of links in UITextView, you need to set the linkTextAttributes property to an NSAttributedString.Key value that includes the desired style properties.
 - If you're using a UILabel to render attributed strings, note that you can't change the color of .link text using the NSAttributedString.Key.foregroundColor attribute.
 - The ZHTMLParser library is intended for rendering partial HTML content, and may not be suitable for rendering very large or complex HTML documents. For these use cases, it's better to use a web view to render the HTML content.
