@@ -135,6 +135,10 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         attributedString.append(makeBreakLine(in: markup))
         return attributedString
     }
+
+    func visit(_ markup: ImageMarkup) -> NSAttributedString {
+        return collectAttributedString(markup)
+    }
 }
 
 extension MarkupNSAttributedStringVisitor {

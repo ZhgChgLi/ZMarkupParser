@@ -6,9 +6,18 @@
 //
 
 import Foundation
+import ZNSTextAttachment
+
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     typealias Result = Markup
+    
+    let attributes: [String: String]?
     
     func visit(_ tagName: A_HTMLTagName) -> Result {
         return LinkMarkup()
@@ -81,4 +90,58 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     func visit(_ tagName: TH_HTMLTagName) -> Result {
         return TableColumnMarkup(isHeader: true, fixedMaxLength: tagName.fixedMaxLength)
     }
+    
+    func visit(_ tagName: IMG_HTMLTagName) -> Result {
+        guard let srcString = attributes?["src"],
+              let srcURL = URL(string: srcString) else {
+            return ExtendMarkup()
+        }
+        
+        let width: CGFloat?
+        if let widthString = attributes?["width"], let widthFloat = Float(widthString) {
+            width = CGFloat(widthFloat)
+        } else {
+            width = nil
+        }
+        
+        let height: CGFloat?
+        if let heightString = attributes?["height"], let heightFloat = Float(heightString) {
+            height = CGFloat(heightFloat)
+        } else {
+            height = nil
+        }
+        
+        let attachment = ZNSTextAttachment(imageURL: srcURL, imageWidth: width, imageHeight: height, placeholderImage: placeholderImage(size: CGSize(width: width ?? 50, height: height ?? 50)))
+        
+        attachment.delegate = tagName.handler
+        attachment.dataSource = tagName.handler
+        
+        let imageMarkup = ImageMarkup(attachment: attachment, width: width, height: height)
+        return imageMarkup
+    }
+}
+
+private extension HTMLTagNameToMarkupVisitor {
+    
+    #if canImport(UIKit)
+    func placeholderImage(size: CGSize) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        
+        UIColor.gray.setFill()
+        UIBezierPath(rect: CGRect(origin: CGPoint.zero, size: size)).fill()
+        
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        
+        UIGraphicsEndImageContext()
+        
+        return image
+    }
+    #elseif canImport(AppKit)
+    func placeholderImage(size: CGSize) -> NSImage? {
+        let image = NSImage()
+        image.backgroundColor = .gray
+        image.size = size
+        return image
+    }
+    #endif
 }

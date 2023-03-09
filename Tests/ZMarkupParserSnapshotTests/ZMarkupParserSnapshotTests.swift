@@ -8,10 +8,10 @@
 import XCTest
 @testable import ZMarkupParser
 import SnapshotTesting
+import ZNSTextAttachment
 
 final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
-    
-    private let record: Bool = false
+    private let record: Bool = true
     
     private let htmlString = """
         🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
@@ -44,6 +44,8 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     }
     
     #if canImport(UIKit)
+    private var asynTextView: UITextView?
+    
     func testShouldKeppNSAttributedString() {
         let parser = makeSUT()
         let textView = UITextView()
@@ -53,6 +55,21 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layoutIfNeeded()
         assertSnapshot(matching: textView, as: .image, record: self.record)
+    }
+    
+    func testAsyncImageNSAttributedString() {
+        let attributedString = NSMutableAttributedString(attributedString: attributedHTMLString)
+        attributedString.append(NSAttributedString(string: #"<br/><img src="https://user-images.githubusercontent.com/33706588/219608966-20e0c017-d05c-433a-9a52-091bc0cfd403.jpg"/>"#))
+        let parser = makeSUT()
+        let textView = UITextView()
+        textView.frame.size.width = 390
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .white
+        textView.setHtmlString(attributedString, with: parser)
+        
+        asynTextView = textView
+        let _ = self.expectation(description: "testAsyncImageNSAttributedString")
+        self.waitForExpectations(timeout: 5, handler: nil)
     }
     
     func testUITextViewSetHTMLString() {
@@ -168,7 +185,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
 
 extension ZHTMLToNSAttributedStringSnapshotTests {
     func makeSUT() -> ZHTMLParser {
-        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName(.abbr), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).add(ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { value in
+        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName(.abbr), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(IMG_HTMLTagName(handler: self)).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).add(ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { value in
             var newStyle = MarkupStyle()
             if value == "underline" {
                 newStyle.underlineStyle = .single
@@ -178,3 +195,28 @@ extension ZHTMLToNSAttributedStringSnapshotTests {
         return parser
     }
 }
+
+extension ZHTMLToNSAttributedStringSnapshotTests: ZNSTextAttachmentDataSource, ZNSTextAttachmentDelegate {
+    func zNSTextAttachment(_ textAttachment: ZNSTextAttachment, loadImageURL imageURL: URL, completion: @escaping (Data) -> Void) {
+        let urlSessionDataTask = URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
+            guard let data = data, error == nil else {
+                print(error?.localizedDescription as Any)
+                return
+            }
+            completion(data)
+        }
+        urlSessionDataTask.resume()
+    }
+    
+    func zNSTextAttachment(didLoad textAttachment: ZNSTextAttachment) {
+        #if canImport(UIKit)
+            guard let textView = self.asynTextView else { return }
+            textView.layoutIfNeeded()
+            assertSnapshot(matching: textView, as: .image, record: self.record)
+            self.expectation(description: "testAsyncImageNSAttributedString").fulfill()
+        #elseif canImport(AppKit)
+        
+        #endif
+    }
+}
+
