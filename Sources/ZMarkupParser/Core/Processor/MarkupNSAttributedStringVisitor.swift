@@ -137,7 +137,9 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     }
 
     func visit(_ markup: ImageMarkup) -> NSAttributedString {
-        return collectAttributedString(markup)
+        let attributedString = collectAttributedString(markup)
+        attributedString.insert(NSAttributedString(attachment: markup.attachment), at: 0)
+        return attributedString
     }
 }
 

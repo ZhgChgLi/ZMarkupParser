@@ -11,7 +11,7 @@ import SnapshotTesting
 import ZNSTextAttachment
 
 final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
-    private let record: Bool = true
+    private let record: Bool = false
     
     private let htmlString = """
         🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
@@ -44,18 +44,8 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     }
     
     #if canImport(UIKit)
-    private var asynTextView: UITextView?
-    
-    func testShouldKeppNSAttributedString() {
-        let parser = makeSUT()
-        let textView = UITextView()
-        textView.frame.size.width = 390
-        textView.isScrollEnabled = false
-        textView.backgroundColor = .white
-        textView.setHtmlString(attributedHTMLString, with: parser)
-        textView.layoutIfNeeded()
-        assertSnapshot(matching: textView, as: .image, record: self.record)
-    }
+    private var testAsyncImageTextView: UITextView?
+    private var testAsyncXCTestExpectation: XCTestExpectation?
     
     func testAsyncImageNSAttributedString() {
         let attributedString = NSMutableAttributedString(attributedString: attributedHTMLString)
@@ -67,9 +57,30 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.backgroundColor = .white
         textView.setHtmlString(attributedString, with: parser)
         
-        asynTextView = textView
-        let _ = self.expectation(description: "testAsyncImageNSAttributedString")
+        testAsyncImageTextView = textView
+        
+        textView.attributedText.enumerateAttribute(NSAttributedString.Key.attachment, in: NSMakeRange(0, textView.attributedText.string.utf16.count), options: []) { (value, effectiveRange, nil) in
+            guard let attachment = value as? ZNSTextAttachment else {
+                return
+            }
+            attachment.register(textView.textStorage)
+            attachment.startDownlaod()
+        }
+        
+        
+        testAsyncXCTestExpectation = self.expectation(description: "testAsyncImageNSAttributedString")
         self.waitForExpectations(timeout: 5, handler: nil)
+    }
+    
+    func testShouldKeppNSAttributedString() {
+        let parser = makeSUT()
+        let textView = UITextView()
+        textView.frame.size.width = 390
+        textView.isScrollEnabled = false
+        textView.backgroundColor = .white
+        textView.setHtmlString(attributedHTMLString, with: parser)
+        textView.layoutIfNeeded()
+        assertSnapshot(matching: textView, as: .image, record: self.record)
     }
     
     func testUITextViewSetHTMLString() {
@@ -125,6 +136,36 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     }
     
     #elseif canImport(AppKit)
+    private var testAsyncImageTextView: NSTextView?
+    private var testAsyncXCTestExpectation: XCTestExpectation?
+    
+    func testAsyncImageNSAttributedString() {
+        let attributedString = NSMutableAttributedString(attributedString: attributedHTMLString)
+        attributedString.append(NSAttributedString(string: #"<br/><img src="https://user-images.githubusercontent.com/33706588/219608966-20e0c017-d05c-433a-9a52-091bc0cfd403.jpg"/>test"#))
+        let parser = makeSUT()
+        let textView = NSTextView()
+        textView.frame.size.width = 390
+        textView.frame.size.height = 1000
+        textView.backgroundColor = .white
+        textView.setHtmlString(attributedString, with: parser)
+        
+        testAsyncImageTextView = textView
+        
+        textView.textStorage?.enumerateAttribute(NSAttributedString.Key.attachment, in: NSMakeRange(0, textView.textStorage?.string.utf16.count ?? 0), options: []) { (value, effectiveRange, nil) in
+            guard let attachment = value as? ZNSTextAttachment else {
+                return
+            }
+            if let textStorage = textView.textStorage {
+                attachment.register(textStorage)
+            }
+            attachment.startDownlaod()
+        }
+        
+        
+        testAsyncXCTestExpectation = self.expectation(description: "testAsyncImageNSAttributedString")
+        self.waitForExpectations(timeout: 5, handler: nil)
+    }
+    
     func testNSTextViewSetHTMLString() {
         let parser = makeSUT()
         
@@ -196,27 +237,27 @@ extension ZHTMLToNSAttributedStringSnapshotTests {
     }
 }
 
-extension ZHTMLToNSAttributedStringSnapshotTests: ZNSTextAttachmentDataSource, ZNSTextAttachmentDelegate {
+extension ZHTMLToNSAttributedStringSnapshotTests: ZNSTextAttachmentDelegate, ZNSTextAttachmentDataSource {
+    func zNSTextAttachment(didLoad textAttachment: ZNSTextAttachment, to: ZResizableNSTextAttachment) {
+        if let textView = testAsyncImageTextView {
+            #if canImport(UIKit)
+            textView.layoutIfNeeded()
+            assertSnapshot(matching: textView, as: .image, record: self.record, testName: "testAsyncImageNSAttributedString_uiTextView")
+            #elseif canImport(AppKit)
+            textView.layout()
+            assertSnapshot(matching: textView, as: .image, record: self.record, testName: "testAsyncImageNSAttributedString_nsTextView")
+            #endif
+        }
+        testAsyncXCTestExpectation?.fulfill()
+    }
+    
     func zNSTextAttachment(_ textAttachment: ZNSTextAttachment, loadImageURL imageURL: URL, completion: @escaping (Data) -> Void) {
-        let urlSessionDataTask = URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
+        URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
             guard let data = data, error == nil else {
                 print(error?.localizedDescription as Any)
                 return
             }
             completion(data)
-        }
-        urlSessionDataTask.resume()
-    }
-    
-    func zNSTextAttachment(didLoad textAttachment: ZNSTextAttachment) {
-        #if canImport(UIKit)
-            guard let textView = self.asynTextView else { return }
-            textView.layoutIfNeeded()
-            assertSnapshot(matching: textView, as: .image, record: self.record)
-            self.expectation(description: "testAsyncImageNSAttributedString").fulfill()
-        #elseif canImport(AppKit)
-        
-        #endif
+        }.resume()
     }
 }
-

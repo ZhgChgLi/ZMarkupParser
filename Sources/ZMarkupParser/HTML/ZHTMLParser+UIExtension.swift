@@ -50,7 +50,7 @@ public extension UILabel {
                 return
             }
             
-            attachment.register(label: self)
+            attachment.register(self)
         }
         
         self.attributedText = attributedString
@@ -67,7 +67,7 @@ public extension UILabel {
                     return
                 }
                 
-                attachment.register(label: self)
+                attachment.register(self)
             }
             
             self.attributedText = attributedString
