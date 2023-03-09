@@ -104,9 +104,20 @@ public struct MarkupStyleParagraphStyle: MarkupStyleItem {
         self.paragraphSpacingBefore = self.paragraphSpacingBefore ?? from?.paragraphSpacingBefore
         self.hyphenationFactor = self.hyphenationFactor ?? from?.hyphenationFactor
         self.usesDefaultHyphenation = self.usesDefaultHyphenation ?? from?.usesDefaultHyphenation
-        self.tabStops = self.tabStops ?? from?.tabStops
         self.defaultTabInterval = self.defaultTabInterval ?? from?.defaultTabInterval
-        self.textLists = self.textLists ?? from?.textLists
+        
+        if let from = from?.tabStops {
+            var to = self.tabStops ?? []
+            to.append(contentsOf: from)
+            self.tabStops = to
+        }
+        
+        if let from = from?.textLists {
+            var to = self.textLists ?? []
+            to.append(contentsOf: from)
+            self.textLists = to
+        }
+        
         self.allowsDefaultTighteningForTruncation = self.allowsDefaultTighteningForTruncation ?? from?.allowsDefaultTighteningForTruncation
         self.lineBreakStrategy = self.lineBreakStrategy ?? from?.lineBreakStrategy
     }

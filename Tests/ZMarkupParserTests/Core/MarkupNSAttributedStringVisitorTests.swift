@@ -11,9 +11,13 @@ import XCTest
 
 final class MarkupNSAttributedStringVisitorTests: XCTestCase {
     func testVisitMakup() {
-        let rootMarkup = RootMarkup(style: MarkupStyle(kern: 99))
-        let boldMarkup = BoldMarkup(style: MarkupStyle(font: MarkupStyleFont(size: 10, weight: .style(.semibold))))
-        let underlineMarkup = UnderlineMarkup(style: MarkupStyle(underlineStyle: .single))
+        var compoments: [MarkupStyleComponent] = []
+        let rootMarkup = RootMarkup()
+        let rootStyle = MarkupStyle(kern: 99)
+        let boldMarkup = BoldMarkup()
+        compoments.append(.init(markup: boldMarkup, value: MarkupStyle(font: MarkupStyleFont(size: 10, weight: .style(.semibold)))))
+        let underlineMarkup = UnderlineMarkup()
+        compoments.append(.init(markup: underlineMarkup, value: MarkupStyle(underlineStyle: .single)))
         let boldRawString = RawStringMarkup(attributedString: NSAttributedString(string: "boldText"))
         let underlineBoldRawString = RawStringMarkup(attributedString: NSAttributedString(string: "underlineWithBoldText"))
         let rawString = RawStringMarkup(attributedString: NSAttributedString(string: "rawText"))
@@ -24,13 +28,13 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         rootMarkup.appendChild(markup: boldMarkup)
         rootMarkup.appendChild(markup: rawString)
         
-        let visitor = MarkupNSAttributedStringVisitor()
+        let visitor = MarkupNSAttributedStringVisitor(components: compoments, rootStyle: rootStyle)
         let result = visitor.visit(rootMarkup)
         
         let underlineBoldRawStringAttributes = result.attributedSubstring(from: NSString(string: result.string).range(of: underlineBoldRawString.attributedString.string)).attributes(at: 0, effectiveRange: nil)
         
-        XCTAssertEqual(underlineBoldRawStringAttributes[.kern] as? Int, rootMarkup.style?.kern?.intValue, "should set kern from rootmarkup style")
-        XCTAssertEqual(underlineBoldRawStringAttributes[.underlineStyle] as? Int, underlineMarkup.style?.underlineStyle?.rawValue, "should set underlineStyle from underlineMarkup style")
+        XCTAssertEqual(underlineBoldRawStringAttributes[.kern] as? Int, rootStyle.kern?.intValue, "should set kern from rootmarkup style")
+        XCTAssertEqual(underlineBoldRawStringAttributes[.underlineStyle] as? Int, compoments.value(markup: underlineMarkup)?.underlineStyle?.rawValue, "should set underlineStyle from underlineMarkup style")
         
         #if canImport(UIKit)
         if let font = underlineBoldRawStringAttributes[.font] as? UIFont {
@@ -50,7 +54,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
     }
     
     func testReduceBreaklineInResultNSAttributedStringRemovePrefix() {
-        let visitor = MarkupNSAttributedStringVisitor()
+        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
         let mutableAttributedString = NSMutableAttributedString(string: "\nTest")
         XCTAssertEqual(visitor.reduceBreaklineInResultNSAttributedString(mutableAttributedString).string, "\nTest", "Shoud only remove break line with attritube:reduceableBreakLine")
         
@@ -60,7 +64,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
     }
     
     func testReduceBreaklineInResultNSAttributedStringRemoveSuffix() {
-        let visitor = MarkupNSAttributedStringVisitor()
+        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
         let mutableAttributedString = NSMutableAttributedString(string: "Test\n")
         XCTAssertEqual(visitor.reduceBreaklineInResultNSAttributedString(mutableAttributedString).string, "Test\n", "Shoud only remove break line with attritube:reduceableBreakLine")
         
@@ -70,7 +74,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
     }
     
     func testReduceBreaklineInResultNSAttributedStringRemoveReduntantBreakLine() {
-        let visitor = MarkupNSAttributedStringVisitor()
+        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
         let mutableAttributedString = NSMutableAttributedString()
         mutableAttributedString.append(NSAttributedString(string: "\n\n\n\n\n", attributes: [.reduceableBreakLine: true]))
         mutableAttributedString.append(NSAttributedString(string: "\nTTTT\n\n")) // origin break line should not remove
@@ -89,7 +93,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
     }
     
     func testApplyMarkupStyle() {
-        let visitor = MarkupNSAttributedStringVisitor()
+        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
         let result = visitor.applyMarkupStyle(NSAttributedString(string: "Test"), with: MarkupStyle(kern: 999))
         
         XCTAssertEqual(result.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 999)

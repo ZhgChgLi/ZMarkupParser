@@ -8,7 +8,6 @@
 import Foundation
 
 final class RawStringMarkup: Markup {
-    let style: MarkupStyle? = nil
     let attributedString: NSAttributedString
     
     init(attributedString: NSAttributedString) {

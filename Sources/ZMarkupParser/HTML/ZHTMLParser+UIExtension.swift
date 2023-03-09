@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import ZNSTextAttachment
+
 #if canImport(UIKit)
 import UIKit
 #elseif canImport(AppKit)
@@ -42,7 +44,16 @@ public extension UILabel {
     }
     
     func setHtmlString(_ string: NSAttributedString, with parser: ZHTMLParser) {
-        self.attributedText = parser.render(string)
+        let attributedString = parser.render(string)
+        attributedString.enumerateAttribute(NSAttributedString.Key.attachment, in: NSMakeRange(0, attributedString.string.utf16.count), options: []) { (value, effectiveRange, nil) in
+            guard let attachment = value as? ZNSTextAttachment else {
+                return
+            }
+            
+            attachment.register(self)
+        }
+        
+        self.attributedText = attributedString
     }
     
     func setHtmlString(_ string: String, with parser: ZHTMLParser, completionHandler: ((NSAttributedString) -> Void)? = nil) {
@@ -51,6 +62,14 @@ public extension UILabel {
     
     func setHtmlString(_ string: NSAttributedString, with parser: ZHTMLParser, completionHandler: ((NSAttributedString) -> Void)? = nil) {
         parser.render(string) { attributedString in
+            attributedString.enumerateAttribute(NSAttributedString.Key.attachment, in: NSMakeRange(0, attributedString.string.utf16.count), options: []) { (value, effectiveRange, nil) in
+                guard let attachment = value as? ZNSTextAttachment else {
+                    return
+                }
+                
+                attachment.register(self)
+            }
+            
             self.attributedText = attributedString
             completionHandler?(attributedString)
         }

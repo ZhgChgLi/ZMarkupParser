@@ -8,15 +8,13 @@
 import Foundation
 
 final class HorizontalLineMarkup: Markup {
-    let style: MarkupStyle?
     let dashLength: Int
     
     weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     
-    init(dashLength: Int, style: MarkupStyle?) {
+    init(dashLength: Int) {
         self.dashLength = dashLength
-        self.style = style
     }
     
     func accept<V>(_ visitor: V) -> V.Result where V : MarkupVisitor {

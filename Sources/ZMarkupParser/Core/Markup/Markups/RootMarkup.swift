@@ -8,12 +8,6 @@
 import Foundation
 
 final class RootMarkup: Markup {
-    let style: MarkupStyle?
-    
-    init(style: MarkupStyle?) {
-        self.style = style
-    }
-    
     weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     

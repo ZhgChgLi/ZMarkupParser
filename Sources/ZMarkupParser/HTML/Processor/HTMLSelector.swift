@@ -7,78 +7,82 @@
 
 import Foundation
 
-public class HTMLTagSelecor: HTMLSelector {
-    public let tagName: String
-    public let tagAttributedString: NSAttributedString
-    public let attributes: [String: String]?
+public class HTMLSelector: CustomStringConvertible {
     
-    init(tagName: String, tagAttributedString: NSAttributedString, attributes: [String : String]?) {
-        self.tagName = tagName
-        self.tagAttributedString = tagAttributedString
-        self.attributes = attributes
-    }
-}
-
-public class RawStringSelecor: HTMLSelector {
-    let _attributedString: NSAttributedString
-    
-    init(attributedString: NSAttributedString) {
-        self._attributedString = attributedString
-    }
-}
-
-public class RootHTMLSelecor: HTMLSelector {
-    
-}
-
-public class HTMLSelector {
-    
-    public private(set) weak var parentSelector: HTMLSelector? = nil
-    public private(set) var childSelectors: [HTMLSelector] = []
-    
-    func appendChild(selector: HTMLSelector) {
-        selector.parentSelector = self
-        childSelectors.append(selector)
+    let markup: Markup
+    let componets: [HTMLElementMarkupComponent]
+    init(markup: Markup, componets: [HTMLElementMarkupComponent]) {
+        self.markup = markup
+        self.componets = componets
     }
     
-    public func filter(_ htmlTagName: HTMLTagName) -> [HTMLTagSelecor] {
+    public var description: String {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: self.get(), options: .prettyPrinted) else {
+            return "HTMLSelector"
+        }
+        return String(data: jsonData, encoding: .utf8) ?? "HTMLSelector"
+    }
+    
+    public var attributedString: NSAttributedString {
+        return MarkupStripperProcessor().process(from: markup)
+    }
+    
+    public func filter(_ htmlTagName: HTMLTagName) -> [HTMLSelector] {
         return self.filter(htmlTagName.string)
     }
     
-    public func filter(_ htmlTagName: WC3HTMLTagName) -> [HTMLTagSelecor] {
+    public func filter(_ htmlTagName: WC3HTMLTagName) -> [HTMLSelector] {
         return self.filter(htmlTagName.rawValue)
     }
     
-    public func filter(_ htmlTagName: String) -> [HTMLTagSelecor] {
-        return childSelectors.compactMap({ $0 as? HTMLTagSelecor }).filter({ $0.tagName == htmlTagName })
+    public func filter(_ htmlTagName: String) -> [HTMLSelector] {
+        let result = markup.childMarkups.filter({ componets.value(markup: $0)?.tag.tagName.isEqualTo(htmlTagName) ?? false })
+        return result.map({ .init(markup: $0, componets: componets) })
     }
     
-    public func first(_ htmlTagName: WC3HTMLTagName) -> HTMLTagSelecor? {
+    public func first(_ htmlTagName: WC3HTMLTagName) -> HTMLSelector? {
         return self.filter(htmlTagName.rawValue).first
     }
     
-    public func first(_ htmlTagName: HTMLTagName) -> HTMLTagSelecor? {
+    public func first(_ htmlTagName: HTMLTagName) -> HTMLSelector? {
         return self.filter(htmlTagName).first
     }
     
-    public func first(_ htmlTagName: String) -> HTMLTagSelecor? {
+    public func first(_ htmlTagName: String) -> HTMLSelector? {
         return self.filter(htmlTagName).first
     }
-}
-
-extension HTMLSelector {
-    public var attributedString: NSAttributedString {
-        return attributedString(self)
+    
+    public func get() -> [String: Any] {
+        return _get(markup: markup)
+        
     }
     
-    private func attributedString(_ selector: HTMLSelector) -> NSAttributedString {
-        if let contentSelector = selector as? RawStringSelecor {
-            return contentSelector._attributedString
+    private func _get(markup: Markup) -> [String: Any] {
+        let dict = convertToDict(from: markup)
+        return markup.childMarkups.reduce(dict) { partialResult, childMarkup in
+            var newPartialResult = partialResult
+            var childs: [[String: Any]] = (newPartialResult["childs"] as? [[String: Any]]) ?? []
+            childs.append(_get(markup: childMarkup))
+            newPartialResult["childs"] = childs
+            return newPartialResult
+        }
+    }
+    
+    private func convertToDict(from markup: Markup) -> [String: Any] {
+        if let rawStringMarkup = markup as? RawStringMarkup {
+            return [
+                "type": "string",
+                "value": rawStringMarkup.attributedString.string
+            ]
+        } else if let htmlElement = componets.value(markup: markup) {
+            return [
+                "type": "tag",
+                "name": htmlElement.tag.tagName.string,
+                "attributedString": htmlElement.tagAttributedString.string,
+                "attributes": htmlElement.attributes as Any
+            ]
         } else {
-            return selector.childSelectors.compactMap({ attributedString($0) }).reduce(NSMutableAttributedString()) { partialResult, attributedString in
-                partialResult.append(attributedString)
-                return partialResult
-            }
+            return [:]
         }
     }
 }
