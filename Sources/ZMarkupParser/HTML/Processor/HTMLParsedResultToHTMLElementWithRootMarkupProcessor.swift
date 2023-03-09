@@ -17,8 +17,6 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
     typealias From = [HTMLParsedResult]
     typealias To = Result
     
-    private lazy var visitor = HTMLTagNameToMarkupVisitor()
-    
     let htmlTags: [String: HTMLTag]
     init(htmlTags: [HTMLTag]) {
         self.htmlTags = Dictionary(uniqueKeysWithValues: htmlTags.map{ ($0.tagName.string, $0) })
@@ -32,6 +30,7 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
         for thisItem in from {
             switch thisItem {
             case .start(let item):
+                let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
                 let markup = visitor.visit(tagName: htmlTag.tagName)
                 htmlElementComponents.append(.init(markup: markup, value: .init(tag: htmlTag, tagAttributedString: item.tagAttributedString, attributes: item.attributes)))
@@ -40,6 +39,7 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
                 
                 stackExpectedStartItems.append(item)
             case .selfClosing(let item):
+                let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
                 let markup = visitor.visit(tagName: htmlTag.tagName)
                 htmlElementComponents.append(.init(markup: markup, value: .init(tag: htmlTag, tagAttributedString: item.tagAttributedString, attributes: item.attributes)))

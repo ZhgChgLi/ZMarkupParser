@@ -15,7 +15,8 @@ final class AllMarkupsHasAddToBuilderDefaultListTests: XCTestCase {
         ZHTMLParserBuilder.htmlTagNames.forEach { tagName in
             let _ = visitor.visit(tagName: tagName)
         }
-        XCTAssertEqual(visitor.count, 17, "Must added new pre-defined HTMLTagName to ZHTMLParserBuilder.htmlTagNames")
+
+        XCTAssertEqual(visitor.count, 18, "Must added new pre-defined HTMLTagName to ZHTMLParserBuilder.htmlTagNames")
     }
 }
 

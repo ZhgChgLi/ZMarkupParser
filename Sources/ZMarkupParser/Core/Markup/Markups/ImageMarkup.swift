@@ -14,15 +14,11 @@ final class ImageMarkup: Markup {
     let width: CGFloat?
     let height: CGFloat?
     
-    var style: MarkupStyle?
-    
-    init(attachment: ZNSTextAttachment, width: CGFloat?, height: CGFloat?, style: MarkupStyle?) {
+    init(attachment: ZNSTextAttachment, width: CGFloat?, height: CGFloat?) {
         self.attachment = attachment
-        self.style = style
         self.width = width
         self.height = height
     }
-    
     
     weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []

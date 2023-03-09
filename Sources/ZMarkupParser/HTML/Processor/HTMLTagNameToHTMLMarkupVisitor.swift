@@ -17,6 +17,8 @@ import AppKit
 struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     typealias Result = Markup
     
+    let attributes: [String: String]?
+    
     func visit(_ tagName: A_HTMLTagName) -> Result {
         return LinkMarkup()
     }
@@ -92,7 +94,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     func visit(_ tagName: IMG_HTMLTagName) -> Result {
         guard let srcString = attributes?["src"],
               let srcURL = URL(string: srcString) else {
-            return ExtendMarkup(style: style)
+            return ExtendMarkup()
         }
         
         let width: CGFloat?
@@ -114,7 +116,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
         attachment.delegate = tagName.handler
         attachment.dataSource = tagName.handler
         
-        let imageMarkup = ImageMarkup(attachment: attachment, width: width, height: height, style: style)
+        let imageMarkup = ImageMarkup(attachment: attachment, width: width, height: height)
         return imageMarkup
     }
 }

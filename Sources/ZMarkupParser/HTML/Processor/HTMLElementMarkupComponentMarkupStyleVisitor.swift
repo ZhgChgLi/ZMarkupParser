@@ -8,7 +8,7 @@
 import Foundation
 
 struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
-    
+
     typealias Result = MarkupStyle?
     
     let components: [HTMLElementMarkupComponent]
@@ -85,6 +85,10 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         } else {
             return defaultVisit(components.value(markup: markup))
         }
+    }
+    
+    func visit(_ markup: ImageMarkup) -> MarkupStyle? {
+        return defaultVisit(components.value(markup: markup))
     }
 }
 

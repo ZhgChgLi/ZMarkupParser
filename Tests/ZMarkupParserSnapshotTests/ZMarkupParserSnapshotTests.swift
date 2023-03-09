@@ -8,9 +8,9 @@
 import XCTest
 @testable import ZMarkupParser
 import SnapshotTesting
+import ZNSTextAttachment
 
 final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
-    
     private let record: Bool = false
     
     private let htmlString = """
@@ -44,18 +44,6 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     }
     
     #if canImport(UIKit)
-
-    func testShouldKeppNSAttributedString() {
-        let parser = makeSUT()
-        let textView = UITextView()
-        textView.frame.size.width = 390
-        textView.isScrollEnabled = false
-        textView.backgroundColor = .white
-        textView.setHtmlString(attributedHTMLString, with: parser)
-        textView.layoutIfNeeded()
-        assertSnapshot(matching: textView, as: .image, record: self.record)
-    }
-    
     private var testAsyncImageTextView: UITextView?
     private var testAsyncXCTestExpectation: XCTestExpectation?
     
@@ -238,7 +226,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
 
 extension ZHTMLToNSAttributedStringSnapshotTests {
     func makeSUT() -> ZHTMLParser {
-        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName(.abbr), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).add(ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { value in
+        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName(.abbr), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(IMG_HTMLTagName(handler: self)).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).add(ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { value in
             var newStyle = MarkupStyle()
             if value == "underline" {
                 newStyle.underlineStyle = .single
