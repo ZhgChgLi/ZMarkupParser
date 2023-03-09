@@ -36,7 +36,10 @@ ZMarkupParser is a pure-Swift library that helps you to convert HTML strings to 
 Please feel free to contribute.
 
 ## Try it!
-<img src="https://user-images.githubusercontent.com/33706588/220594721-828eb404-dd2b-4bae-a7e6-56a92042e9a1.png" width="30%" height="30%"/>
+
+![Simulator Screen Recording - iPhone 14 Pro - 2023-03-09 at 23 38 25](https://user-images.githubusercontent.com/33706588/224075106-6a335e38-3f9c-4e1a-aee4-0414a96f2a65.gif)
+
+
 
 To run the ZMarkupParser demo, download the repository and open ZMarkupParser.xcworkspace. Then, select the ZMarkupParser-Demo target and run it to start exploring the library. Enjoy!
 
