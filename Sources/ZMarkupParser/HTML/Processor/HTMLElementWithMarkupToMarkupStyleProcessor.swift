@@ -9,7 +9,7 @@ import Foundation
 
 final class HTMLElementWithMarkupToMarkupStyleProcessor: ParserProcessor {
     typealias From = (Markup, [HTMLElementMarkupComponent])
-    typealias To = [StyleMarkupComponent]
+    typealias To = [MarkupStyleComponent]
     
     let styleAttributes: [HTMLTagStyleAttribute]
     init(styleAttributes: [HTMLTagStyleAttribute]) {
@@ -17,13 +17,13 @@ final class HTMLElementWithMarkupToMarkupStyleProcessor: ParserProcessor {
     }
     
     func process(from: From) -> To {
-        var components: [StyleMarkupComponent] = []
+        var components: [MarkupStyleComponent] = []
         let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(components: from.1, styleAttributes: styleAttributes)
         walk(markup: from.0, visitor: visitor, components: &components)
         return components
     }
     
-    func walk(markup: Markup, visitor: HTMLElementMarkupComponentMarkupStyleVisitor, components: inout [StyleMarkupComponent]) {
+    func walk(markup: Markup, visitor: HTMLElementMarkupComponentMarkupStyleVisitor, components: inout [MarkupStyleComponent]) {
         
         if let markupStyle = visitor.visit(markup: markup) {
             components.append(.init(markup: markup, value: markupStyle))

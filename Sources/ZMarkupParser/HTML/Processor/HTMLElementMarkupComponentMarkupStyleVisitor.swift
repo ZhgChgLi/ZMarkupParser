@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     
@@ -94,6 +93,10 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
         var markupStyle: MarkupStyle?
         guard let styleString = htmlElement?.attributes?["style"],
               styleAttributes.count > 0 else {
+            if var customStyle = htmlElement?.tag.customStyle {
+                customStyle.fillIfNil(from: markupStyle)
+                markupStyle = customStyle
+            }
             return markupStyle
         }
         

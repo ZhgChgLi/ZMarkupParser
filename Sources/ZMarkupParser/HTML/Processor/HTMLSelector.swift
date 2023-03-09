@@ -17,12 +17,14 @@ public class HTMLSelector: CustomStringConvertible {
     }
     
     public var description: String {
-        let pp = self.get()
-        
         guard let jsonData = try? JSONSerialization.data(withJSONObject: self.get(), options: .prettyPrinted) else {
             return "HTMLSelector"
         }
         return String(data: jsonData, encoding: .utf8) ?? "HTMLSelector"
+    }
+    
+    public var attributedString: NSAttributedString {
+        return MarkupStripperProcessor().process(from: markup)
     }
     
     public func filter(_ htmlTagName: HTMLTagName) -> [HTMLSelector] {

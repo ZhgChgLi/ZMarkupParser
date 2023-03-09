@@ -52,8 +52,8 @@ final class ZHTMLParserBuilderTests: XCTestCase {
     func testAddHTMLTagStyleAttribute() {
         var builder = ZHTMLParserBuilder()
         XCTAssertEqual(builder.styleAttributes.count, 0, "styleAttributes should be empty after init.")
-        builder = builder.add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", render: { markupStyle, _ in
-            return markupStyle
+        builder = builder.add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", render: { _ in
+            return nil
         }))
         XCTAssertEqual(builder.styleAttributes.count, 1, "styleAttributes should have 1 element.")
         XCTAssertEqual(builder.styleAttributes[0].styleName, "zhgchgli", "styleAttributes should have zhgchgli style name element.")
@@ -64,7 +64,7 @@ final class ZHTMLParserBuilderTests: XCTestCase {
         let zhgchgliTagMarkupStyle = MarkupStyle(kern: 8888)
         let zhgchgliStyleMarkupStyle = MarkupStyle(kern: 7777)
         
-        let parser = ZHTMLParserBuilder().add(ExtendTagName("zhgchgli"), withCustomStyle: zhgchgliTagMarkupStyle).add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", render: { _, _ in
+        let parser = ZHTMLParserBuilder().add(ExtendTagName("zhgchgli"), withCustomStyle: zhgchgliTagMarkupStyle).add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", render: { _ in
             return zhgchgliStyleMarkupStyle
         })).set(rootStyle: rootMarkupStyle).build()
         
@@ -78,7 +78,7 @@ final class ZHTMLParserBuilderTests: XCTestCase {
         XCTAssertEqual(parser.styleAttributes[0].styleName, "zhgchgli", "styleAttributes should have zhgchgli style element in parser result")
         
         
-        XCTAssertEqual((parser.styleAttributes[0] as? ExtendHTMLTagStyleAttribute)?.render(MarkupStyle(),"").kern, zhgchgliStyleMarkupStyle.kern, "styleAttributes should have zhgchgli style element with custom style in parser result")
+        XCTAssertEqual((parser.styleAttributes[0] as? ExtendHTMLTagStyleAttribute)?.render("")?.kern, zhgchgliStyleMarkupStyle.kern, "styleAttributes should have zhgchgli style element with custom style in parser result")
 
     }
 }

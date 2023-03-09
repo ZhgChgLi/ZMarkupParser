@@ -8,7 +8,7 @@
 import Foundation
 
 final class MarkupRenderProcessor: ParserProcessor {
-    typealias From = (Markup, [StyleMarkupComponent])
+    typealias From = (Markup, [MarkupStyleComponent])
     typealias To = NSAttributedString
     
     let rootStyle: MarkupStyle?

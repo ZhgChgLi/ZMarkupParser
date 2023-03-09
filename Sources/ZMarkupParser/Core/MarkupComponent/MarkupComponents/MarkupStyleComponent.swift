@@ -1,5 +1,5 @@
 //
-//  StyleMarkupComponent.swift
+//  MarkupStyleComponent.swift
 //  
 //
 //  Created by Harry Li on 2023/3/8.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct StyleMarkupComponent: MarkupComponent {
+struct MarkupStyleComponent: MarkupComponent {
     typealias T = MarkupStyle
     
     let markup: Markup
