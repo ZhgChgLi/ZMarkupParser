@@ -115,7 +115,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.frame.size.width = 390
         textView.frame.size.height = 500
         textView.backgroundColor = .white
-        textView.setHtmlString(htmlString, with: parser)
+        textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layout()
         assertSnapshot(matching: textView, as: .image, record: self.record)
     }
@@ -127,7 +127,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.frame.size.height = 500
         textView.backgroundColor = .white
         let expectation = self.expectation(description: "testNSTextViewSetHTMLStringAsync")
-        textView.setHtmlString(htmlString, with: parser) { _ in
+        textView.setHtmlString(attributedHTMLString, with: parser) { _ in
             textView.layout()
             assertSnapshot(matching: textView, as: .image, record: self.record)
             expectation.fulfill()
@@ -143,7 +143,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textField.frame.size.height = 500
         textField.backgroundColor = .white
         textField.textColor = .black
-        textField.setHtmlString(htmlString, with: parser)
+        textField.setHtmlString(attributedHTMLString, with: parser)
         textField.layout()
         assertSnapshot(matching: textField, as: .image, record: self.record)
     }
@@ -156,7 +156,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textField.backgroundColor = .white
         textField.textColor = .black
         let expectation = self.expectation(description: "testNSTextFieldSetHTMLStringAsync")
-        textField.setHtmlString(htmlString, with: parser) { _ in
+        textField.setHtmlString(attributedHTMLString, with: parser) { _ in
             textField.layout()
             assertSnapshot(matching: textField, as: .image, record: self.record)
             expectation.fulfill()
@@ -168,8 +168,8 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
 
 extension ZHTMLToNSAttributedStringSnapshotTests {
     func makeSUT() -> ZHTMLParser {
-        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName(.abbr), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).add(ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { fromStyle, value in
-            var newStyle = fromStyle
+        let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName(.abbr), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).add(B_HTMLTagName(), withCustomStyle: MarkupStyle(font: MarkupStyleFont(size: 18, weight: .style(.semibold)))).add(ExtendHTMLTagStyleAttribute(styleName: "text-decoration", render: { value in
+            var newStyle = MarkupStyle()
             if value == "underline" {
                 newStyle.underlineStyle = .single
             }

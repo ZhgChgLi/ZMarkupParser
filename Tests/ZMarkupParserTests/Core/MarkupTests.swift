@@ -11,9 +11,9 @@ import XCTest
 
 final class MarkupTests: XCTestCase {
     func testAppendChilds() {
-        let rootMarkup = RootMarkup(style: MarkupStyle())
+        let rootMarkup = RootMarkup()
         let rawStringMarkup = RawStringMarkup(attributedString: NSAttributedString(string: "test"))
-        rootMarkup.appendChild(markup: BoldMarkup(style: nil))
+        rootMarkup.appendChild(markup: BoldMarkup())
         rootMarkup.appendChild(markup: rawStringMarkup)
         
         XCTAssertEqual(rootMarkup.childMarkups.count, 2, "Should append 1 child to RootMarkup.")
@@ -22,9 +22,9 @@ final class MarkupTests: XCTestCase {
     }
     
     func testPrependChilds() {
-        let rootMarkup = RootMarkup(style: MarkupStyle())
+        let rootMarkup = RootMarkup()
         let rawStringMarkup = RawStringMarkup(attributedString: NSAttributedString(string: "test"))
-        rootMarkup.appendChild(markup: BoldMarkup(style: nil))
+        rootMarkup.appendChild(markup: BoldMarkup())
         rootMarkup.prependChild(markup: rawStringMarkup)
         
         XCTAssertEqual(rootMarkup.childMarkups.count, 2, "Should prepend 1 child to RootMarkup.")

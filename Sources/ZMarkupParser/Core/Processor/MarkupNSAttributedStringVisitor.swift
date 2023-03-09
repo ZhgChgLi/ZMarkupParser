@@ -10,7 +10,7 @@ import Foundation
 struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     typealias Result = NSAttributedString
     
-    let components: [StyleMarkupComponent]
+    let components: [MarkupStyleComponent]
     let rootStyle: MarkupStyle?
     
     func visit(_ markup: RootMarkup) -> Result {
@@ -222,9 +222,12 @@ private extension MarkupNSAttributedStringVisitor {
             currentMarkup = thisMarkup.parentMarkup
         }
         
-        currentStyle?.fillIfNil(from: rootStyle)
-        
-        return currentStyle
+        if var currentStyle = currentStyle {
+            currentStyle.fillIfNil(from: rootStyle)
+            return currentStyle
+        } else {
+            return rootStyle
+        }
     }
 }
 
