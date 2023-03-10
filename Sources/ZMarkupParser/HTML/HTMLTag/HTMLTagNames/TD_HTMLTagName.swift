@@ -10,9 +10,11 @@ import Foundation
 public struct TD_HTMLTagName: HTMLTagName {
     public let string: String = WC3HTMLTagName.td.rawValue
     public let fixedMaxLength: Int?
+    public let spacing: Int
     
-    public init(fixedMaxLength: Int? = nil) {
+    public init(fixedMaxLength: Int? = nil, spacing: Int = 3) {
         self.fixedMaxLength = fixedMaxLength
+        self.spacing = spacing
     }
     
     public func accept<V>(_ visitor: V) -> V.Result where V : HTMLTagNameVisitor {

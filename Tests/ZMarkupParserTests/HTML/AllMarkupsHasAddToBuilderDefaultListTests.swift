@@ -16,7 +16,7 @@ final class AllMarkupsHasAddToBuilderDefaultListTests: XCTestCase {
             let _ = visitor.visit(tagName: tagName)
         }
 
-        XCTAssertEqual(visitor.count, 18, "Must added new pre-defined HTMLTagName to ZHTMLParserBuilder.htmlTagNames")
+        XCTAssertEqual(visitor.count, 19, "Must added new pre-defined HTMLTagName to ZHTMLParserBuilder.htmlTagNames")
     }
 }
 
@@ -119,4 +119,10 @@ private class StubVisitor: HTMLTagNameVisitor {
         count += 1
         return count
     }
+    
+    func visit(_ tagName: TABLE_HTMLTagName) -> Int {
+        count += 1
+        return count
+    }
+    
 }

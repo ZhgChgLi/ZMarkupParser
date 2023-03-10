@@ -84,11 +84,15 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: TD_HTMLTagName) -> Result {
-        return TableColumnMarkup(isHeader: false, fixedMaxLength: tagName.fixedMaxLength)
+        return TableColumnMarkup(isHeader: false, fixedMaxLength: tagName.fixedMaxLength, spacing: tagName.spacing)
     }
     
     func visit(_ tagName: TH_HTMLTagName) -> Result {
-        return TableColumnMarkup(isHeader: true, fixedMaxLength: tagName.fixedMaxLength)
+        return TableColumnMarkup(isHeader: true, fixedMaxLength: tagName.fixedMaxLength, spacing: tagName.spacing)
+    }
+    
+    func visit(_ tagName: TABLE_HTMLTagName) -> Result {
+        return TableMarkup()
     }
     
     func visit(_ tagName: IMG_HTMLTagName) -> Result {

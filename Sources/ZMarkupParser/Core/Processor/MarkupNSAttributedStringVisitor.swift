@@ -124,7 +124,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         }
         
         if position < siblingColumns.count - 1 {
-            attributedString.append(makeString(in: markup, string: "\t"))
+            attributedString.append(makeString(in: markup, string: String(repeating: " ", count: markup.spacing)))
         }
         
         return attributedString
@@ -133,6 +133,13 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     func visit(_ markup: TableRowMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
         attributedString.append(makeBreakLine(in: markup))
+        return attributedString
+    }
+    
+    func visit(_ markup: TableMarkup) -> Result {
+        let attributedString = collectAttributedString(markup)
+        attributedString.append(makeBreakLine(in: markup))
+        attributedString.insert(makeBreakLine(in: markup), at: 0)
         return attributedString
     }
 

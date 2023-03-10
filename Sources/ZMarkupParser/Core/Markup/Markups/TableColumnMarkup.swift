@@ -9,11 +9,13 @@ import Foundation
 
 final class TableColumnMarkup: Markup {
     
+    let spacing: Int
     let fixedMaxLength: Int?
     let isHeader: Bool
-    init(isHeader: Bool, fixedMaxLength: Int?) {
+    init(isHeader: Bool, fixedMaxLength: Int?, spacing: Int) {
         self.isHeader = isHeader
         self.fixedMaxLength = fixedMaxLength
+        self.spacing = spacing
     }
     
     weak var parentMarkup: Markup? = nil

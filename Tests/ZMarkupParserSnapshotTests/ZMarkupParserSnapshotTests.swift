@@ -27,6 +27,24 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
             <li>Test2Test2<i>Test2</i>Test2</li>
         </ul>
         <hr/>
+        <table>
+          <tr>
+            <th>Company</th>
+            <th>Contact</th>
+            <th>Country</th>
+          </tr>
+          <tr>
+            <td>Alfreds Futterkiste</td>
+            <td>Maria Anders</td>
+            <td>Germany</td>
+          </tr>
+          <tr>
+            <td>Centro comercial Moctezuma</td>
+            <td>Francisco Chang</td>
+            <td>Mexico</td>
+          </tr>
+        </table>
+        <hr/>
         <p>Before <span style="color:green;background-color:blue;font-size:18px;font-weight:bold;line-height:10;word-spacing:8px">12/26</span>, place an order and draw a round-trip ticket for two to Japan!</p>
         你好你好<span style="background-color:red">你好你好</span>你好你好 <br />
         안녕하세요안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />

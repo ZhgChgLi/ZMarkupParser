@@ -17,7 +17,7 @@ public class HTMLSelector: CustomStringConvertible {
     }
     
     public var description: String {
-        guard let jsonData = try? JSONSerialization.data(withJSONObject: self.get(), options: .prettyPrinted) else {
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: self._get(markup: markup, attributedString: false), options: .prettyPrinted) else {
             return "HTMLSelector"
         }
         return String(data: jsonData, encoding: .utf8) ?? "HTMLSelector"
@@ -53,32 +53,32 @@ public class HTMLSelector: CustomStringConvertible {
     }
     
     public func get() -> [String: Any] {
-        return _get(markup: markup)
+        return _get(markup: markup, attributedString: true)
         
     }
     
-    private func _get(markup: Markup) -> [String: Any] {
-        let dict = convertToDict(from: markup)
+    private func _get(markup: Markup, attributedString: Bool) -> [String: Any] {
+        let dict = convertToDict(from: markup, attributedString: attributedString)
         return markup.childMarkups.reduce(dict) { partialResult, childMarkup in
             var newPartialResult = partialResult
             var childs: [[String: Any]] = (newPartialResult["childs"] as? [[String: Any]]) ?? []
-            childs.append(_get(markup: childMarkup))
+            childs.append(_get(markup: childMarkup, attributedString: attributedString))
             newPartialResult["childs"] = childs
             return newPartialResult
         }
     }
     
-    private func convertToDict(from markup: Markup) -> [String: Any] {
+    private func convertToDict(from markup: Markup, attributedString: Bool) -> [String: Any] {
         if let rawStringMarkup = markup as? RawStringMarkup {
             return [
                 "type": "string",
-                "value": rawStringMarkup.attributedString.string
+                "value": (attributedString) ? (rawStringMarkup.attributedString) : (rawStringMarkup.attributedString.string)
             ]
         } else if let htmlElement = componets.value(markup: markup) {
             return [
                 "type": "tag",
                 "name": htmlElement.tag.tagName.string,
-                "attributedString": htmlElement.tagAttributedString.string,
+                "value": (attributedString) ? (htmlElement.tagAttributedString) : (htmlElement.tagAttributedString.string),
                 "attributes": htmlElement.attributes as Any
             ]
         } else {

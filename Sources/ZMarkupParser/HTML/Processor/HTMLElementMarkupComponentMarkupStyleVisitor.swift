@@ -75,6 +75,10 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         return defaultVisit(components.value(markup: markup)) ?? .deleteline
     }
     
+    func visit(_ markup: TableMarkup) -> MarkupStyle? {
+        return defaultVisit(components.value(markup: markup))
+    }
+    
     func visit(_ markup: TableRowMarkup) -> Result {
         return defaultVisit(components.value(markup: markup))
     }
