@@ -26,8 +26,6 @@ ZMarkupParser is a pure-Swift library that helps you convert HTML strings into N
 - [x] Better performance compared to `NSAttributedString.DocumentType.html`.
 - [x] Fully test cases and test coverage.
 
-Please feel free to contribute.
-
 ## Try it!
 
 ![Simulator Screen Recording - iPhone 14 Pro - 2023-03-09 at 23 38 25](https://user-images.githubusercontent.com/33706588/224075106-6a335e38-3f9c-4e1a-aee4-0414a96f2a65.gif)
@@ -321,8 +319,8 @@ If you want to render huge html string, please use async instead.
 [Pinkoi.com](https://en.pinkoi.com) is Asia's leading online marketplace for original design goods, digital creations, and workshop experiences.
 
 ## About
-- [ZhgChg.Li (CH)](https://zhgchg.li/)
-- [ZhgChgLi's Medium (CH)](https://blog.zhgchg.li/)
+- [ZhgChg.Li (TW)](https://zhgchg.li/)
+- [ZhgChgLi's Medium (TW)](https://blog.zhgchg.li/)
 
 [![Buy Me A Coffe](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20beer!&emoji=%F0%9F%8D%BA&slug=zhgchgli&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/zhgchgli)
 
