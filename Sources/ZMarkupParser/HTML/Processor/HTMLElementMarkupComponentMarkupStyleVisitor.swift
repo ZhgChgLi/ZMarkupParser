@@ -7,10 +7,16 @@
 
 import Foundation
 
+public enum MarkupStylePolicy {
+    case respectMarkupStyleFromCode
+    case respectMarkupStyleFromHTMLStyleAttribute
+}
+
 struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
 
     typealias Result = MarkupStyle?
     
+    let policy: MarkupStylePolicy
     let components: [HTMLElementMarkupComponent]
     let styleAttributes: [HTMLTagStyleAttribute]
     
@@ -31,7 +37,7 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: BoldMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup)) ?? .bold
+        return defaultVisit(components.value(markup: markup), defaultStyle: .bold)
     }
     
     func visit(_ markup: HorizontalLineMarkup) -> Result {
@@ -43,11 +49,11 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ItalicMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup)) ?? .italic
+        return defaultVisit(components.value(markup: markup), defaultStyle: .italic)
     }
     
     func visit(_ markup: LinkMarkup) -> Result {
-        var markupStyle = defaultVisit(components.value(markup: markup)) ?? .link
+        var markupStyle = defaultVisit(components.value(markup: markup), defaultStyle: .link) ?? .link
         if let href = components.value(markup: markup)?.attributes?["href"] as? String,
            let url = URL(string: href) {
             markupStyle.link = url
@@ -68,11 +74,12 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: UnderlineMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup)) ?? .underline
+        let htmlElement = components.value(markup: markup)
+        return defaultVisit(htmlElement, defaultStyle: .underline)
     }
     
     func visit(_ markup: DeletelineMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup)) ?? .deleteline
+        return defaultVisit(components.value(markup: markup), defaultStyle: .deleteline)
     }
     
     func visit(_ markup: TableMarkup) -> MarkupStyle? {
@@ -84,10 +91,11 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: TableColumnMarkup) -> Result {
+        let htmlElement = components.value(markup: markup)
         if markup.isHeader {
-            return defaultVisit(components.value(markup: markup)) ?? .bold
+            return defaultVisit(htmlElement, defaultStyle: .bold)
         } else {
-            return defaultVisit(components.value(markup: markup))
+            return defaultVisit(htmlElement)
         }
     }
     
@@ -97,14 +105,17 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
 }
 
 extension HTMLElementMarkupComponentMarkupStyleVisitor {
-    func defaultVisit(_ htmlElement: HTMLElementMarkupComponent.HTMLElement?) -> Result {
-        var markupStyle: MarkupStyle?
+    private func customStyle(_ htmlElement: HTMLElementMarkupComponent.HTMLElement?) -> MarkupStyle? {
+        guard let customStyle = htmlElement?.tag.customStyle else {
+            return nil
+        }
+        return customStyle
+    }
+    
+    func defaultVisit(_ htmlElement: HTMLElementMarkupComponent.HTMLElement?, defaultStyle: MarkupStyle? = nil) -> Result {
+        var markupStyle: MarkupStyle? = customStyle(htmlElement) ?? defaultStyle
         guard let styleString = htmlElement?.attributes?["style"],
               styleAttributes.count > 0 else {
-            if var customStyle = htmlElement?.tag.customStyle {
-                customStyle.fillIfNil(from: markupStyle)
-                markupStyle = customStyle
-            }
             return markupStyle
         }
         
@@ -127,9 +138,14 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
             }
         }
         
-        if var customStyle = htmlElement?.tag.customStyle {
-            customStyle.fillIfNil(from: markupStyle)
-            markupStyle = customStyle
+        if var defaultStyle = defaultStyle {
+            switch policy {
+                case .respectMarkupStyleFromHTMLStyleAttribute:
+                    markupStyle?.fillIfNil(from: defaultStyle)
+                case .respectMarkupStyleFromCode:
+                    defaultStyle.fillIfNil(from: markupStyle)
+                    markupStyle = defaultStyle
+            }
         }
         
         return markupStyle

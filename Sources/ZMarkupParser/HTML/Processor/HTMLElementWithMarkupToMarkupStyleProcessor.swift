@@ -12,13 +12,15 @@ final class HTMLElementWithMarkupToMarkupStyleProcessor: ParserProcessor {
     typealias To = [MarkupStyleComponent]
     
     let styleAttributes: [HTMLTagStyleAttribute]
-    init(styleAttributes: [HTMLTagStyleAttribute]) {
+    let policy: MarkupStylePolicy
+    init(styleAttributes: [HTMLTagStyleAttribute], policy: MarkupStylePolicy) {
         self.styleAttributes = styleAttributes
+        self.policy = policy
     }
     
     func process(from: From) -> To {
         var components: [MarkupStyleComponent] = []
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(components: from.1, styleAttributes: styleAttributes)
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: policy, components: from.1, styleAttributes: styleAttributes)
         walk(markup: from.0, visitor: visitor, components: &components)
         return components
     }

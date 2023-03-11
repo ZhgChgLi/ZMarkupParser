@@ -20,7 +20,7 @@ public final class ZHTMLParser: ZMarkupParser {
     lazy var htmlStringToParsedResult: HTMLStringToParsedResultProcessor = HTMLStringToParsedResultProcessor()
     lazy var markupStripperProcessor: MarkupStripperProcessor = MarkupStripperProcessor()
     
-    init(htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute], rootStyle: MarkupStyle?) {
+    init(htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute], policy: MarkupStylePolicy, rootStyle: MarkupStyle?) {
         self.htmlTags = htmlTags
         self.styleAttributes = styleAttributes
         self.rootStyle = rootStyle
@@ -28,7 +28,7 @@ public final class ZHTMLParser: ZMarkupParser {
         self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle)
         
         self.htmlParsedResultToHTMLElementWithRootMarkupProcessor = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: htmlTags)
-        self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes)
+        self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, policy: policy)
     }
     
     static let dispatchQueue: DispatchQueue = DispatchQueue(label: "ZHTMLParser.Queue")

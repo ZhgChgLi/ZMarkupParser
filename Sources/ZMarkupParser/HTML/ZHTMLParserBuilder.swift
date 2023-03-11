@@ -12,6 +12,7 @@ public final class ZHTMLParserBuilder {
     private(set) var htmlTags: [HTMLTag] = []
     private(set) var styleAttributes: [HTMLTagStyleAttribute] = []
     private(set) var rootStyle: MarkupStyle?
+    private(set) var policy: MarkupStylePolicy = .respectMarkupStyleFromCode
     
     public init() {
         
@@ -57,7 +58,12 @@ public final class ZHTMLParserBuilder {
         return self
     }
     
+    public func set(policy: MarkupStylePolicy) -> Self {
+        self.policy = policy
+        return self
+    }
+    
     public func build() -> ZHTMLParser {
-        return ZHTMLParser(htmlTags: htmlTags, styleAttributes: styleAttributes, rootStyle: rootStyle)
+        return ZHTMLParser(htmlTags: htmlTags, styleAttributes: styleAttributes, policy: policy, rootStyle: rootStyle)
     }
 }
