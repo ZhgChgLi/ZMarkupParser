@@ -45,6 +45,12 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
           </tr>
         </table>
         <hr/>
+        <h1>H1</h1>
+        <h2>H2</h2>
+        <h3>H3</h3>
+        <h4>H4</h4>
+        <h5>H5</h5>
+        <h6>H6</h6>
         <p>Before <span style="color:green;background-color:blue;font-size:18px;font-weight:bold;line-height:10;word-spacing:8px">12/26</span>, place an order and draw a round-trip ticket for two to Japan!</p>
         你好你好<span style="background-color:red">你好你好</span>你好你好 <br />
         안녕하세요안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />

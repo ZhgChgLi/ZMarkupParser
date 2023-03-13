@@ -142,6 +142,13 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         attributedString.insert(makeBreakLine(in: markup), at: 0)
         return attributedString
     }
+    
+    func visit(_ markup: HeadMarkup) -> NSAttributedString {
+        let attributedString = collectAttributedString(markup)
+        attributedString.append(makeBreakLine(in: markup))
+        attributedString.insert(makeBreakLine(in: markup), at: 0)
+        return attributedString
+    }
 
     func visit(_ markup: ImageMarkup) -> NSAttributedString {
         let attributedString = collectAttributedString(markup)
