@@ -14,4 +14,10 @@ public extension MarkupStyle {
     static let italic = MarkupStyle(font: MarkupStyleFont(italic: true))
     static let underline = MarkupStyle(underlineStyle: .single)
     static let deleteline = MarkupStyle(strikethroughStyle: .single)
+    static let h1 = MarkupStyle(font: MarkupStyleFont(size: 24))
+    static let h2 = MarkupStyle(font: MarkupStyleFont(size: 22))
+    static let h3 = MarkupStyle(font: MarkupStyleFont(size: 20))
+    static let h4 = MarkupStyle(font: MarkupStyleFont(size: 18))
+    static let h5 = MarkupStyle(font: MarkupStyleFont(size: 16))
+    static let h6 = MarkupStyle(font: MarkupStyleFont(size: 14))
 }

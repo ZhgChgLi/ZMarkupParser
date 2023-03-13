@@ -15,6 +15,7 @@ import AppKit
 #endif
 
 struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
+
     typealias Result = Markup
     
     let attributes: [String: String]?
@@ -93,6 +94,30 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     
     func visit(_ tagName: TABLE_HTMLTagName) -> Result {
         return TableMarkup()
+    }
+    
+    func visit(_ tagName: H1_HTMLTagName) -> Result {
+        return  HeadMarkup(levle: .h1)
+    }
+    
+    func visit(_ tagName: H2_HTMLTagName) -> Result {
+        return  HeadMarkup(levle: .h2)
+    }
+    
+    func visit(_ tagName: H3_HTMLTagName) -> Result {
+        return  HeadMarkup(levle: .h3)
+    }
+    
+    func visit(_ tagName: H4_HTMLTagName) -> Result {
+        return  HeadMarkup(levle: .h4)
+    }
+    
+    func visit(_ tagName: H5_HTMLTagName) -> Result {
+        return  HeadMarkup(levle: .h5)
+    }
+    
+    func visit(_ tagName: H6_HTMLTagName) -> Result {
+        return  HeadMarkup(levle: .h6)
     }
     
     func visit(_ tagName: IMG_HTMLTagName) -> Result {

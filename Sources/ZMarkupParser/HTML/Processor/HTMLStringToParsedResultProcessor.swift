@@ -26,7 +26,7 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
     // e.g 3. </span>
     // selfClosingTag = /
     // tagName = span
-    static let htmlTagRegexPattern: String = #"<(?:(?<closeTag>\/)?(?<tagName>[A-Za-z]+)(?<tagAttributes>(?:\s*(\w+)\s*=\s*(["|']).*?\5)*)\s*(?<selfClosingTag>\/)?>)"#
+    static let htmlTagRegexPattern: String = #"<(?:(?<closeTag>\/)?(?<tagName>[A-Za-z0-9]+)(?<tagAttributes>(?:\s*(\w+)\s*=\s*(["|']).*?\5)*)\s*(?<selfClosingTag>\/)?>)"#
     
     // e.g. href="https://zhgchg.li"
     // name = href
@@ -66,7 +66,6 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
                 let matchIsEndTag = matchResult.attributedString(from, with: "closeTag")?.string.trimmingCharacters(in: .whitespacesAndNewlines) == "/"
                 let matchTagAttributes = parseAttributes(matchResult.attributedString(from, with: "tagAttributes"))
                 let matchIsSelfClosingTag = matchResult.attributedString(from, with: "selfClosingTag")?.string.trimmingCharacters(in: .whitespacesAndNewlines) == "/"
-                
                 if let matchAttributedString = matchAttributedString, let matchTag = matchTag {
                     if matchIsSelfClosingTag {
                         // <br/>

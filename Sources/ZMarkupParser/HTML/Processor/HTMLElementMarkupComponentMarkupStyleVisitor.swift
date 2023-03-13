@@ -90,6 +90,25 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         return defaultVisit(components.value(markup: markup))
     }
     
+    func visit(_ markup: HeadMarkup) -> Result {
+        let defaultStyle: MarkupStyle?
+        switch markup.levle {
+        case .h1:
+            defaultStyle = .h1
+        case .h2:
+            defaultStyle = .h2
+        case .h3:
+            defaultStyle = .h3
+        case .h4:
+            defaultStyle = .h4
+        case .h5:
+            defaultStyle = .h5
+        case .h6:
+            defaultStyle = .h6
+        }
+        return defaultVisit(components.value(markup: markup), defaultStyle: defaultStyle)
+    }
+    
     func visit(_ markup: TableColumnMarkup) -> Result {
         let htmlElement = components.value(markup: markup)
         if markup.isHeader {
