@@ -19,6 +19,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     typealias Result = Markup
     
     let attributes: [String: String]?
+    let isSelfClosingTag: Bool
     
     func visit(_ tagName: A_HTMLTagName) -> Result {
         return LinkMarkup()
@@ -37,7 +38,11 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: DIV_HTMLTagName) -> Result {
-        return ParagraphMarkup()
+        if isSelfClosingTag {
+            return BreakLineMarkup()
+        } else {
+            return ParagraphMarkup()
+        }
     }
     
     func visit(_ tagName: HR_HTMLTagName) -> Result {
@@ -57,7 +62,11 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: P_HTMLTagName) -> Result {
-        return ParagraphMarkup()
+        if isSelfClosingTag {
+            return BreakLineMarkup()
+        } else {
+            return ParagraphMarkup()
+        }
     }
     
     func visit(_ tagName: SPAN_HTMLTagName) -> Result {
