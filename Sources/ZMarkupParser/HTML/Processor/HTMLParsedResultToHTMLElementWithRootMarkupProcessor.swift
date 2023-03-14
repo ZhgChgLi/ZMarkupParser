@@ -30,7 +30,7 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
         for thisItem in from {
             switch thisItem {
             case .start(let item):
-                let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes)
+                let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes, isSelfClosingTag: false)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
                 let markup = visitor.visit(tagName: htmlTag.tagName)
                 htmlElementComponents.append(.init(markup: markup, value: .init(tag: htmlTag, tagAttributedString: item.tagAttributedString, attributes: item.attributes)))
@@ -39,7 +39,7 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
                 
                 stackExpectedStartItems.append(item)
             case .selfClosing(let item):
-                let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes)
+                let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes, isSelfClosingTag: true)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
                 let markup = visitor.visit(tagName: htmlTag.tagName)
                 htmlElementComponents.append(.init(markup: markup, value: .init(tag: htmlTag, tagAttributedString: item.tagAttributedString, attributes: item.attributes)))
