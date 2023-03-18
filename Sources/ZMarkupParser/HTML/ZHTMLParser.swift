@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import HTMLString
 
-public final class ZHTMLParser: ZMarkupParser {
+public final class ZHTMLParser {
     let htmlTags: [HTMLTag]
     let styleAttributes: [HTMLTagStyleAttribute]
     let rootStyle: MarkupStyle?
@@ -39,6 +40,21 @@ public final class ZHTMLParser: ZMarkupParser {
         return style.render()
     }
     
+    public func decodeHTMLEntities(_ string: String) -> String {
+        return string.removingHTMLEntities()
+    }
+    
+    public func decodeHTMLEntities(_ attributedString: NSAttributedString) -> NSAttributedString {
+        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        mutableAttributedString.enumerateAttributes(in: NSMakeRange(0, mutableAttributedString.string.utf16.count)) { attributes, range, _ in
+            let cleanString = mutableAttributedString.attributedSubstring(from: range).string.removingHTMLEntities()
+            mutableAttributedString.deleteCharacters(in: range)
+            mutableAttributedString.insert(NSAttributedString(string: cleanString, attributes: attributes), at: range.location)
+        }
+        
+        return mutableAttributedString
+    }
+    
     public func selector(_ string: String) -> HTMLSelector {
         return self.selector(NSAttributedString(string: string))
     }
@@ -50,8 +66,8 @@ public final class ZHTMLParser: ZMarkupParser {
         return HTMLSelector(markup: reuslt.markup, componets: reuslt.htmlElementComponents)
     }
     
-    public func render(_ string: String) -> NSAttributedString {
-        return self.render(NSAttributedString(string: string))
+    public func render(_ string: String, withHTMLEntities: Bool = true) -> NSAttributedString {
+        return self.render(NSAttributedString(string: string), withHTMLEntities: withHTMLEntities)
     }
     
     public func render(_ selector: HTMLSelector) -> NSAttributedString {
@@ -59,8 +75,12 @@ public final class ZHTMLParser: ZMarkupParser {
         return markupRenderProcessor.process(from: (selector.markup, styleComponets))
     }
     
-    public func render(_ attributedString: NSAttributedString) -> NSAttributedString {
-        let items = process(attributedString)
+    public func render(_ attributedString: NSAttributedString, withHTMLEntities: Bool = true) -> NSAttributedString {
+        var newAttributedString = attributedString
+        if withHTMLEntities {
+            newAttributedString = decodeHTMLEntities(attributedString)
+        }
+        let items = process(newAttributedString)
         let reuslt = htmlParsedResultToHTMLElementWithRootMarkupProcessor.process(from: items)
         let styleComponets = htmlElementWithMarkupToMarkupStyleProcessor.process(from: (reuslt.markup, reuslt.htmlElementComponents))
         
@@ -103,13 +123,13 @@ public final class ZHTMLParser: ZMarkupParser {
         }
     }
     
-    public func render(_ string: String, completionHandler: @escaping (NSAttributedString) -> Void) {
-        self.render(NSAttributedString(string: string), completionHandler: completionHandler)
+    public func render(_ string: String, withHTMLEntities: Bool = true, completionHandler: @escaping (NSAttributedString) -> Void) {
+        self.render(NSAttributedString(string: string), withHTMLEntities: withHTMLEntities, completionHandler: completionHandler)
     }
     
-    public func render(_ attributedString: NSAttributedString, completionHandler: @escaping (NSAttributedString) -> Void) {
+    public func render(_ attributedString: NSAttributedString, withHTMLEntities: Bool = true, completionHandler: @escaping (NSAttributedString) -> Void) {
         ZHTMLParser.dispatchQueue.async {
-            let attributedString = self.render(attributedString)
+            let attributedString = self.render(attributedString, withHTMLEntities: withHTMLEntities)
             DispatchQueue.main.async {
                 completionHandler(attributedString)
             }
