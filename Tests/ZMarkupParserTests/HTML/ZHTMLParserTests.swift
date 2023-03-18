@@ -30,6 +30,20 @@ final class ZHTMLParserTests: XCTestCase {
         wait(for: [expectation], timeout: 3.0)
     }
     
+    func testRenderShouldKeepExistsAttribute() {
+        let attributedString = NSMutableAttributedString()
+        attributedString.append(NSAttributedString(string: "Test"))
+        attributedString.append(NSAttributedString(string: "<a href=\"https://zhgchg.li\">"))
+        attributedString.append(NSAttributedString(string: "Qoo"))
+        attributedString.append(NSAttributedString(string: "DDD", attributes: [.baselineOffset: 10]))
+        attributedString.append(NSAttributedString(string: "</a>oog"))
+        
+        let renderResult = parser.render(attributedString)
+        
+        XCTAssertEqual(renderResult.attributedSubstring(from: NSString(string: renderResult.string).range(of: "QooDDD")).attributes(at: 0, effectiveRange: nil)[.link] as? URL, URL(string: "https://zhgchg.li"))
+        XCTAssertEqual(renderResult.attributedSubstring(from: NSString(string: renderResult.string).range(of: "DDD")).attributes(at: 0, effectiveRange: nil)[.baselineOffset] as? Int, 10)
+    }
+    
     func testSelector() {
         let string = "Test<a href=\"https://zhgchg.li\">Qfsa<b>fas</b>foo</a>DDD"
         let selectorResult = parser.selector(string)
@@ -65,5 +79,35 @@ final class ZHTMLParserTests: XCTestCase {
         }
         
         wait(for: [expectation], timeout: 3.0)
+    }
+    
+    func testRenderWithHTMLEntities() {
+        let attributedString = NSAttributedString(string: "My favorite emoji is &#x1F643;, &lt;a href=\"https://zhgchg.li\"&gt;link&lt;/a&gt;")
+        let renderResult = parser.render(attributedString, withHTMLEntities: true)
+        
+        XCTAssertEqual(renderResult.attributedSubstring(from: NSString(string: renderResult.string).range(of: "link")).attributes(at: 0, effectiveRange: nil)[.link] as? URL, URL(string: "https://zhgchg.li"))
+        XCTAssertEqual(renderResult.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 999)
+    }
+    
+    func testRenderWithoutHTMLEntities() {
+        let attributedString = NSAttributedString(string: "My favorite emoji is &#x1F643;, &lt;a href=\"https://zhgchg.li\"&gt;link&lt;/a&gt;")
+        let renderResult = parser.render(attributedString, withHTMLEntities: false)
+        
+        XCTAssertEqual(renderResult.string, attributedString.string)
+        XCTAssertEqual(renderResult.attributes(at: 0, effectiveRange: nil).count, 1)
+        XCTAssertEqual(renderResult.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 999)
+    }
+    
+    func testDecodeHTMLEntities() {
+        let string = "My favorite emoji is &#x1F643;, &lt;a&gt;link&lt;/a&gt;"
+        let result = parser.decodeHTMLEntities(string)
+        
+        XCTAssertEqual(result, "My favorite emoji is 🙃, <a>link</a>")
+        
+        let attributedString = NSAttributedString(string: "My favorite emoji is &#x1F643;, &lt;a&gt;link&lt;/a&gt;", attributes: [.kern: 100])
+        let result2 = parser.decodeHTMLEntities(attributedString)
+        
+        XCTAssertEqual(result2.string, "My favorite emoji is 🙃, <a>link</a>")
+        XCTAssertEqual(result2.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 100)
     }
 }
