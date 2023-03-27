@@ -29,11 +29,12 @@ final class MarkdownStringToParsedResult: ParserProcessor {
                         case .rawString(let rawString):
                             items.append(.rawString(rawString))
                         case .match(let matchResult):
-                            let matchAttributedString = matchResult.attributedString(from, with: matchResult.range)
-                            if let symbol = MarkdownSymbol(matchResult) {
-                                items.append(.symbol(symbol, matchResult.range.length))
-                            } else if let matchAttributedString = matchAttributedString {
-                                items.append(.rawString(matchAttributedString))
+                            if let matchAttributedString = matchResult.attributedString(from, with: matchResult.range) {
+                                if let symbol = MarkdownSymbol(matchResult) {
+                                    items.append(.symbol(symbol, matchResult.range.length, matchAttributedString))
+                                } else {
+                                    items.append(.rawString(matchAttributedString))
+                                }
                             }
                         }
                     }
@@ -43,7 +44,7 @@ final class MarkdownStringToParsedResult: ParserProcessor {
             case .match(let urlMatchResult):
                 if let urlAttributedString = urlMatchResult.attributedString(from, with: urlMatchResult.range) {
                     if let url = URL(string: urlAttributedString.string) {
-                        items.append(.url(url))
+                        items.append(.url(url, urlAttributedString))
                     } else {
                         items.append(.rawString(urlAttributedString))
                     }

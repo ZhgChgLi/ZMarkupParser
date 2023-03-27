@@ -9,6 +9,9 @@ import Foundation
 
 enum MarkdownParsedResult {
     case rawString(NSAttributedString)
-    case url(URL)
-    case symbol(MarkdownSymbol, Int) // length of symbol
+    case url(URL, NSAttributedString)
+    case symbol(MarkdownSymbol, Int, NSAttributedString) // length of symbol
+    
+    case start(MarkdownElement)
+    case close(MarkdownElement)
 }
