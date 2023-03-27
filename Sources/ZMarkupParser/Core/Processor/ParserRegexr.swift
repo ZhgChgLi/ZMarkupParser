@@ -20,6 +20,12 @@ struct ParserRegexr {
         return self.attributedString.string.utf16.count
     }
     
+    init?(attributedString: NSAttributedString, expression: NSRegularExpression?) {
+        guard let expression = expression else { return nil }
+        self.expression = expression
+        self.attributedString = attributedString
+    }
+    
     init?(attributedString: NSAttributedString, pattern: String, expressionOptions: NSRegularExpression.Options = [.caseInsensitive, .dotMatchesLineSeparators]) {
         guard let expression = try? NSRegularExpression(pattern: pattern, options: expressionOptions) else {
             return nil
