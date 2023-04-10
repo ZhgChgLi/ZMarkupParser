@@ -124,9 +124,9 @@ extension MarkupStyleColor {
     
     public init(color: NSColor) {
         let ciColor = CIColor(color: color)
-        self.red = Int(ciColor?.red ?? 0) * 255)
-        self.green = Int(ciColor?.green ?? 0) * 255)
-        self.blue = Int(ciColor?.blue ?? 0) * 255)
+        self.red = Int((ciColor?.red ?? 0) * 255)
+        self.green = Int((ciColor?.green ?? 0) * 255)
+        self.blue = Int((ciColor?.blue ?? 0) * 255)
         self.alpha = ciColor?.alpha ?? 1
     }
 }
