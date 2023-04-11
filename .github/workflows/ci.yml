@@ -16,7 +16,7 @@ jobs:
       - name: macOS build and test
         run: |
           set -o pipefail
-          xcodebuild test -workspace ZMarkupParser.xcworkspace -testPlan ZMarkupParser -scheme ZMarkupParser -destination 'platform=macOS' build test | xcpretty
+          xcodebuild test -workspace ZMarkupParser.xcworkspace -testPlan UnitTest -scheme ZMarkupParser -destination 'platform=macOS' build test | xcpretty
       - name: iOS build and test
         run: |
           set -o pipefail
