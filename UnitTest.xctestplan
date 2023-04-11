@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "3AEDC8C7-A394-4BCA-BEEA-641EB3FFB8D9",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "ZMarkupParserTests",
+        "name" : "ZMarkupParserTests"
+      }
+    }
+  ],
+  "version" : 1
+}
