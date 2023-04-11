@@ -13,7 +13,11 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
-      - name: spm build and test
+      - name: macOS build and test
+        run: |
+          set -o pipefail
+          xcodebuild test -workspace ZMarkupParser.xcworkspace -testPlan ZMarkupParser -scheme ZMarkupParser -destination 'platform=macOS' build test | xcpretty
+      - name: iOS build and test
         run: |
           set -o pipefail
           xcodebuild test -workspace ZMarkupParser.xcworkspace -testPlan ZMarkupParser -scheme ZMarkupParser -enableCodeCoverage YES -resultBundlePath './scripts/TestResult.xcresult' -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' build test | xcpretty
