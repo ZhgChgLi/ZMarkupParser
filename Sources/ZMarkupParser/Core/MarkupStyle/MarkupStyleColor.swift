@@ -106,10 +106,11 @@ extension MarkupStyleColor {
     }
     
     public init(color: UIColor) {
-        self.red = Int(CIColor(color: color).red * 255)
-        self.green = Int(CIColor(color: color).green * 255)
-        self.blue = Int(CIColor(color: color).blue * 255)
-        self.alpha = CIColor(color: color).alpha
+        let ciColor = CIColor(color: color)
+        self.red = Int(ciColor.red * 255)
+        self.green = Int(ciColor.green * 255)
+        self.blue = Int(ciColor.blue * 255)
+        self.alpha = ciColor.alpha
     }
 }
 
@@ -122,10 +123,11 @@ extension MarkupStyleColor {
     }
     
     public init(color: NSColor) {
-        self.red = Int((CIColor(color: color)?.red ?? 0) * 255)
-        self.green = Int((CIColor(color: color)?.green ?? 0) * 255)
-        self.blue = Int((CIColor(color: color)?.blue ?? 0) * 255)
-        self.alpha = CIColor(color: color)?.alpha ?? 1
+        let ciColor = CIColor(color: color)
+        self.red = Int((ciColor?.red ?? 0) * 255)
+        self.green = Int((ciColor?.green ?? 0) * 255)
+        self.blue = Int((ciColor?.blue ?? 0) * 255)
+        self.alpha = ciColor?.alpha ?? 1
     }
 }
 
