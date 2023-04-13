@@ -32,6 +32,11 @@ public protocol HTMLTagNameVisitor {
     func visit(_ tagName: TH_HTMLTagName) -> Result
     func visit(_ tagName: IMG_HTMLTagName) -> Result
     func visit(_ tagName: TABLE_HTMLTagName) -> Result
+    func visit(_ tagName: S_HTMLTagName) -> Result
+    func visit(_ tagName: PRE_HTMLTagName) -> Result
+    func visit(_ tagName: BLOCKQUOTE_HTMLTagName) -> Result
+    func visit(_ tagName: CODE_HTMLTagName) -> Result
+    func visit(_ tagName: EM_HTMLTagName) -> Result
     
     func visit(_ tagName: H1_HTMLTagName) -> Result
     func visit(_ tagName: H2_HTMLTagName) -> Result
@@ -74,6 +79,11 @@ public extension ZHTMLParserBuilder {
             H4_HTMLTagName(),
             H5_HTMLTagName(),
             H6_HTMLTagName(),
+            S_HTMLTagName(),
+            PRE_HTMLTagName(),
+            CODE_HTMLTagName(),
+            EM_HTMLTagName(),
+            BLOCKQUOTE_HTMLTagName(),
             IMG_HTMLTagName(handler: nil)
         ]
     }

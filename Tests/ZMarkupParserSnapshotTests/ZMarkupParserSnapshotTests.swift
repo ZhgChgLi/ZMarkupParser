@@ -51,10 +51,18 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         <h4>H4</h4>
         <h5>H5</h5>
         <h6>H6</h6>
-        <p>Before <span style="color:green;background-color:blue;font-size:18px;font-weight:bold;line-height:10;word-spacing:8px">12/26</span>, place an order and draw a round-trip ticket for two to Japan!</p>
+        <p>Before <span style="color:green;background-color:blue;font-size:18px;font-weight:bold;line-height:10;word-spacing:8px">12/26</span>, place an order and <s>draw</s> a round-trip ticket <em>for</em> two to Japan!</p>
         你好你好<span style="background-color:red">你好你好</span>你好你好 <br />
-        안녕하세요안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />
+        안녕<code>하세요</code>안녕하세<span style="color:red">요안녕하세</span>요안녕하세요안녕하세요안녕하세요 <br />
         <span style="color:red">こんにちは</span>こんにちはこんにちは <br />
+        <blockquote>
+        blocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktextblocktext
+        blocktext2
+        </blockquote>
+        <pre><code>
+        precode
+        precode2
+        </code></pre>
         """
     
     var attributedHTMLString: NSAttributedString {

@@ -8,6 +8,7 @@
 import Foundation
 
 struct MarkupNSAttributedStringVisitor: MarkupVisitor {
+    
     typealias Result = NSAttributedString
     
     let components: [MarkupStyleComponent]
@@ -153,6 +154,18 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     func visit(_ markup: ImageMarkup) -> NSAttributedString {
         let attributedString = collectAttributedString(markup)
         attributedString.insert(NSAttributedString(attachment: markup.attachment), at: 0)
+        return attributedString
+    }
+    
+    func visit(_ markup: BlockQuoteMarkup) -> NSAttributedString {
+        let attributedString = collectAttributedString(markup)
+        attributedString.append(makeBreakLine(in: markup))
+        attributedString.insert(makeBreakLine(in: markup), at: 0)
+        return attributedString
+    }
+    
+    func visit(_ markup: CodeMarkup) -> NSAttributedString {
+        let attributedString = collectAttributedString(markup)
         return attributedString
     }
 }

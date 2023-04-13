@@ -32,6 +32,8 @@ protocol MarkupVisitor {
     func visit(_ markup: ImageMarkup) -> Result
     func visit(_ markup: TableMarkup) -> Result
     func visit(_ markup: HeadMarkup) -> Result
+    func visit(_ markup: BlockQuoteMarkup) -> Result
+    func visit(_ markup: CodeMarkup) -> Result
 }
 
 extension MarkupVisitor {

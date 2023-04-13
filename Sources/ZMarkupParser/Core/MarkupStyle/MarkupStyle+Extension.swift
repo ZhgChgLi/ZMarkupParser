@@ -20,4 +20,6 @@ public extension MarkupStyle {
     static let h4 = MarkupStyle(font: MarkupStyleFont(size: 18))
     static let h5 = MarkupStyle(font: MarkupStyleFont(size: 16))
     static let h6 = MarkupStyle(font: MarkupStyleFont(size: 14))
+    static let blockQuote = MarkupStyle(paragraphStyle: .init(headIndent: 10, firstLineHeadIndent: 10))
+    static let code = MarkupStyle(paragraphStyle: .init(lineSpacing: 0, headIndent: 10, firstLineHeadIndent: 10), backgroundColor: .init(color: .lightGray))
 }

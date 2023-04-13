@@ -121,6 +121,14 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     func visit(_ markup: ImageMarkup) -> MarkupStyle? {
         return defaultVisit(components.value(markup: markup))
     }
+    
+    func visit(_ markup: BlockQuoteMarkup) -> MarkupStyle? {
+        return  defaultVisit(components.value(markup: markup), defaultStyle: .blockQuote)
+    }
+    
+    func visit(_ markup: CodeMarkup) -> MarkupStyle? {
+        return defaultVisit(components.value(markup: markup), defaultStyle: .code)
+    }
 }
 
 extension HTMLElementMarkupComponentMarkupStyleVisitor {
