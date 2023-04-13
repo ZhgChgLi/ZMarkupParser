@@ -129,6 +129,26 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
         return  HeadMarkup(levle: .h6)
     }
     
+    func visit(_ tagName: S_HTMLTagName) -> Result {
+        return DeletelineMarkup()
+    }
+    
+    func visit(_ tagName: PRE_HTMLTagName) -> Result {
+        return BlockQuoteMarkup()
+    }
+    
+    func visit(_ tagName: BLOCKQUOTE_HTMLTagName) -> Result {
+        return BlockQuoteMarkup()
+    }
+    
+    func visit(_ tagName: CODE_HTMLTagName) -> Result {
+        return CodeMarkup()
+    }
+    
+    func visit(_ tagName: EM_HTMLTagName) -> Result {
+        return ItalicMarkup()
+    }
+    
     func visit(_ tagName: IMG_HTMLTagName) -> Result {
         guard let srcString = attributes?["src"],
               let srcURL = URL(string: srcString) else {
