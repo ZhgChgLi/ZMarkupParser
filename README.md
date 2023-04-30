@@ -3,11 +3,6 @@
 <p align="center">
   <a href="https://codecov.io/gh/ZhgChgLi/ZMarkupParser" target="_blank"><img src="https://codecov.io/gh/ZhgChgLi/ZMarkupParser/branch/main/graph/badge.svg?token=MPzgO1tnr9"></a>
   <a href="https://github.com/ZhgChgLi/ZMarkupParser/actions/workflows/ci.yml" target="_blank"><img src="https://github.com/ZhgChgLi/ZMarkupParser/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://cocoapods.org/pods/ZMarkupParser" target="_blank"><img src="https://img.shields.io/cocoapods/v/ZMarkupParser.svg?style=flat"></a>
-  <a href="https://swift.org/package-manager/" target="_blank"><img src="https://img.shields.io/badge/SPM-supported-DE5C43.svg?style=flat"></a>
-  <br />
-  <a href="https://raw.githubusercontent.com/ZhgChgLi/ZMarkupParser/master/LICENSE"><img src="https://img.shields.io/cocoapods/l/ZMarkupParser.svg?style=flat" target="_blank"></a>
-  <a href="https://github.com/ZhgChgLi/ZMarkupParser" target="_blank"><img src="https://img.shields.io/cocoapods/p/ZMarkupParser.svg?style=flat"></a>
 </p>
 
 ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.
