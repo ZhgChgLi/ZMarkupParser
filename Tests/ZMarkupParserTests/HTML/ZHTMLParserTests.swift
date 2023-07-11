@@ -83,7 +83,7 @@ final class ZHTMLParserTests: XCTestCase {
     
     func testRenderWithHTMLEntities() {
         let attributedString = NSAttributedString(string: "My favorite emoji is &#x1F643;, &lt;a href=\"https://zhgchg.li\"&gt;link&lt;/a&gt;")
-        let renderResult = parser.render(attributedString, withHTMLEntities: true)
+        let renderResult = parser.render(attributedString, forceDecodeHTMLEntities: true)
         
         XCTAssertEqual(renderResult.attributedSubstring(from: NSString(string: renderResult.string).range(of: "link")).attributes(at: 0, effectiveRange: nil)[.link] as? URL, URL(string: "https://zhgchg.li"))
         XCTAssertEqual(renderResult.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 999)
@@ -91,7 +91,7 @@ final class ZHTMLParserTests: XCTestCase {
     
     func testRenderWithoutHTMLEntities() {
         let attributedString = NSAttributedString(string: "My favorite emoji is &#x1F643;, &lt;a href=\"https://zhgchg.li\"&gt;link&lt;/a&gt;")
-        let renderResult = parser.render(attributedString, withHTMLEntities: false)
+        let renderResult = parser.render(attributedString, forceDecodeHTMLEntities: false)
         
         XCTAssertEqual(renderResult.string, attributedString.string)
         XCTAssertEqual(renderResult.attributes(at: 0, effectiveRange: nil).count, 1)

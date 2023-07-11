@@ -270,7 +270,7 @@ parser.render(htmlString) // NSAttributedString
 
 By default, ZMarkupParser will decode HTML entities using the [HTMLString](https://github.com/alexisakers/HTMLString) library.
 
-If you wish to keep the raw data clean, you can disable this feature by using the following syntax: `parser.render(htmlString, withHTMLEntities: false)`.
+If you wish to keep the raw data clean, you can disable this feature by using the following syntax: `parser.render(htmlString, forceDecodeHTMLEntities: false)` or `setHtmlString(attributedString, with: parser, forceDecodeHTMLEntities: false)`.
 
 // work with UITextView
 textView.setHtmlString(htmlString)

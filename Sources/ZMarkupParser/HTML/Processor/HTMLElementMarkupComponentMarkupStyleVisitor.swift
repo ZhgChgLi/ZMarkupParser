@@ -48,6 +48,10 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         return defaultVisit(components.value(markup: markup))
     }
     
+    func visit(_ markup: ColorMarkup) -> Result {
+        return defaultVisit(components.value(markup: markup), defaultStyle: MarkupStyle(foregroundColor: markup.color))
+    }
+    
     func visit(_ markup: ItalicMarkup) -> Result {
         return defaultVisit(components.value(markup: markup), defaultStyle: .italic)
     }

@@ -14,6 +14,10 @@ import AppKit
 #endif
 
 public struct MarkupStyleFont: MarkupStyleItem {
+    public enum CaseStyle {
+        case lowercase
+        case uppercase
+    }
     public enum FontWeight {
         case style(FontWeightStyle)
         case rawValue(CGFloat)

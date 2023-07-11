@@ -69,6 +69,14 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
         }
     }
     
+    func visit(_ tagName: FONT_HTMLTagName) -> Result {
+        if let color = attributes?["color"], let markupStyleColor = MarkupStyleColor(string: color) {
+            return ColorMarkup(color: markupStyleColor)
+        } else {
+            return InlineMarkup()
+        }
+    }
+    
     func visit(_ tagName: SPAN_HTMLTagName) -> Result {
         return InlineMarkup()
     }

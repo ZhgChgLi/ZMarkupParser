@@ -20,6 +20,7 @@ protocol MarkupStyleItem {
 #if canImport(UIKit)
 public struct MarkupStyle: MarkupStyleItem {
     public var font:MarkupStyleFont
+    public var fontCase: MarkupStyleFont.CaseStyle? = nil
     public var paragraphStyle:MarkupStyleParagraphStyle
     public var foregroundColor:MarkupStyleColor? = nil
     public var backgroundColor:MarkupStyleColor? = nil
@@ -42,8 +43,9 @@ public struct MarkupStyle: MarkupStyleItem {
     public var writingDirection:NSNumber? = nil
     public var verticalGlyphForm:NSNumber? = nil
     
-    public init(font: MarkupStyleFont = MarkupStyleFont(), paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: String? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSNumber? = nil, verticalGlyphForm: NSNumber? = nil) {
+    public init(font: MarkupStyleFont = MarkupStyleFont(), fontCase: MarkupStyleFont.CaseStyle? = nil, paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: String? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSNumber? = nil, verticalGlyphForm: NSNumber? = nil) {
         self.font = font
+        self.fontCase = fontCase
         self.paragraphStyle = paragraphStyle
         self.foregroundColor = foregroundColor
         self.backgroundColor = backgroundColor
@@ -204,6 +206,7 @@ public struct MarkupStyle: MarkupStyleItem {
 public struct MarkupStyle {
     public var nativeFont:NSFont? = nil
     public var font:MarkupStyleFont
+    public var fontCase: MarkupStyleFont.CaseStyle? = nil
     public var paragraphStyle:MarkupStyleParagraphStyle
     public var foregroundColor:MarkupStyleColor? = nil
     public var backgroundColor:MarkupStyleColor? = nil
@@ -233,8 +236,9 @@ public struct MarkupStyle {
     public var superscript:NSNumber? = nil
     public var glyphInfo:NSGlyphInfo? = nil
     
-    public init(font: MarkupStyleFont = MarkupStyleFont(), paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: NSAttributedString.TextEffectStyle? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSArray? = nil, verticalGlyphForm: NSNumber? = nil, cursor: NSCursor? = nil, toolTip: String? = nil, markedClauseSegment: NSNumber? = nil, textAlternatives: NSTextAlternatives? = nil, spellingState: NSAttributedString.SpellingState? = nil, superscript: NSNumber? = nil, glyphInfo: NSGlyphInfo? = nil) {
+    public init(font: MarkupStyleFont = MarkupStyleFont(), fontCase: MarkupStyleFont.CaseStyle? = nil, paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: NSAttributedString.TextEffectStyle? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSArray? = nil, verticalGlyphForm: NSNumber? = nil, cursor: NSCursor? = nil, toolTip: String? = nil, markedClauseSegment: NSNumber? = nil, textAlternatives: NSTextAlternatives? = nil, spellingState: NSAttributedString.SpellingState? = nil, superscript: NSNumber? = nil, glyphInfo: NSGlyphInfo? = nil) {
         self.font = font
+        self.fontCase = fontCase
         self.paragraphStyle = paragraphStyle
         self.foregroundColor = foregroundColor
         self.backgroundColor = backgroundColor
