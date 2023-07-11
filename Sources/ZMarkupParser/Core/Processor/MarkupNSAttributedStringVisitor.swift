@@ -199,6 +199,17 @@ extension MarkupNSAttributedStringVisitor {
     func applyMarkupStyle(_ attributedString: NSAttributedString, with markupStyle: MarkupStyle?) -> NSAttributedString {
         guard let markupStyle = markupStyle else { return attributedString }
         let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        
+        if markupStyle.fontCase == .lowercase {
+            mutableAttributedString.enumerateAttributes(in: NSRange(location: 0, length: mutableAttributedString.string.utf16.count), options: []) {_, range, _ in
+                mutableAttributedString.replaceCharacters(in: range, with: (attributedString.string as NSString).substring(with: range).lowercased())
+            }
+        } else if markupStyle.fontCase == .uppercase {
+            mutableAttributedString.enumerateAttributes(in: NSRange(location: 0, length: mutableAttributedString.string.utf16.count), options: []) {_, range, _ in
+                mutableAttributedString.replaceCharacters(in: range, with: (mutableAttributedString.string as NSString).substring(with: range).uppercased())
+            }
+        }
+        
         mutableAttributedString.addAttributes(markupStyle.render(), range: NSMakeRange(0, mutableAttributedString.string.utf16.count))
         return mutableAttributedString
     }
