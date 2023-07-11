@@ -47,6 +47,10 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         return collectAttributedString(markup)
     }
     
+    func visit(_ markup: ColorMarkup) -> Result {
+        return collectAttributedString(markup)
+    }
+    
     func visit(_ markup: ItalicMarkup) -> Result {
         return collectAttributedString(markup)
     }
