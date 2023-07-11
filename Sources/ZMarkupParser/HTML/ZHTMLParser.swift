@@ -66,8 +66,8 @@ public final class ZHTMLParser {
         return HTMLSelector(markup: reuslt.markup, componets: reuslt.htmlElementComponents)
     }
     
-    public func render(_ string: String, withHTMLEntities: Bool = true) -> NSAttributedString {
-        return self.render(NSAttributedString(string: string), withHTMLEntities: withHTMLEntities)
+    public func render(_ string: String, forceDecodeHTMLEntities: Bool = true) -> NSAttributedString {
+        return self.render(NSAttributedString(string: string), forceDecodeHTMLEntities: forceDecodeHTMLEntities)
     }
     
     public func render(_ selector: HTMLSelector) -> NSAttributedString {
@@ -75,9 +75,9 @@ public final class ZHTMLParser {
         return markupRenderProcessor.process(from: (selector.markup, styleComponets))
     }
     
-    public func render(_ attributedString: NSAttributedString, withHTMLEntities: Bool = true) -> NSAttributedString {
+    public func render(_ attributedString: NSAttributedString, forceDecodeHTMLEntities: Bool = true) -> NSAttributedString {
         var newAttributedString = attributedString
-        if withHTMLEntities {
+        if forceDecodeHTMLEntities {
             newAttributedString = decodeHTMLEntities(attributedString)
         }
         let items = process(newAttributedString)
@@ -123,13 +123,13 @@ public final class ZHTMLParser {
         }
     }
     
-    public func render(_ string: String, withHTMLEntities: Bool = true, completionHandler: @escaping (NSAttributedString) -> Void) {
-        self.render(NSAttributedString(string: string), withHTMLEntities: withHTMLEntities, completionHandler: completionHandler)
+    public func render(_ string: String, forceDecodeHTMLEntities: Bool = true, completionHandler: @escaping (NSAttributedString) -> Void) {
+        self.render(NSAttributedString(string: string), forceDecodeHTMLEntities: forceDecodeHTMLEntities, completionHandler: completionHandler)
     }
     
-    public func render(_ attributedString: NSAttributedString, withHTMLEntities: Bool = true, completionHandler: @escaping (NSAttributedString) -> Void) {
+    public func render(_ attributedString: NSAttributedString, forceDecodeHTMLEntities: Bool = true, completionHandler: @escaping (NSAttributedString) -> Void) {
         ZHTMLParser.dispatchQueue.async {
-            let attributedString = self.render(attributedString, withHTMLEntities: withHTMLEntities)
+            let attributedString = self.render(attributedString, forceDecodeHTMLEntities: forceDecodeHTMLEntities)
             DispatchQueue.main.async {
                 completionHandler(attributedString)
             }
