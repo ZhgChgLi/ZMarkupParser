@@ -81,10 +81,10 @@ public final class ZHTMLParser {
             newAttributedString = decodeHTMLEntities(attributedString)
         }
         let items = process(newAttributedString)
-        let reuslt = htmlParsedResultToHTMLElementWithRootMarkupProcessor.process(from: items)
-        let styleComponets = htmlElementWithMarkupToMarkupStyleProcessor.process(from: (reuslt.markup, reuslt.htmlElementComponents))
+        let result = htmlParsedResultToHTMLElementWithRootMarkupProcessor.process(from: items)
+        let styleComponents = htmlElementWithMarkupToMarkupStyleProcessor.process(from: (result.markup, result.htmlElementComponents))
         
-        return markupRenderProcessor.process(from: (reuslt.markup, styleComponets))
+        return markupRenderProcessor.process(from: (result.markup, styleComponents))
     }
     
     public func stripper(_ string: String) -> String {
