@@ -210,7 +210,10 @@ extension MarkupNSAttributedStringVisitor {
             }
         }
         
-        mutableAttributedString.addAttributes(markupStyle.render(), range: NSMakeRange(0, mutableAttributedString.string.utf16.count))
+        mutableAttributedString.addAttributes(
+            markupStyle.render(),
+            range: NSMakeRange(0, mutableAttributedString.string.utf16.count)
+        )
         return mutableAttributedString
     }
     
