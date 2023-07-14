@@ -85,7 +85,11 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
                             }
                         } else {
                             // <a>
-                            let startItem: HTMLParsedResult.StartItem = HTMLParsedResult.StartItem(tagName: matchTag, tagAttributedString: matchAttributedString, attributes: matchTagAttributes)
+                            let startItem: HTMLParsedResult.StartItem = HTMLParsedResult.StartItem(
+                                tagName: matchTag,
+                                tagAttributedString: matchAttributedString,
+                                attributes: matchTagAttributes
+                            )
                             items.append(.start(startItem))
                             stackStartItems.append(startItem)
                         }

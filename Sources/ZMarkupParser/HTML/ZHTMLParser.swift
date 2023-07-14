@@ -99,8 +99,6 @@ public final class ZHTMLParser {
         return attributedString
     }
     
-    //
-    
     public func selector(_ string: String, completionHandler: @escaping (HTMLSelector) -> Void) {
         self.selector(NSAttributedString(string: string), completionHandler: completionHandler)
     }

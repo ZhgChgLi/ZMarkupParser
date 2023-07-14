@@ -20,6 +20,11 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     
     let attributes: [String: String]?
     let isSelfClosingTag: Bool
+
+    init(attributes: [String : String]?, isSelfClosingTag: Bool) {
+        self.attributes = attributes
+        self.isSelfClosingTag = isSelfClosingTag
+    }
     
     func visit(_ tagName: A_HTMLTagName) -> Result {
         return LinkMarkup()
