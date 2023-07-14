@@ -82,7 +82,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
         if let style = attributes?["style"] {
             let parsedCSS = parseCSSString(css: style)
             let markup = findStyle(css: parsedCSS)
-            print("asdasd", #file, #line, markup)
+            print("asdasd", #file, #line)
         }
         return inlineMarkup
     }
