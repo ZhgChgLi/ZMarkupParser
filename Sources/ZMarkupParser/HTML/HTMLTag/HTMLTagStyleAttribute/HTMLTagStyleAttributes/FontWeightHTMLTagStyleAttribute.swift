@@ -16,7 +16,6 @@ public struct FontWeightHTMLTagStyleAttribute: HTMLTagStyleAttribute {
     }
     public enum FontWeightStyle: String {
         case normal, bold
-
     }
     
     public init() {

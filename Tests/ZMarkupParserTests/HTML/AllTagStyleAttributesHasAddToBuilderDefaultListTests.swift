@@ -43,7 +43,12 @@ private class StubVisitor: HTMLTagStyleAttributeVisitor {
         count += 1
         return count
     }
-    
+
+    func visit(_ styleAttribute: ZMarkupParser.FontFamilyHTMLTagStyleAttribute) -> Int {
+        count += 1
+        return count
+    }
+
     func visit(_ styleAttribute: FontWeightHTMLTagStyleAttribute) -> Int {
         count += 1
         return count

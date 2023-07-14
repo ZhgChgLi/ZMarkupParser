@@ -34,6 +34,14 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         guard let color = MarkupStyleColor(string: value) else { return nil }
         return MarkupStyle(backgroundColor: color)
     }
+
+    func visit(_ styleAttribute: FontFamilyHTMLTagStyleAttribute) -> MarkupStyle? {
+        print("asdasd", value)
+        guard let size = self.convert(fromPX: value) else { return nil }
+        return MarkupStyle(
+            font: MarkupStyleFont(size: CGFloat(size))
+        )
+    }
     
     func visit(_ styleAttribute: FontSizeHTMLTagStyleAttribute) -> Result {
         guard let size = self.convert(fromPX: value) else { return nil }

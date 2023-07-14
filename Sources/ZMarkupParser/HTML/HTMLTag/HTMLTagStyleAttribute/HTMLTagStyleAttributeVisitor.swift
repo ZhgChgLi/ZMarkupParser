@@ -14,6 +14,7 @@ public protocol HTMLTagStyleAttributeVisitor {
     func visit(_ styleAttribute: ExtendHTMLTagStyleAttribute) -> Result
     func visit(_ styleAttribute: ColorHTMLTagStyleAttribute) -> Result
     func visit(_ styleAttribute: BackgroundColorHTMLTagStyleAttribute) -> Result
+    func visit(_ styleAttribute: FontFamilyHTMLTagStyleAttribute) -> Result
     func visit(_ styleAttribute: FontSizeHTMLTagStyleAttribute) -> Result
     func visit(_ styleAttribute: FontWeightHTMLTagStyleAttribute) -> Result
     func visit(_ styleAttribute: LineHeightHTMLTagStyleAttribute) -> Result
@@ -32,6 +33,7 @@ public extension ZHTMLParserBuilder {
             ColorHTMLTagStyleAttribute(),
             BackgroundColorHTMLTagStyleAttribute(),
             FontSizeHTMLTagStyleAttribute(),
+            FontFamilyHTMLTagStyleAttribute(),
             FontWeightHTMLTagStyleAttribute(),
             LineHeightHTMLTagStyleAttribute(),
             WordSpacingHTMLTagStyleAttribute()

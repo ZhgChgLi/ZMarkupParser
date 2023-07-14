@@ -43,7 +43,31 @@ public struct MarkupStyle: MarkupStyleItem {
     public var writingDirection:NSNumber? = nil
     public var verticalGlyphForm:NSNumber? = nil
     
-    public init(font: MarkupStyleFont = MarkupStyleFont(), fontCase: MarkupStyleFont.CaseStyle? = nil, paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: String? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSNumber? = nil, verticalGlyphForm: NSNumber? = nil) {
+    public init(
+        font: MarkupStyleFont = MarkupStyleFont(),
+        fontCase: MarkupStyleFont.CaseStyle? = nil,
+        paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(),
+        foregroundColor: MarkupStyleColor? = nil,
+        backgroundColor: MarkupStyleColor? = nil,
+        ligature: NSNumber? = nil,
+        kern: NSNumber? = nil,
+        tracking: NSNumber? = nil,
+        strikethroughStyle: NSUnderlineStyle? = nil,
+        underlineStyle: NSUnderlineStyle? = nil,
+        strokeColor: MarkupStyleColor? = nil,
+        strokeWidth: NSNumber? = nil,
+        shadow: NSShadow? = nil,
+        textEffect: String? = nil,
+        attachment: NSTextAttachment? = nil,
+        link: URL? = nil,
+        baselineOffset: NSNumber? = nil,
+        underlineColor: MarkupStyleColor? = nil,
+        strikethroughColor: MarkupStyleColor? = nil,
+        obliqueness: NSNumber? = nil,
+        expansion: NSNumber? = nil,
+        writingDirection: NSNumber? = nil,
+        verticalGlyphForm: NSNumber? = nil
+    ) {
         self.font = font
         self.fontCase = fontCase
         self.paragraphStyle = paragraphStyle
@@ -103,26 +127,28 @@ public struct MarkupStyle: MarkupStyleItem {
     }
     
     func isNil() -> Bool {
-        return !([foregroundColor,
-                 backgroundColor,
-                 ligature,
-                 kern,
-                 tracking,
-                 strikethroughStyle,
-                 underlineStyle,
-                 strokeColor,
-                 strokeWidth,
-                 shadow,
-                 textEffect,
-                 attachment,
-                 link,
-                 baselineOffset,
-                 underlineColor,
-                 strikethroughColor,
-                 obliqueness,
-                 expansion,
-                 writingDirection,
-                 verticalGlyphForm] as [Any?]).contains(where: { $0 != nil}) && paragraphStyle.isNil() && font.isNil()
+        return !([
+            foregroundColor,
+            backgroundColor,
+            ligature,
+            kern,
+            tracking,
+            strikethroughStyle,
+            underlineStyle,
+            strokeColor,
+            strokeWidth,
+            shadow,
+            textEffect,
+            attachment,
+            link,
+            baselineOffset,
+            underlineColor,
+            strikethroughColor,
+            obliqueness,
+            expansion,
+            writingDirection,
+            verticalGlyphForm
+        ] as [Any?]).contains(where: { $0 != nil}) && paragraphStyle.isNil() && font.isNil()
     }
     
     func render() -> [NSAttributedString.Key: Any] {
