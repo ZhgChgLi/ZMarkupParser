@@ -19,29 +19,29 @@ protocol MarkupStyleItem {
 
 #if canImport(UIKit)
 public struct MarkupStyle: MarkupStyleItem {
-    public var font:MarkupStyleFont
+    public var font: MarkupStyleFont
     public var fontCase: MarkupStyleFont.CaseStyle? = nil
-    public var paragraphStyle:MarkupStyleParagraphStyle
-    public var foregroundColor:MarkupStyleColor? = nil
-    public var backgroundColor:MarkupStyleColor? = nil
-    public var ligature:NSNumber? = nil
-    public var kern:NSNumber? = nil
-    public var tracking:NSNumber? = nil
-    public var strikethroughStyle:NSUnderlineStyle? = nil
-    public var underlineStyle:NSUnderlineStyle? = nil
-    public var strokeColor:MarkupStyleColor? = nil
-    public var strokeWidth:NSNumber? = nil
-    public var shadow:NSShadow? = nil
-    public var textEffect:String? = nil
-    public var attachment:NSTextAttachment? = nil
-    public var link:URL? = nil
-    public var baselineOffset:NSNumber? = nil
-    public var underlineColor:MarkupStyleColor? = nil
-    public var strikethroughColor:MarkupStyleColor? = nil
-    public var obliqueness:NSNumber? = nil
-    public var expansion:NSNumber? = nil
-    public var writingDirection:NSNumber? = nil
-    public var verticalGlyphForm:NSNumber? = nil
+    public var paragraphStyle: MarkupStyleParagraphStyle
+    public var foregroundColor: MarkupStyleColor? = nil
+    public var backgroundColor: MarkupStyleColor? = nil
+    public var ligature: NSNumber? = nil
+    public var kern: NSNumber? = nil
+    public var tracking: NSNumber? = nil
+    public var strikethroughStyle: NSUnderlineStyle? = nil
+    public var underlineStyle: NSUnderlineStyle? = nil
+    public var strokeColor: MarkupStyleColor? = nil
+    public var strokeWidth: NSNumber? = nil
+    public var shadow: NSShadow? = nil
+    public var textEffect: String? = nil
+    public var attachment: NSTextAttachment? = nil
+    public var link: URL? = nil
+    public var baselineOffset: NSNumber? = nil
+    public var underlineColor: MarkupStyleColor? = nil
+    public var strikethroughColor: MarkupStyleColor? = nil
+    public var obliqueness: NSNumber? = nil
+    public var expansion: NSNumber? = nil
+    public var writingDirection: NSNumber? = nil
+    public var verticalGlyphForm: NSNumber? = nil
     
     public init(
         font: MarkupStyleFont = MarkupStyleFont(),
