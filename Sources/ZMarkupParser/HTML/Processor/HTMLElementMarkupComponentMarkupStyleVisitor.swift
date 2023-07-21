@@ -234,7 +234,7 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
             let value = style[1].trimmingCharacters(in: .whitespacesAndNewlines)
             
             if let styleAttribute = styleAttributes.first(where: { $0.isEqualTo(styleName: key) }) {
-                print("asdasd", styleAttribute, key)
+//                print("asdasd", styleAttribute, key)
                 let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: value)
                 if var thisMarkupStyle = visitor.visit(styleAttribute: styleAttribute) {
                     thisMarkupStyle.fillIfNil(from: markupStyle)
