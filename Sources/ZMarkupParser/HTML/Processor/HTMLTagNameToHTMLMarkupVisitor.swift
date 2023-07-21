@@ -31,6 +31,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: B_HTMLTagName) -> Result {
+        print("asdasd", attributes)
         return BoldMarkup()
     }
     
