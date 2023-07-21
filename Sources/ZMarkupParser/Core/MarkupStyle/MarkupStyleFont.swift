@@ -122,15 +122,13 @@ extension MarkupStyleFont {
     func getFont() -> UIFont? {
         guard !isNil() else { return nil }
 
-        let size = (self.size ?? MarkupStyle.default.font.size) ?? UIFont.systemFontSize
-        let (traits, weight) = calculateFontTraits()
+        let size = (size ?? MarkupStyle.default.font.size) ?? UIFont.systemFontSize
+        let (_, weight) = calculateFontTraits()
 
         // Create the font with the specified fontFamily or use the system font if fontFamily is nil.
         let font: UIFont
-        print("asdasd", family ?? "", traits, UIFontDescriptor(name: family ?? "", size: size), UIFontDescriptor(name: family ?? "", size: size).withSymbolicTraits(traits))
-        if let family = self.family,
-           let descriptor = UIFontDescriptor(name: family, size: size).withSymbolicTraits(traits) {
-            font = UIFont(descriptor: descriptor, size: size)
+        if let family = family {
+            font = UIFont(descriptor: UIFontDescriptor(name: family, size: size), size: size)
         } else {
             font = UIFont.systemFont(ofSize: size, weight: weight)
         }
