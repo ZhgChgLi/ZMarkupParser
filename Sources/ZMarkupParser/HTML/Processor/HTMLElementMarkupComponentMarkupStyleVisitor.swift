@@ -224,7 +224,7 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
         }
         
         let styles = styleString.split(separator: ";").filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != "" }.map { $0.split(separator: ":") }
-        print("asdasd", styles)
+//        print("asdasd", styles)
         for style in styles {
             guard style.count == 2 else {
                 continue
@@ -234,6 +234,7 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
             let value = style[1].trimmingCharacters(in: .whitespacesAndNewlines)
             
             if let styleAttribute = styleAttributes.first(where: { $0.isEqualTo(styleName: key) }) {
+                print("asdasd", styleAttribute, key)
                 let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: value)
                 if var thisMarkupStyle = visitor.visit(styleAttribute: styleAttribute) {
                     thisMarkupStyle.fillIfNil(from: markupStyle)
