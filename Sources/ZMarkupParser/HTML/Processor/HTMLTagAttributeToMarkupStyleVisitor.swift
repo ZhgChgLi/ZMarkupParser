@@ -50,7 +50,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         var weightStyle: FontWeightHTMLTagStyleAttribute.FontWeight?
         if let fontWeightStyle = FontWeightHTMLTagStyleAttribute.FontWeightStyle(rawValue: value) {
             weightStyle = .style(fontWeightStyle)
-        } else if let fontWeightFloat = Float(value) {
+        } else if let fontWeightFloat = Float(value / 1000) {
             weightStyle = .rawValue(CGFloat(fontWeightFloat))
         }
         print("asdasd value: \(value) weightStyle:", weightStyle)
