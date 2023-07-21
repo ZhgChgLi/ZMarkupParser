@@ -127,7 +127,9 @@ extension MarkupStyleFont {
 
         // Create the font with the specified fontFamily or use the system font if fontFamily is nil.
         let font: UIFont
-        if let family = self.family, let descriptor = UIFontDescriptor(name: family, size: size).withSymbolicTraits(traits) {
+        print("asdasd", family)
+        if let family = self.family,
+           let descriptor = UIFontDescriptor(name: family, size: size).withSymbolicTraits(traits) {
             font = UIFont(descriptor: descriptor, size: size)
         } else {
             font = UIFont.systemFont(ofSize: size, weight: weight)

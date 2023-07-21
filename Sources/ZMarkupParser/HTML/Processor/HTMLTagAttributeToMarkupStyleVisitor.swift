@@ -43,7 +43,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     
     func visit(_ styleAttribute: FontSizeHTMLTagStyleAttribute) -> Result {
         guard let size = self.convert(fromPX: value) else { return nil }
-        return MarkupStyle(font: MarkupStyleFont(size: CGFloat(size)))
+        return MarkupStyle(font: MarkupStyleFont(size: size))
     }
     
     func visit(_ styleAttribute: FontWeightHTMLTagStyleAttribute) -> Result {
@@ -79,7 +79,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: CGFloat(lineSpacing)))
     }
     
-    func convert(fromPX string: String) -> Int? {
+    func convert(fromPX string: String) -> CGFloat? {
         guard
             let regex = try? NSRegularExpression(pattern: "([0-9]+.?[0-9]*)px"),
             let firstMatch = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.count)),
@@ -89,6 +89,6 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         else {
             return nil
         }
-        return Int(size)
+        return CGFloat(size)
     }
 }
