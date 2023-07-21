@@ -45,8 +45,6 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: InlineMarkup) -> Result {
-//        print("asdasd", "components: ", components, "styleAttributes: ", styleAttributes, "attribute: ",components.value(markup: markup))
-//        dump(styleAttributes, name: "asdasd styleAttribute")
         return defaultVisit(components.value(markup: markup))
     }
     
@@ -214,7 +212,6 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
     }
     
     func defaultVisit(_ htmlElement: HTMLElementMarkupComponent.HTMLElement?, defaultStyle: MarkupStyle? = nil) -> Result {
-        print("asdasd", htmlElement?.attributes?["style"])
         var markupStyle: MarkupStyle? = customStyle(htmlElement) ?? defaultStyle
         guard
             let styleString = htmlElement?.attributes?["style"],
@@ -224,7 +221,6 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
         }
         
         let styles = styleString.split(separator: ";").filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != "" }.map { $0.split(separator: ":") }
-//        print("asdasd", styles)
         for style in styles {
             guard style.count == 2 else {
                 continue
@@ -234,7 +230,6 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
             let value = style[1].trimmingCharacters(in: .whitespacesAndNewlines)
             
             if let styleAttribute = styleAttributes.first(where: { $0.isEqualTo(styleName: key) }) {
-//                print("asdasd", styleAttribute, key)
                 let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: value)
                 if var thisMarkupStyle = visitor.visit(styleAttribute: styleAttribute) {
                     thisMarkupStyle.fillIfNil(from: markupStyle)

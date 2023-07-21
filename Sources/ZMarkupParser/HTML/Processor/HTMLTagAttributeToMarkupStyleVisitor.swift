@@ -80,11 +80,13 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     }
     
     func convert(fromPX string: String) -> Int? {
-        guard let regex = try? NSRegularExpression(pattern: "([0-9]+)px"),
-              let firstMatch = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.count)),
-              firstMatch.range(at: 1).location != NSNotFound,
-              let range = Range(firstMatch.range(at: 1), in: string),
-              let size = Float(String(string[range])) else {
+        guard
+            let regex = try? NSRegularExpression(pattern: "([0-9]+.?[0-9]*)px"),
+            let firstMatch = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.count)),
+            firstMatch.range(at: 1).location != NSNotFound,
+            let range = Range(firstMatch.range(at: 1), in: string),
+            let size = Float(String(string[range]))
+        else {
             return nil
         }
         return Int(size)
