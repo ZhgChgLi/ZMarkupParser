@@ -45,7 +45,7 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: InlineMarkup) -> Result {
-        print("asdasd", "components asdasd: ", components, "policy asdasd: ", policy, "styleAttributes asdasd: ", styleAttributes)
+        print("asdasd", "components: ", components, "styleAttributes: ", styleAttributes, "attribute: ",components.value(markup: markup))
         dump(styleAttributes, name: "asdasd styleAttribute")
         return defaultVisit(components.value(markup: markup))
     }
@@ -214,9 +214,12 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
     }
     
     func defaultVisit(_ htmlElement: HTMLElementMarkupComponent.HTMLElement?, defaultStyle: MarkupStyle? = nil) -> Result {
+        print("asdasd", htmlElement?.attributes?["style"])
         var markupStyle: MarkupStyle? = customStyle(htmlElement) ?? defaultStyle
-        guard let styleString = htmlElement?.attributes?["style"],
-              styleAttributes.count > 0 else {
+        guard
+            let styleString = htmlElement?.attributes?["style"],
+            styleAttributes.count > 0
+        else {
             return markupStyle
         }
         
