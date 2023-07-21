@@ -96,7 +96,7 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     
     func visit(_ markup: HeadMarkup) -> Result {
         let defaultStyle: MarkupStyle?
-        switch markup.levle {
+        switch markup.level {
         case .h1:
             defaultStyle = .h1
         case .h2:
