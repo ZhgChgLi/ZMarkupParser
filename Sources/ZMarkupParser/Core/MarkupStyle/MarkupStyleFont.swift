@@ -126,20 +126,15 @@ extension MarkupStyleFont {
         let (traits, weight) = calculateFontTraits()
 
         // Create the font with the specified fontFamily or use the system font if fontFamily is nil.
-        let font: UIFont
-        if traits.isEmpty {
+        if let family = family,
+           !traits.isEmpty,
+           let descriptor = UIFontDescriptor(name: family, size: size).withSymbolicTraits(traits) {
+            return UIFont(descriptor: descriptor, size: size)
         }
         if let family = family {
-            if !traits.isEmpty, let descriptor = UIFontDescriptor(name: family, size: size).withSymbolicTraits(traits) {
-                font = UIFont(descriptor: descriptor, size: size)
-            } else {
-                font = UIFont(descriptor: UIFontDescriptor(name: family, size: size), size: size)
-            }
-        } else {
-            font = UIFont.systemFont(ofSize: size, weight: weight)
+            return UIFont(descriptor: UIFontDescriptor(name: family, size: size), size: size)
         }
-
-        return font
+        return UIFont.systemFont(ofSize: size, weight: weight)
     }
 
 }
