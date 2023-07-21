@@ -34,7 +34,7 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
                 let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes, isSelfClosingTag: false)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
                 let markup = visitor.visit(tagName: htmlTag.tagName)
-                print("asdasd", #fileID, #line, item.attributes)
+//                print("asdasd", #fileID, #line, item.attributes)
                 let componentElement = HTMLElementMarkupComponent.HTMLElement(
                     tag: htmlTag,
                     tagAttributedString: item.tagAttributedString,
@@ -52,7 +52,7 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
             case .selfClosing(let item):
                 let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes, isSelfClosingTag: true)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
-                print("asdasd", #fileID, #line, item.attributes)
+//                print("asdasd", #fileID, #line, item.attributes)
                 let markup = visitor.visit(tagName: htmlTag.tagName)
                 let componentElement = HTMLElementMarkupComponent.HTMLElement(
                     tag: htmlTag,

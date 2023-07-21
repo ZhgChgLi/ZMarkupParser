@@ -45,8 +45,8 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: InlineMarkup) -> Result {
-        print("asdasd", "components: ", components, "styleAttributes: ", styleAttributes, "attribute: ",components.value(markup: markup))
-        dump(styleAttributes, name: "asdasd styleAttribute")
+//        print("asdasd", "components: ", components, "styleAttributes: ", styleAttributes, "attribute: ",components.value(markup: markup))
+//        dump(styleAttributes, name: "asdasd styleAttribute")
         return defaultVisit(components.value(markup: markup))
     }
     
@@ -224,7 +224,7 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
         }
         
         let styles = styleString.split(separator: ";").filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != "" }.map { $0.split(separator: ":") }
-        
+        print("asdasd", styles)
         for style in styles {
             guard style.count == 2 else {
                 continue
