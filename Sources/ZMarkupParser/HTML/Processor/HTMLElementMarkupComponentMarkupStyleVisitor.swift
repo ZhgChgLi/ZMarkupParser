@@ -46,6 +46,7 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     
     func visit(_ markup: InlineMarkup) -> Result {
         print("asdasd", "components asdasd: ", components, "policy asdasd: ", policy, "styleAttributes asdasd: ", styleAttributes)
+        dump(styleAttributes, name: "asdasd styleAttribute")
         return defaultVisit(components.value(markup: markup))
     }
     
