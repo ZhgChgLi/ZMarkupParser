@@ -123,12 +123,18 @@ extension MarkupStyleFont {
         guard !isNil() else { return nil }
 
         let size = (size ?? MarkupStyle.default.font.size) ?? UIFont.systemFontSize
-        let (_, weight) = calculateFontTraits()
+        let (traits, weight) = calculateFontTraits()
 
         // Create the font with the specified fontFamily or use the system font if fontFamily is nil.
         let font: UIFont
+        if traits.isEmpty {
+        }
         if let family = family {
-            font = UIFont(descriptor: UIFontDescriptor(name: family, size: size), size: size)
+            if !traits.isEmpty, let descriptor = UIFontDescriptor(name: family, size: size).withSymbolicTraits(traits) {
+                font = UIFont(descriptor: descriptor, size: size)
+            } else {
+                font = UIFont(descriptor: UIFontDescriptor(name: family, size: size), size: size)
+            }
         } else {
             font = UIFont.systemFont(ofSize: size, weight: weight)
         }
