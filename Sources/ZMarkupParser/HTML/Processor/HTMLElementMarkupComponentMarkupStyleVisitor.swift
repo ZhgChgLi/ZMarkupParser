@@ -144,41 +144,44 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
     }
     
     func defaultVisit(_ htmlElement: HTMLElementMarkupComponent.HTMLElement?, defaultStyle: MarkupStyle? = nil) -> Result {
-        var markupStyle: MarkupStyle? = customStyle(htmlElement) ?? defaultStyle
-        guard let styleString = htmlElement?.attributes?["style"],
-              styleAttributes.count > 0 else {
-            return markupStyle
+        
+        var markupStyle: MarkupStyle? = nil
+        if let customStyle = customStyle(htmlElement) {
+            // has custom style
+            markupStyle = customStyle
         }
         
-        let styles = styleString.split(separator: ";").filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != "" }.map { $0.split(separator: ":") }
-        
-        for style in styles {
-            guard style.count == 2 else {
-                continue
-            }
+        if let styleString = htmlElement?.attributes?["style"],
+              styleAttributes.count > 0 {
+            let styles = styleString.split(separator: ";").filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != "" }.map { $0.split(separator: ":") }
             
-            let key = style[0].trimmingCharacters(in: .whitespacesAndNewlines)
-            let value = style[1].trimmingCharacters(in: .whitespacesAndNewlines)
-            
-            if let styleAttribute = styleAttributes.first(where: { $0.isEqualTo(styleName: key) }) {
-                let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: value)
-                if var thisMarkupStyle = visitor.visit(styleAttribute: styleAttribute) {
-                    thisMarkupStyle.fillIfNil(from: markupStyle)
-                    markupStyle = thisMarkupStyle
+            for style in styles {
+                guard style.count == 2 else {
+                    continue
+                }
+                
+                let key = style[0].trimmingCharacters(in: .whitespacesAndNewlines)
+                let value = style[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                
+                if let styleAttribute = styleAttributes.first(where: { $0.isEqualTo(styleName: key) }) {
+                    let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: value)
+                    if var thisMarkupStyle = visitor.visit(styleAttribute: styleAttribute) {
+                        switch policy {
+                        case .respectMarkupStyleFromCode:
+                            if var markupStyle = markupStyle {
+                                markupStyle.fillIfNil(from: thisMarkupStyle)
+                            } else {
+                                markupStyle = thisMarkupStyle
+                            }
+                        case .respectMarkupStyleFromHTMLStyleAttribute:
+                            thisMarkupStyle.fillIfNil(from: markupStyle ?? defaultStyle)
+                            markupStyle = thisMarkupStyle
+                        }
+                    }
                 }
             }
         }
         
-        if var defaultStyle = defaultStyle {
-            switch policy {
-                case .respectMarkupStyleFromHTMLStyleAttribute:
-                    markupStyle?.fillIfNil(from: defaultStyle)
-                case .respectMarkupStyleFromCode:
-                    defaultStyle.fillIfNil(from: markupStyle)
-                    markupStyle = defaultStyle
-            }
-        }
-        
-        return markupStyle
+        return markupStyle ?? defaultStyle
     }
 }
