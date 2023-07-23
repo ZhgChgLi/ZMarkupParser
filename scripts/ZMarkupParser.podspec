@@ -11,5 +11,4 @@ Pod::Spec.new do |s|
   s.swift_version = "5.0"
   s.source_files = ["Sources/**/*.swift"]
   s.dependency 'ZNSTextAttachment', '~> 1.1.6'
-  s.dependency 'SnapshotTesting', '~> 1.9.0'
 end
