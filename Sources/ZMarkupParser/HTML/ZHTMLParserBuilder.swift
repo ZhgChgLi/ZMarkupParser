@@ -12,7 +12,7 @@ public final class ZHTMLParserBuilder {
     private(set) var htmlTags: [HTMLTag] = []
     private(set) var styleAttributes: [HTMLTagStyleAttribute] = []
     private(set) var rootStyle: MarkupStyle? = .default
-    private(set) var policy: MarkupStylePolicy = .respectMarkupStyleFromCode
+    private(set) var policy: MarkupStylePolicy = .respectMarkupStyleFromHTMLStyleAttribute
     
     public init() {
         

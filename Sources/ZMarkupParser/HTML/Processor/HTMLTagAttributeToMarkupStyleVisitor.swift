@@ -74,7 +74,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     }
     
     func convert(fromPX string: String) -> Int? {
-        guard let regex = try? NSRegularExpression(pattern: "([0-9]+)px"),
+        guard let regex = try? NSRegularExpression(pattern: "([0-9]+)p(x|t)"),
               let firstMatch = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.count)),
               firstMatch.range(at: 1).location != NSNotFound,
               let range = Range(firstMatch.range(at: 1), in: string),
