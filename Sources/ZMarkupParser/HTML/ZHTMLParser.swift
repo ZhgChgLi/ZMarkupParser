@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import HTMLString
 
 public final class ZHTMLParser {
     let htmlTags: [HTMLTag]
