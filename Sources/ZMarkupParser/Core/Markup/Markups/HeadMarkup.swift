@@ -17,9 +17,9 @@ final class HeadMarkup: Markup {
         case h6
     }
     
-    let levle: Level
-    init(levle: Level) {
-        self.levle = levle
+    let level: Level
+    init(level: Level) {
+        self.level = level
     }
     
     weak var parentMarkup: Markup? = nil

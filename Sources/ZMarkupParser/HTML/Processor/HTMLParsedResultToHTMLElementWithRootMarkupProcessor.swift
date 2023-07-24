@@ -18,8 +18,9 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
     typealias To = Result
     
     let htmlTags: [String: HTMLTag]
+
     init(htmlTags: [HTMLTag]) {
-        self.htmlTags = Dictionary(uniqueKeysWithValues: htmlTags.map{ ($0.tagName.string, $0) })
+        self.htmlTags = Dictionary(uniqueKeysWithValues: htmlTags.map { ($0.tagName.string, $0) })
     }
         
     func process(from: From) -> To {
@@ -33,7 +34,16 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
                 let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes, isSelfClosingTag: false)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
                 let markup = visitor.visit(tagName: htmlTag.tagName)
-                htmlElementComponents.append(.init(markup: markup, value: .init(tag: htmlTag, tagAttributedString: item.tagAttributedString, attributes: item.attributes)))
+                let componentElement = HTMLElementMarkupComponent.HTMLElement(
+                    tag: htmlTag,
+                    tagAttributedString: item.tagAttributedString,
+                    attributes: item.attributes
+                )
+                let markupComponent = HTMLElementMarkupComponent(
+                    markup: markup,
+                    value: componentElement
+                )
+                htmlElementComponents.append(markupComponent)
                 currentMarkup.appendChild(markup: markup)
                 currentMarkup = markup
                 
@@ -42,7 +52,16 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
                 let visitor = HTMLTagNameToMarkupVisitor(attributes: item.attributes, isSelfClosingTag: true)
                 let htmlTag = self.htmlTags[item.tagName] ?? HTMLTag(tagName: ExtendTagName(item.tagName))
                 let markup = visitor.visit(tagName: htmlTag.tagName)
-                htmlElementComponents.append(.init(markup: markup, value: .init(tag: htmlTag, tagAttributedString: item.tagAttributedString, attributes: item.attributes)))
+                let componentElement = HTMLElementMarkupComponent.HTMLElement(
+                    tag: htmlTag,
+                    tagAttributedString: item.tagAttributedString,
+                    attributes: item.attributes
+                )
+                let markupComponent = HTMLElementMarkupComponent(
+                    markup: markup,
+                    value: componentElement
+                )
+                htmlElementComponents.append(markupComponent)
                 currentMarkup.appendChild(markup: markup)
             case .close(let item):
                 if let lastTagName = stackExpectedStartItems.popLast()?.tagName,
@@ -53,6 +72,6 @@ final class HTMLParsedResultToHTMLElementWithRootMarkupProcessor: ParserProcesso
                 currentMarkup.appendChild(markup: RawStringMarkup(attributedString: attributedString))
             }
         }
-        return .init(markup: rootMarkup, htmlElementComponents: htmlElementComponents)
+        return To(markup: rootMarkup, htmlElementComponents: htmlElementComponents)
     }
 }

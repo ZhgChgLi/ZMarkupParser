@@ -42,27 +42,38 @@ public struct MarkupStyleFont: MarkupStyleItem {
         #endif
 
     }
-    
+
+    public var family: String?
     public var size: CGFloat?
     public var weight: FontWeight?
     public var italic: Bool?
     
-    public init(size: CGFloat? = nil, weight: FontWeight? = nil, italic: Bool? = nil) {
+    public init(
+        family: String? = nil,
+        size: CGFloat? = nil,
+        weight: FontWeight? = nil,
+        italic: Bool? = nil
+    ) {
+        self.family = family
         self.size = size
         self.weight = weight
         self.italic = italic
     }
     
     mutating func fillIfNil(from: MarkupStyleFont?) {
+        self.family = self.family ?? from?.family
         self.size = self.size ?? from?.size
         self.weight = self.weight ?? from?.weight
         self.italic = self.italic ?? from?.italic
     }
     
     func isNil() -> Bool {
-        return !([size,
-                 weight,
-                 italic] as [Any?]).contains(where: { $0 != nil})
+        return !([
+            family,
+            size,
+            weight,
+            italic
+        ] as [Any?]).contains(where: { $0 != nil})
     }
 }
 
@@ -71,67 +82,61 @@ public struct MarkupStyleFont: MarkupStyleItem {
 extension MarkupStyleFont {
     
     public init(_ font: UIFont) {
+        self.family = font.familyName
         self.size = font.pointSize
         self.italic = font.fontDescriptor.symbolicTraits.contains(.traitItalic)
         if let fontWeight = FontWeightStyle.init(font: font) {
             self.weight = FontWeight.style(fontWeight)
         }
     }
-    
+
+    private func calculateFontTraits() -> (traits: UIFontDescriptor.SymbolicTraits, weight: UIFont.Weight) {
+        var traits: UIFontDescriptor.SymbolicTraits = []
+        var weight: UIFont.Weight = .regular
+
+        if self.italic == true {
+            traits.insert(.traitItalic)
+        }
+
+        switch self.weight {
+        case .style(let style):
+            switch style {
+            case .ultraLight, .light, .thin, .regular:
+                weight = .regular
+            case .medium, .semibold, .bold, .heavy, .black:
+                weight = .bold
+                traits.insert(.traitBold)
+            }
+        case .rawValue(let value):
+            weight = UIFont.Weight(rawValue: value)
+            if value >= UIFont.Weight.medium.rawValue {
+                traits.insert(.traitBold)
+            }
+        default:
+            break
+        }
+
+        return (traits, weight)
+    }
+
     func getFont() -> UIFont? {
         guard !isNil() else { return nil }
-        
-        let size = (self.size ?? MarkupStyle.default.font.size) ?? UIFont.systemFontSize
-        
-        if let italic = self.italic, italic == true {
-            // italic
-            if let weight = self.weight {
-                let needBold: Bool
-                switch weight {
-                case .style(let style):
-                    switch style {
-                    case .ultraLight, .light, .thin, .regular:
-                        needBold = false
-                    case .medium, .semibold, .bold, .heavy, .black:
-                        needBold = true
-                    }
-                case .rawValue(let value):
-                    if value < UIFont.Weight.medium.rawValue {
-                        needBold = false
-                    } else {
-                        needBold = true
-                    }
-                }
-                
-                if needBold {
-                    // italic+bold
-                    return withTraits(font: UIFont.systemFont(ofSize: size), traits: .traitItalic, .traitBold)
-                } else {
-                    // italic
-                    return withTraits(font: UIFont.systemFont(ofSize: size), traits: .traitItalic)
-                }
-            } else {
-                // italic
-                return withTraits(font: UIFont.systemFont(ofSize: size), traits: .traitItalic)
-            }
-        } else {
-            if let weight = self.weight {
-                // weight
-                return UIFont.systemFont(ofSize: size, weight: weight.convertToUIFontWeight())
-            } else {
-                // normal
-                return UIFont.systemFont(ofSize: size)
-            }
+
+        let size = (size ?? MarkupStyle.default.font.size) ?? UIFont.systemFontSize
+        let (traits, weight) = calculateFontTraits()
+
+        // Create the font with the specified fontFamily or use the system font if fontFamily is nil.
+        if let family = family,
+           !traits.isEmpty,
+           let descriptor = UIFontDescriptor(name: family, size: size).withSymbolicTraits(traits) {
+            return UIFont(descriptor: descriptor, size: size)
         }
-    }
-    
-    private func withTraits(font: UIFont, traits: UIFontDescriptor.SymbolicTraits...) -> UIFont {
-        guard let descriptor = font.fontDescriptor
-            .withSymbolicTraits(UIFontDescriptor.SymbolicTraits(traits)) else {
-            return font
+        if let family = family {
+            return UIFont(descriptor: UIFontDescriptor(name: family, size: size), size: size)
         }
-        return UIFont(descriptor: descriptor, size: font.pointSize)
+        return UIFont.systemFont(ofSize: size, weight: weight)
     }
+
 }
 
 public extension MarkupStyleFont.FontWeight {
@@ -168,6 +173,7 @@ public extension MarkupStyleFont.FontWeight {
 
 extension MarkupStyleFont {
     public init(_ font: NSFont) {
+        self.family = font.familyName
         self.size = font.pointSize
         self.italic = font.fontDescriptor.symbolicTraits.contains(.italic)
         if let fontWeight = FontWeightStyle.init(font: font) {

@@ -20,6 +20,11 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     
     let attributes: [String: String]?
     let isSelfClosingTag: Bool
+
+    init(attributes: [String : String]?, isSelfClosingTag: Bool) {
+        self.attributes = attributes
+        self.isSelfClosingTag = isSelfClosingTag
+    }
     
     func visit(_ tagName: A_HTMLTagName) -> Result {
         return LinkMarkup()
@@ -76,7 +81,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
             return InlineMarkup()
         }
     }
-    
+
     func visit(_ tagName: SPAN_HTMLTagName) -> Result {
         return InlineMarkup()
     }
@@ -114,27 +119,27 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: H1_HTMLTagName) -> Result {
-        return  HeadMarkup(levle: .h1)
+        return HeadMarkup(level: .h1)
     }
     
     func visit(_ tagName: H2_HTMLTagName) -> Result {
-        return  HeadMarkup(levle: .h2)
+        return HeadMarkup(level: .h2)
     }
     
     func visit(_ tagName: H3_HTMLTagName) -> Result {
-        return  HeadMarkup(levle: .h3)
+        return HeadMarkup(level: .h3)
     }
     
     func visit(_ tagName: H4_HTMLTagName) -> Result {
-        return  HeadMarkup(levle: .h4)
+        return HeadMarkup(level: .h4)
     }
     
     func visit(_ tagName: H5_HTMLTagName) -> Result {
-        return  HeadMarkup(levle: .h5)
+        return HeadMarkup(level: .h5)
     }
     
     func visit(_ tagName: H6_HTMLTagName) -> Result {
-        return  HeadMarkup(levle: .h6)
+        return HeadMarkup(level: .h6)
     }
     
     func visit(_ tagName: S_HTMLTagName) -> Result {
