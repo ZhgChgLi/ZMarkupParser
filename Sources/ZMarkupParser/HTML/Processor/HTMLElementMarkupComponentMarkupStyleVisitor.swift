@@ -247,8 +247,6 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
                     markupStyle = defaultStyle
             }
         }
-
-        dump(markupStyle, name: "asdasd")
         return markupStyle
     }
 }

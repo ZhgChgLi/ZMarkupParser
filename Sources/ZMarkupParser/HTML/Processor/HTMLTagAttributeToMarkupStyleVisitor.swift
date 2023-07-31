@@ -53,7 +53,6 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         } else if let fontWeightFloat = Float(value) {
             weightStyle = .rawValue(CGFloat(fontWeightFloat / 1000))
         }
-        print("asdasd value: \(value) weightStyle:", weightStyle)
         guard let weightStyle = weightStyle else { return nil }
         
         switch weightStyle {
