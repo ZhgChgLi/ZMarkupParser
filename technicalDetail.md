@@ -1,5 +1,6 @@
 # Technical Detail
-Post: [手工打造 HTML 解析器的那些事(Traditional Chinese)](https://medium.com/zrealm-ios-dev/%E6%89%8B%E5%B7%A5%E6%89%93%E9%80%A0-html-%E8%A7%A3%E6%9E%90%E5%99%A8%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B-2724f02f6e7)
+- \[Chinese\] [Development Notes](https://medium.com/zrealm-ios-dev/zmarkupparser-html-string-%E8%BD%89%E6%8F%9B-nsattributedstring-%E5%B7%A5%E5%85%B7-a5643de271e4)
+- \[English\] [Development Notes (translated using ChatGPT)](https://zhgchg.li/posts/2724f02f6e7_en/)
 
 ## Workflow
 

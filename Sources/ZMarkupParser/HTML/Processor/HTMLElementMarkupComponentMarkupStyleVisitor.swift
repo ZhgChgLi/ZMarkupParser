@@ -247,6 +247,6 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
                     markupStyle = defaultStyle
             }
         }
-        return markupStyle
+        return markupStyle ?? defaultStyle
     }
 }

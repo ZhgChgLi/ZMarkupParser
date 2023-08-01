@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "ZMarkupParser"
-  s.version          = "1.3.8"
+  s.version          = "1.4.0"
   s.summary          = "ZMarkupParser helps you to convert HTML String to NSAttributedString with customized style and tag through pure-Swift."
   s.homepage         = "https://github.com/ZhgChgLi/ZMarkupParser"
   s.license          = { :type => "MIT", :file => "LICENSE" }
@@ -11,5 +11,4 @@ Pod::Spec.new do |s|
   s.swift_version = "5.0"
   s.source_files = ["Sources/**/*.swift"]
   s.dependency 'ZNSTextAttachment', '~> 1.1.6'
-  s.dependency 'HTMLString', '~> 6.0'
 end

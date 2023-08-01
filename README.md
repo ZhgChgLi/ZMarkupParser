@@ -8,7 +8,10 @@
 
 ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.
 
-[中文](https://medium.com/zrealm-ios-dev/zmarkupparser-html-string-%E8%BD%89%E6%8F%9B-nsattributedstring-%E5%B7%A5%E5%85%B7-a5643de271e4) | [Technical Detail](https://github.com/ZhgChgLi/ZMarkupParser/blob/main/technicalDetail.md)
+## Technical Details:
+- \[Chinese\] [Development Notes](https://medium.com/zrealm-ios-dev/zmarkupparser-html-string-%E8%BD%89%E6%8F%9B-nsattributedstring-%E5%B7%A5%E5%85%B7-a5643de271e4)
+- \[English\] [Development Notes (translated using ChatGPT)](https://zhgchg.li/posts/2724f02f6e7_en/)
+- \[English\] [Brief Introduction to Operation](https://github.com/ZhgChgLi/ZMarkupParser/blob/main/technicalDetail.md)
 
 ## Features
 - [x] Parse HTML strings using pure-Swift and regular expressions.
@@ -45,14 +48,14 @@ The chart above shows the elapsed time (in seconds) to render different HTML str
 
 - File > Swift Packages > Add Package Dependency
 - Add `https://github.com/ZhgChgLi/ZMarkupParser.git`
-- Select "Up to Next Major" with "1.3.8"
+- Select "Up to Next Major" with "1.4.0"
 
 or 
 
 ```swift
 ...
 dependencies: [
-  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.3.8"),
+  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.4.0"),
 ]
 ...
 .target(
@@ -71,7 +74,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 1.3.8'
+  pod 'ZMarkupParser', '~> 1.4.0'
 end
 ```
 
