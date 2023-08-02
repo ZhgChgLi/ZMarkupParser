@@ -14,7 +14,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
     private let record: Bool = false
     
     private let htmlString = """
-        🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
+        🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! <span style="font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 16px;">Give</span> you more gift-giving inspiration~<br />
          The <u>final <del>countdown</del></u> on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon<br />
          <abbr>Top 10 Popular <b><span style="color:green;">Christmas</span> Gift</b> Recommendations 👉</abbr><br>
          <ol>
