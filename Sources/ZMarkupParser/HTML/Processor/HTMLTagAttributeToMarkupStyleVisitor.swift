@@ -85,11 +85,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         if fontFamilies.count <= 0 {
             return nil
         } else {
-            if fontFamilies.count == 1 {
-                return MarkupStyle(font: .init(familyName: .familyName(fontFamilies[0])))
-            } else {
-                return MarkupStyle(font: .init(familyName: .familyNames(fontFamilies)))
-            }
+            return MarkupStyle(font: .init(familyName: .familyNames(fontFamilies)))
         }
         
     }

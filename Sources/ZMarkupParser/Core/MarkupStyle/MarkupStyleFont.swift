@@ -23,14 +23,11 @@ public struct MarkupStyleFont: MarkupStyleItem {
         case rawValue(CGFloat)
     }
     public enum FontFamily {
-        case familyName(String)
         case familyNames([String])
         
         #if canImport(UIKit)
         func getFont(size: CGFloat) -> UIFont? {
             switch self {
-            case .familyName(let familyName):
-                return UIFont(name: familyName, size: size)
             case .familyNames(let familyNames):
                 for familyName in familyNames {
                     if let font = UIFont(name: familyName, size: size) {
@@ -43,8 +40,6 @@ public struct MarkupStyleFont: MarkupStyleItem {
         #elseif canImport(AppKit)
         func getFont(size: CGFloat) -> NSFont? {
             switch self {
-            case .familyName(let familyName):
-                return NSFont(name: familyName, size: size)
             case .familyNames(let familyNames):
                 for familyName in familyNames {
                     if let font = NSFont(name: familyName, size: size) {
@@ -114,7 +109,7 @@ extension MarkupStyleFont {
         if let fontWeight = FontWeightStyle.init(font: font) {
             self.weight = FontWeight.style(fontWeight)
         }
-        self.familyName = .familyName(font.familyName)
+        self.familyName = .familyNames([font.familyName])
     }
     
     func getFont() -> UIFont? {
@@ -233,7 +228,7 @@ extension MarkupStyleFont {
             self.weight = FontWeight.style(fontWeight)
         }
         if let familyName = font.familyName {
-            self.familyName = .familyName(familyName)
+            self.familyName = .familyNames([familyName])
         }
     }
     
