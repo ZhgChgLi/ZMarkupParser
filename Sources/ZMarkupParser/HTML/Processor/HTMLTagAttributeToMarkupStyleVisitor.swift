@@ -63,6 +63,37 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         }
     }
     
+    func visit(_ styleAttribute: FontFamilyHTMLTagStyleAttribute) -> MarkupStyle? {
+        // e.g. "Times New Roman", Times, serif
+        // use first match font
+        
+        let pattern = "(')*(?<fontName>[^',]+)(\\1)*"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
+            return nil
+        }
+
+        let matches = regex.matches(in: value, options: [], range: NSRange(location: 0, length: value.utf16.count))
+
+        var fontFamilies: [String] = []
+        for match in matches {
+            if match.range(withName: "fontName").location != NSNotFound,
+               let range = Range(match.range(withName: "fontName"), in: value) {
+                fontFamilies.append(String(value[range]).trimmingCharacters(in: .whitespacesAndNewlines))
+            }
+        }
+        
+        if fontFamilies.count <= 0 {
+            return nil
+        } else {
+            if fontFamilies.count == 1 {
+                return MarkupStyle(font: .init(familyName: .familyName(fontFamilies[0])))
+            } else {
+                return MarkupStyle(font: .init(familyName: .familyNames(fontFamilies)))
+            }
+        }
+        
+    }
+    
     func visit(_ styleAttribute: LineHeightHTMLTagStyleAttribute) -> Result {
         guard let lineHeightFloat = Float(value) else { return nil }
         return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(minimumLineHeight: CGFloat(lineHeightFloat), maximumLineHeight: CGFloat(lineHeightFloat)))
@@ -75,7 +106,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     
     func convert(fromPX string: String) -> Int? {
         guard let regex = try? NSRegularExpression(pattern: "([0-9]+)p(x|t)"),
-              let firstMatch = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.count)),
+              let firstMatch = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.utf16.count)),
               firstMatch.range(at: 1).location != NSNotFound,
               let range = Range(firstMatch.range(at: 1), in: string),
               let size = Float(String(string[range])) else {
