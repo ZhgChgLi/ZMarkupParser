@@ -91,7 +91,7 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     }
     
     func visit(_ styleAttribute: LineHeightHTMLTagStyleAttribute) -> Result {
-        guard let lineHeightFloat = Float(value) else { return nil }
+        guard let lineHeightFloat = self.convert(fromPX: value) else { return nil }
         return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(minimumLineHeight: CGFloat(lineHeightFloat), maximumLineHeight: CGFloat(lineHeightFloat)))
     }
     
