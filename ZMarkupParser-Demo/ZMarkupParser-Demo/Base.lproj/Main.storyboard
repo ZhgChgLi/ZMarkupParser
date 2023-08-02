@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="441-6B-rFc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="441-6B-rFc">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -37,7 +38,7 @@
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="h0m-Ya-0jH">
                                 <rect key="frame" x="25" y="171" width="340" height="165.66666666666663"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <string key="text"> Powered by ZhgChgLi. &lt;br/&gt;  &lt;img src="https://user-images.githubusercontent.com/33706588/219608966-20e0c017-d05c-433a-9a52-091bc0cfd403.jpg"/&gt;  🎄🎄🎄 &lt;Hottest&gt; &lt;b&gt;Christmas gi&lt;u&gt;fts&lt;/b&gt; are here&lt;/u&gt;! Give you more gift-giving inspiration~&lt;br /&gt;
+                                <mutableString key="text"> Powered by &lt;span style="font-family: 'Times New Roman', Times, serif;"&gt;ZhgChgLi&lt;/span&gt;. &lt;br/&gt;  &lt;img src="https://user-images.githubusercontent.com/33706588/219608966-20e0c017-d05c-433a-9a52-091bc0cfd403.jpg"/&gt;  🎄🎄🎄 &lt;Hottest&gt; &lt;b&gt;Christmas gi&lt;u&gt;fts&lt;/b&gt; are here&lt;/u&gt;! Give you more gift-giving inspiration~&lt;br /&gt;
         The &lt;u&gt;final &lt;del&gt;countdown&lt;/del&gt;&lt;/u&gt; on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon&lt;br /&gt;
         &lt;zhgchgli&gt;Top 10 Popular &lt;b&gt;&lt;span style="color:green"&gt;Christmas&lt;/span&gt; Gift&lt;/b&gt; Recommendations 👉&lt;/zhgchgli&gt;&lt;br&gt;
         &lt;ol&gt;
@@ -49,7 +50,7 @@
         &lt;p&gt;Before 12/26, place an order and draw a round-trip ticket for two to Japan!&lt;/p&gt;
         你好你好&lt;span style="background-color:red"&gt;你好你好&lt;/span&gt;你好你好 &lt;br /&gt;
         안녕하세요안녕하세&lt;span style="color:red"&gt;요안녕하세&lt;/span&gt;요안녕하세요안녕하세요안녕하세요 &lt;br /&gt;
-        &lt;span style="color:red"&gt;こんにちは&lt;/span&gt;こんにちはこんにちは &lt;br /&gt; </string>
+        &lt;span style="color:red"&gt;こんにちは&lt;/span&gt;こんにちはこんにちは &lt;br /&gt; </mutableString>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
