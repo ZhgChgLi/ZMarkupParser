@@ -63,4 +63,9 @@ private class StubVisitor: HTMLTagStyleAttributeVisitor {
         count += 1
         return count
     }
+    
+    func visit(_ styleAttribute: FontFamilyHTMLTagStyleAttribute) -> Int {
+        count += 1
+        return count
+    }
 }

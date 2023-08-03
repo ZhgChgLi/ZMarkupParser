@@ -22,6 +22,35 @@ public struct MarkupStyleFont: MarkupStyleItem {
         case style(FontWeightStyle)
         case rawValue(CGFloat)
     }
+    public enum FontFamily {
+        case familyNames([String])
+        
+        #if canImport(UIKit)
+        func getFont(size: CGFloat) -> UIFont? {
+            switch self {
+            case .familyNames(let familyNames):
+                for familyName in familyNames {
+                    if let font = UIFont(name: familyName, size: size) {
+                        return font
+                    }
+                }
+                return nil
+            }
+        }
+        #elseif canImport(AppKit)
+        func getFont(size: CGFloat) -> NSFont? {
+            switch self {
+            case .familyNames(let familyNames):
+                for familyName in familyNames {
+                    if let font = NSFont(name: familyName, size: size) {
+                        return font
+                    }
+                }
+                return nil
+            }
+        }
+        #endif
+    }
     public enum FontWeightStyle: String {
         case ultraLight, light, thin, regular, medium, semibold, bold, heavy, black
         
@@ -47,17 +76,13 @@ public struct MarkupStyleFont: MarkupStyleItem {
     public var size: CGFloat?
     public var weight: FontWeight?
     public var italic: Bool?
+    public var familyName: FontFamily?
     
-    public init(
-        family: String? = nil,
-        size: CGFloat? = nil,
-        weight: FontWeight? = nil,
-        italic: Bool? = nil
-    ) {
-        self.family = family
+    public init(size: CGFloat? = nil, weight: FontWeight? = nil, italic: Bool? = nil, familyName: FontFamily? = nil) {
         self.size = size
         self.weight = weight
         self.italic = italic
+        self.familyName = familyName
     }
     
     mutating func fillIfNil(from: MarkupStyleFont?) {
@@ -65,15 +90,14 @@ public struct MarkupStyleFont: MarkupStyleItem {
         self.size = self.size ?? from?.size
         self.weight = self.weight ?? from?.weight
         self.italic = self.italic ?? from?.italic
+        self.familyName = self.familyName ?? from?.familyName
     }
     
     func isNil() -> Bool {
-        return !([
-            family,
-            size,
-            weight,
-            italic
-        ] as [Any?]).contains(where: { $0 != nil})
+        return !([size,
+                 weight,
+                 italic,
+                 familyName] as [Any?]).contains(where: { $0 != nil})
     }
 }
 
@@ -88,29 +112,72 @@ extension MarkupStyleFont {
         if let fontWeight = FontWeightStyle.init(font: font) {
             self.weight = FontWeight.style(fontWeight)
         }
+        self.familyName = .familyNames([font.familyName])
     }
-
-    private func calculateFontTraits() -> (traits: UIFontDescriptor.SymbolicTraits, weight: UIFont.Weight) {
-        var traits: UIFontDescriptor.SymbolicTraits = []
-        var weight: UIFont.Weight = .regular
-
-        if self.italic == true {
-            traits.insert(.traitItalic)
-        }
-
-        switch self.weight {
-        case .style(let style):
-            switch style {
-            case .ultraLight, .light, .thin, .regular:
-                weight = .regular
-            case .medium, .semibold, .bold, .heavy, .black:
-                weight = .bold
-                traits.insert(.traitBold)
+    
+    func getFont() -> UIFont? {
+        guard !isNil() else { return nil }
+        
+        let size = (self.size ?? MarkupStyle.default.font.size) ?? UIFont.systemFontSize
+        
+        // There is no direct method in UIFont to specify the font family, italic and weight together.
+        
+        if let italic = self.italic, italic == true {
+            // italic
+            
+            let font: UIFont
+            if let familyFont = self.familyName?.getFont(size: size) {
+                font = familyFont
+            } else {
+                font = UIFont.systemFont(ofSize: size)
             }
-        case .rawValue(let value):
-            weight = UIFont.Weight(rawValue: value)
-            if value >= UIFont.Weight.medium.rawValue {
-                traits.insert(.traitBold)
+            
+            if let weight = self.weight {
+                let needBold: Bool
+                switch weight {
+                case .style(let style):
+                    switch style {
+                    case .ultraLight, .light, .thin, .regular:
+                        needBold = false
+                    case .medium, .semibold, .bold, .heavy, .black:
+                        needBold = true
+                    }
+                case .rawValue(let value):
+                    if value < UIFont.Weight.medium.rawValue {
+                        needBold = false
+                    } else {
+                        needBold = true
+                    }
+                }
+                
+                if needBold {
+                    // italic+bold
+                    return withTraits(font: font, traits: .traitItalic, .traitBold)
+                } else {
+                    // italic
+                    return withTraits(font: font, traits: .traitItalic)
+                }
+            } else {
+                // italic
+                return withTraits(font: font, traits: .traitItalic)
+            }
+        } else {
+            if let familyFont = self.familyName?.getFont(size: size) {
+                if let _ = self.weight {
+                    // weight
+                    return withTraits(font: familyFont, traits: .traitBold)
+                } else {
+                    // normal
+                    return familyFont
+                }
+            } else {
+                if let weight = self.weight {
+                    // weight
+                    return UIFont.systemFont(ofSize: size, weight: weight.convertToUIFontWeight())
+                } else {
+                    // normal
+                    return UIFont.systemFont(ofSize: size)
+                }
             }
         default:
             break
@@ -179,6 +246,9 @@ extension MarkupStyleFont {
         if let fontWeight = FontWeightStyle.init(font: font) {
             self.weight = FontWeight.style(fontWeight)
         }
+        if let familyName = font.familyName {
+            self.familyName = .familyNames([familyName])
+        }
     }
     
     func getFont() -> NSFont? {
@@ -186,8 +256,18 @@ extension MarkupStyleFont {
         
         let size = (self.size ?? MarkupStyle.default.font.size) ?? NSFont.systemFontSize
         
+        // There is no direct method in UIFont to specify the font family, italic and weight together.
+        
         if let italic = self.italic, italic == true {
             // italic
+            
+            let font: NSFont
+            if let familyFont = self.familyName?.getFont(size: size) {
+                font = familyFont
+            } else {
+                font = NSFont.systemFont(ofSize: size)
+            }
+            
             if let weight = self.weight {
                 let needBold: Bool
                 switch weight {
@@ -208,22 +288,32 @@ extension MarkupStyleFont {
                 
                 if needBold {
                     // italic+bold
-                    return withTraits(font: NSFont.systemFont(ofSize: size), traits: .italic, .bold)
+                    return withTraits(font: font, traits: .italic, .bold)
                 } else {
                     // italic
-                    return withTraits(font: NSFont.systemFont(ofSize: size), traits: .italic)
+                    return withTraits(font: font, traits: .italic)
                 }
             } else {
                 // italic
-                return withTraits(font: NSFont.systemFont(ofSize: size), traits: .italic)
+                return withTraits(font: font, traits: .italic)
             }
         } else {
-            if let weight = self.weight {
-                // weight
-                return NSFont.systemFont(ofSize: size, weight: weight.convertToUIFontWeight())
+            if let familyFont = self.familyName?.getFont(size: size) {
+                if let _ = self.weight {
+                    // weight
+                    return withTraits(font: familyFont, traits: .bold)
+                } else {
+                    // normal
+                    return familyFont
+                }
             } else {
-                // normal
-                return NSFont.systemFont(ofSize: size)
+                if let weight = self.weight {
+                    // weight
+                    return NSFont.systemFont(ofSize: size, weight: weight.convertToUIFontWeight())
+                } else {
+                    // normal
+                    return NSFont.systemFont(ofSize: size)
+                }
             }
         }
     }
