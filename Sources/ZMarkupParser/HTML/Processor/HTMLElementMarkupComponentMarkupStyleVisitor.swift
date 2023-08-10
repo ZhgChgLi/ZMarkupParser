@@ -160,8 +160,8 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
                     continue
                 }
                 
-                let key = style[0].trimmingCharacters(in: .whitespacesAndNewlines)
-                let value = style[1].trimmingCharacters(in: .whitespacesAndNewlines)
+                let key = style[0].trimmingCharacters(in: CharacterSet(charactersIn: "' \n"))
+                let value = style[1].trimmingCharacters(in: CharacterSet(charactersIn: "' \n"))
                 
                 if let styleAttribute = styleAttributes.first(where: { $0.isEqualTo(styleName: key) }) {
                     let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: value)
