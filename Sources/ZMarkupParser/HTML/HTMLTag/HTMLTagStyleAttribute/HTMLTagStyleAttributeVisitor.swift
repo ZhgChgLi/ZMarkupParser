@@ -19,6 +19,7 @@ public protocol HTMLTagStyleAttributeVisitor {
     func visit(_ styleAttribute: FontFamilyHTMLTagStyleAttribute) -> Result
     func visit(_ styleAttribute: LineHeightHTMLTagStyleAttribute) -> Result
     func visit(_ styleAttribute: WordSpacingHTMLTagStyleAttribute) -> Result
+    func visit(_ styleAttribute: TextAlignHTMLTagStyleAttribute) -> Result
 }
 
 public extension HTMLTagStyleAttributeVisitor {
@@ -36,7 +37,8 @@ public extension ZHTMLParserBuilder {
             FontWeightHTMLTagStyleAttribute(),
             LineHeightHTMLTagStyleAttribute(),
             WordSpacingHTMLTagStyleAttribute(),
-            FontFamilyHTMLTagStyleAttribute()
+            FontFamilyHTMLTagStyleAttribute(),
+            TextAlignHTMLTagStyleAttribute()
         ]
     }
 }

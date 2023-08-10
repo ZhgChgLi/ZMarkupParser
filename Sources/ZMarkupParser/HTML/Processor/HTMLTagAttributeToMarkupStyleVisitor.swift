@@ -110,4 +110,29 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
         }
         return Int(size)
     }
+
+    func visit(_ styleAttribute: TextAlignHTMLTagStyleAttribute) -> MarkupStyle? {
+         return MarkupStyle(
+             paragraphStyle: MarkupStyleParagraphStyle(
+                 alignment: convertAlign(align: value)
+             )
+         )
+     }
+
+    private func convertAlign(align: String) -> NSTextAlignment? {
+         switch align {
+         case "center":
+             return .center
+         case "justified":
+             return .justified
+         case "natural":
+             return .natural
+         case "right":
+             return .right
+         case "left":
+             return .left
+         default:
+             return nil
+         }
+     }
 }
