@@ -55,7 +55,7 @@ final class MarkupStyleTests: XCTestCase {
         if let font = attributes[.font] as? NSFont {
             XCTAssertEqual(font.pointSize, 10, "markup style should convert font size setting.")
             XCTAssertTrue(font.fontDescriptor.symbolicTraits.contains(.italic), "markup style should convert font italic setting.")
-            XCTAssertTrue((font.fontDescriptor.object(forKey: .face) as? String)?.contains("Bold") ?? false, "markup style should convert font weight setting.")
+            XCTAssertTrue((font.fontDescriptor.object(forKey: .face) as? String)?.contains("Semibold") ?? false, "markup style should convert font weight setting.")
         } else {
             XCTFail("markup style should convert font setting.")
         }
