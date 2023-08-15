@@ -316,10 +316,22 @@ If you want to render huge html string, please use async instead.
 - If you're using a UILabel to render attributed strings, note that you can't change the color of .link text using the NSAttributedString.Key.foregroundColor attribute.
 - The ZHTMLParser library is intended for rendering partial HTML content, and may not be suitable for rendering very large or complex HTML documents. For these use cases, it's better to use a web view to render the HTML content.
 
+## Sponsor
+
+- If this project has been helpful to you, I would greatly appreciate your support.
+- If you're willing, you can consider buying me a cup of coffee as a token of encouragement.
+- Your brand will be displayed here, and the colors will be implemented in [MarkupStyleSponsorColor](https://github.com/ZhgChgLi/ZMarkupParser/blob/main/Sources/ZMarkupParser/Core/MarkupStyle/MarkupStyleSponsorColor.swift).
+- You can initialize the color directly using `MarkupStyleColor(sponsor: .pinkoi(.navy))`.
+
 ## Who is using
 [![pinkoi](https://user-images.githubusercontent.com/33706588/221343295-3e3831e6-f76d-430a-87e3-4daf9815297d.jpg)](https://en.pinkoi.com)
 
 [Pinkoi.com](https://en.pinkoi.com) is Asia's leading online marketplace for original design goods, digital creations, and workshop experiences.
+
+---
+- If your project/product is using ZMarkupParser, feel free to create a PR (Pull Request) here (the "Who is using" section in the Readme file). :)
+- Please also add your brand and brand colors to [MarkupStyleVendorColor.swift](https://github.com/ZhgChgLi/ZMarkupParser/blob/main/Sources/ZMarkupParser/Core/MarkupStyle/MarkupStyleVendorColor.swift).
+- You can initialize the color directly using `MarkupStyleVendorColor(vendor: .pinkoi(.navy))`.
 
 ## About
 - [ZhgChg.Li](https://zhgchg.li/)
