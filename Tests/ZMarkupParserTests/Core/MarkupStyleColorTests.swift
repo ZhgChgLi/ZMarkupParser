@@ -16,6 +16,17 @@ import AppKit
 
 // helper: https://www.uicolor.io
 final class MarkupStyleColorTests: XCTestCase {
+    
+    func testInitStyleFromColorName() throws {
+        let allCases = MarkupStyleColorName.allCases
+        for colorName in allCases {
+            let markupStyleColor = MarkupStyleColor(name: colorName)
+            XCTAssertEqual(markupStyleColor?.red, colorName.rgb.0)
+            XCTAssertEqual(markupStyleColor?.green, colorName.rgb.1)
+            XCTAssertEqual(markupStyleColor?.blue, colorName.rgb.2)
+            XCTAssertEqual(markupStyleColor?.alpha, 1)
+        }
+    }
 
     func testInitStyleFromColorHEXString() throws {
         #if canImport(UIKit)
@@ -57,14 +68,6 @@ final class MarkupStyleColorTests: XCTestCase {
         #endif
         // invaild rgba string: rbg(12, 30, 125)
         XCTAssertNil(MarkupStyleColor(string: "rgb(15,30,60,2)")?.getColor())
-    }
-    
-    func testInitStyleFromColorName() throws {
-        let markupStyleColor = MarkupStyleColor(name: .antiquewhite)
-        XCTAssertEqual(markupStyleColor?.red, MarkupStyleColorName.antiquewhite.rgb.0)
-        XCTAssertEqual(markupStyleColor?.green, MarkupStyleColorName.antiquewhite.rgb.1)
-        XCTAssertEqual(markupStyleColor?.blue, MarkupStyleColorName.antiquewhite.rgb.2)
-        XCTAssertEqual(markupStyleColor?.alpha, 1)
     }
     
     func testInitStyleFromUINSColor() throws {

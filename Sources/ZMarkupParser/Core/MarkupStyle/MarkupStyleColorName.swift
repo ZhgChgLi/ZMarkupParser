@@ -8,7 +8,7 @@
 import Foundation
 
 // ref: https://www.w3.org/wiki/CSS/Properties/color/keywords
-public enum MarkupStyleColorName: String {
+public enum MarkupStyleColorName: String, CaseIterable {
     case aliceblue
     case antiquewhite
     case aqua
