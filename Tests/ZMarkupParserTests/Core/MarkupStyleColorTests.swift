@@ -17,6 +17,32 @@ import AppKit
 // helper: https://www.uicolor.io
 final class MarkupStyleColorTests: XCTestCase {
     
+    func testInitStyleFromSponsorPinkoiColor() throws {
+        let allCases = MarkupStyleSponsorColor.PinkoiColor.allCases
+        for colorName in allCases {
+            let sponsor = MarkupStyleSponsorColor.pinkoi(colorName)
+            
+            let markupStyleColor = MarkupStyleColor(sponsor: sponsor)
+            XCTAssertEqual(markupStyleColor?.red, colorName.rgb.0)
+            XCTAssertEqual(markupStyleColor?.green, colorName.rgb.1)
+            XCTAssertEqual(markupStyleColor?.blue, colorName.rgb.2)
+            XCTAssertEqual(markupStyleColor?.alpha, 1)
+        }
+    }
+    
+    func testInitStyleFromVendorPinkoiColor() throws {
+        let allCases = MarkupStyleVendorColor.PinkoiColor.allCases
+        for colorName in allCases {
+            let vendor = MarkupStyleVendorColor.pinkoi(colorName)
+            
+            let markupStyleColor = MarkupStyleColor(vendor: vendor)
+            XCTAssertEqual(markupStyleColor?.red, colorName.rgb.0)
+            XCTAssertEqual(markupStyleColor?.green, colorName.rgb.1)
+            XCTAssertEqual(markupStyleColor?.blue, colorName.rgb.2)
+            XCTAssertEqual(markupStyleColor?.alpha, 1)
+        }
+    }
+    
     func testInitStyleFromColorName() throws {
         let allCases = MarkupStyleColorName.allCases
         for colorName in allCases {
