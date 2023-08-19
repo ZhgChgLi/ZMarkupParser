@@ -36,6 +36,16 @@ public struct MarkupStyleColor {
         let rgb = name.rgb
         self.init(red: rgb.0, green: rgb.1, blue: rgb.2, alpha: CGFloat(1.0))
     }
+    
+    public init?(vendor: MarkupStyleVendorColor) {
+        let rgb = vendor.rgb
+        self.init(red: rgb.0, green: rgb.1, blue: rgb.2, alpha: CGFloat(1.0))
+    }
+    
+    public init?(sponsor: MarkupStyleSponsorColor) {
+        let rgb = sponsor.rgb
+        self.init(red: rgb.0, green: rgb.1, blue: rgb.2, alpha: CGFloat(1.0))
+    }
 
     public init?(string: String) {
         let rgba: (Int,Int,Int,CGFloat)
