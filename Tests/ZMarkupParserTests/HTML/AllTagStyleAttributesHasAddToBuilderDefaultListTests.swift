@@ -15,7 +15,7 @@ final class AllTagStyleAttributesHasAddToBuilderDefaultListTests: XCTestCase {
         ZHTMLParserBuilder.styleAttributes.forEach { style in
             let _ = visitor.visit(styleAttribute: style)
         }
-        XCTAssertEqual(visitor.count, 7, "Must added new pre-defined HTMLTagStyleAttribute to ZHTMLParserBuilder.styleAttributes")
+        XCTAssertEqual(visitor.count, 8, "Must added new pre-defined HTMLTagStyleAttribute to ZHTMLParserBuilder.styleAttributes")
     }
 }
 
