@@ -92,22 +92,47 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     
     func visit(_ styleAttribute: LineHeightHTMLTagStyleAttribute) -> Result {
         guard let lineHeightFloat = self.convert(fromPX: value) else { return nil }
-        return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(minimumLineHeight: CGFloat(lineHeightFloat), maximumLineHeight: CGFloat(lineHeightFloat)))
+        return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(minimumLineHeight: lineHeightFloat, maximumLineHeight: lineHeightFloat))
     }
     
     func visit(_ styleAttribute: WordSpacingHTMLTagStyleAttribute) -> Result {
         guard let lineSpacing = self.convert(fromPX: value) else { return nil }
-        return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: CGFloat(lineSpacing)))
+        return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(lineSpacing: lineSpacing))
     }
     
-    func convert(fromPX string: String) -> Int? {
-        guard let regex = try? NSRegularExpression(pattern: "([0-9]+)p(x|t)"),
+    func convert(fromPX string: String) -> CGFloat? {
+        guard let regex = try? NSRegularExpression(pattern: "([0-9]+.?[0-9]*)p(x|t)"),
               let firstMatch = regex.firstMatch(in: string, options: [], range: NSRange(location: 0, length: string.utf16.count)),
               firstMatch.range(at: 1).location != NSNotFound,
               let range = Range(firstMatch.range(at: 1), in: string),
               let size = Float(String(string[range])) else {
             return nil
         }
-        return Int(size)
+        return CGFloat(size)
     }
+
+    func visit(_ styleAttribute: TextAlignHTMLTagStyleAttribute) -> MarkupStyle? {
+         return MarkupStyle(
+             paragraphStyle: MarkupStyleParagraphStyle(
+                 alignment: convertAlign(align: value)
+             )
+         )
+     }
+
+    private func convertAlign(align: String) -> NSTextAlignment? {
+         switch align {
+         case "center":
+             return .center
+         case "justified":
+             return .justified
+         case "natural":
+             return .natural
+         case "right":
+             return .right
+         case "left":
+             return .left
+         default:
+             return nil
+         }
+     }
 }
