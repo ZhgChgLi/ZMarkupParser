@@ -63,6 +63,9 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
          precode
          precode2
          </code></pre>
+         <div style="text-align: right;">
+            ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.
+         </div>
          &lt;font color="#008000;"&gt;Test&nbsp;XXX&lt;/font&gt;
         """
     
