@@ -75,7 +75,18 @@ final class HTMLTagStyleAttributeToMarkupStyleVisitorTests: XCTestCase {
         let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: "500")
         let markupStyle = visitor.visit(FontWeightHTMLTagStyleAttribute())
         
-        if case let .rawValue(weight) = markupStyle?.font.weight, weight == 500 {
+        if case let .style(style) = markupStyle?.font.weight, style == .medium {
+            // Success
+        } else {
+            XCTFail()
+        }
+    }
+
+    func testFontWeightHTMLTagStyleAttribute3() {
+        let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: "501")
+        let markupStyle = visitor.visit(FontWeightHTMLTagStyleAttribute())
+        
+        if case let .rawValue(weight) = markupStyle?.font.weight, weight == 501 {
             // Success
         } else {
             XCTFail()
