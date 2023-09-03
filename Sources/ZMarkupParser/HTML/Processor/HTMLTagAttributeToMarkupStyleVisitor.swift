@@ -59,10 +59,47 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
                 return MarkupStyle(font: MarkupStyleFont(weight: .style(.regular)))
             }
         case .rawValue(let value):
-            return MarkupStyle(font: MarkupStyleFont(weight: .rawValue(value)))
+            /*
+             https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#common_weight_name_mapping
+             Value    Common weight name
+             100    Thin (Hairline)
+             200    Extra Light (Ultra Light)
+             300    Light
+             400    Normal (Regular)
+             500    Medium
+             600    Semi Bold (Demi Bold)
+             700    Bold
+             800    Extra Bold (Ultra Bold)
+             900    Black (Heavy)
+             950    Extra Black (Ultra Black)
+             */
+            switch value {
+            case 100:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.thin)))
+            case 200:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.ultraLight)))
+            case 300:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.light)))
+            case 400:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.regular)))
+            case 500:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.medium)))
+            case 600:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.semibold)))
+            case 700:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.bold)))
+            case 800:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.heavy)))
+            case 900:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.black)))
+            case 950:
+                return MarkupStyle(font: MarkupStyleFont(weight: .style(.black)))
+            default:
+                return MarkupStyle(font: MarkupStyleFont(weight: .rawValue(value)))
+            }
         }
     }
-    
+
     func visit(_ styleAttribute: FontFamilyHTMLTagStyleAttribute) -> MarkupStyle? {
         // e.g. "Times New Roman", Times, serif
         // use first match font
