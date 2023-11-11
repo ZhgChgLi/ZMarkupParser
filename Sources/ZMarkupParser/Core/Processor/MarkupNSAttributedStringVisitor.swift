@@ -13,6 +13,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     let components: [MarkupStyleComponent]
     let rootStyle: MarkupStyle?
+    var paragraphSpacingPolicy: ParagraphSpacingPolicy = .lineBreaks
     
     func visit(_ markup: RootMarkup) -> Result {
         return reduceBreaklineInResultNSAttributedString(collectAttributedString(markup))
@@ -82,14 +83,18 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: ListMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        attributedString.append(makeBreakLine(in: markup))
+        if paragraphSpacingPolicy == .lineBreaks {
+            attributedString.append(makeBreakLine(in: markup))
+        }
         attributedString.insert(makeBreakLine(in: markup), at: 0)
         return attributedString
     }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        attributedString.append(makeBreakLine(in: markup, reduceable: false))
+        if paragraphSpacingPolicy == .lineBreaks {
+            attributedString.append(makeBreakLine(in: markup, reduceable: false))
+        }
         attributedString.insert(makeBreakLine(in: markup, reduceable: false), at: 0)
         return attributedString
     }
@@ -143,14 +148,18 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: TableMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        attributedString.append(makeBreakLine(in: markup))
+        if paragraphSpacingPolicy == .lineBreaks {
+            attributedString.append(makeBreakLine(in: markup))
+        }
         attributedString.insert(makeBreakLine(in: markup), at: 0)
         return attributedString
     }
     
     func visit(_ markup: HeadMarkup) -> NSAttributedString {
         let attributedString = collectAttributedString(markup)
-        attributedString.append(makeBreakLine(in: markup))
+        if paragraphSpacingPolicy == .lineBreaks {
+            attributedString.append(makeBreakLine(in: markup))
+        }
         attributedString.insert(makeBreakLine(in: markup), at: 0)
         return attributedString
     }
@@ -163,7 +172,9 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: BlockQuoteMarkup) -> NSAttributedString {
         let attributedString = collectAttributedString(markup)
-        attributedString.append(makeBreakLine(in: markup))
+        if paragraphSpacingPolicy == .lineBreaks {
+            attributedString.append(makeBreakLine(in: markup))
+        }
         attributedString.insert(makeBreakLine(in: markup), at: 0)
         return attributedString
     }
