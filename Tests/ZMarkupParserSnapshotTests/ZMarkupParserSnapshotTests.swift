@@ -11,7 +11,7 @@ import SnapshotTesting
 import ZNSTextAttachment
 
 final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
-    private let record: Bool = false
+    private let record: Bool = true
     
     private let htmlString = """
         🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! <span style="font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 16px;">Give</span> you more gift-giving inspiration~<br />
