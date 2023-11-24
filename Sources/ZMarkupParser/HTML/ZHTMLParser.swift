@@ -20,12 +20,18 @@ public final class ZHTMLParser {
     lazy var htmlStringToParsedResult: HTMLStringToParsedResultProcessor = HTMLStringToParsedResultProcessor()
     lazy var markupStripperProcessor: MarkupStripperProcessor = MarkupStripperProcessor()
     
-    init(htmlTags: [HTMLTag], styleAttributes: [HTMLTagStyleAttribute], policy: MarkupStylePolicy, rootStyle: MarkupStyle?) {
+    init(
+        htmlTags: [HTMLTag],
+        styleAttributes: [HTMLTagStyleAttribute],
+        policy: MarkupStylePolicy,
+        rootStyle: MarkupStyle?,
+        paragraphSpacingPolicy: ParagraphSpacingPolicy = .lineBreaks
+    ) {
         self.htmlTags = htmlTags
         self.styleAttributes = styleAttributes
         self.rootStyle = rootStyle
         
-        self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle)
+        self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle, paragraphSpacingPolicy: paragraphSpacingPolicy)
         
         self.htmlParsedResultToHTMLElementWithRootMarkupProcessor = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: htmlTags)
         self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, policy: policy)
