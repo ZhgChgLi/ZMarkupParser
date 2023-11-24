@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "ZMarkupParser", targets: ["ZMarkupParser"])
     ],
     dependencies: [
-         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", from: "1.11.0"),
+        .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", exact: "1.11.0"),
          .package(url: "https://github.com/ZhgChgLi/ZNSTextAttachment", from: "1.1.6")
     ],
     targets: [
