@@ -77,6 +77,9 @@
          <TestPlanReference
             reference = "container:UnitTest.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:FullTest.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference
