@@ -13,10 +13,6 @@ jobs:
     runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-            xcode-version: '15.0.1'
-
       - name: macOS build and test
         run: |
           set -o pipefail
