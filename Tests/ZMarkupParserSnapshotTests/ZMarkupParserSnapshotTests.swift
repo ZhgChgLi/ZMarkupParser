@@ -203,13 +203,13 @@ extension ZHTMLToNSAttributedStringSnapshotTests: ZNSTextAttachmentDelegate, ZNS
         #endif
     }
     
-    func zNSTextAttachment(_ textAttachment: ZNSTextAttachment, loadImageURL imageURL: URL, completion: @escaping (Data) -> Void) {
+    func zNSTextAttachment(_ textAttachment: ZNSTextAttachment, loadImageURL imageURL: URL, completion: @escaping (Data, ZNSTextAttachmentDownloadedDataMIMEType?) -> Void) {
         URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
             guard let data = data, error == nil else {
                 print(error?.localizedDescription as Any)
                 return
             }
-            completion(data)
+            completion(data, response?.mimeType)
         }.resume()
     }
 }
