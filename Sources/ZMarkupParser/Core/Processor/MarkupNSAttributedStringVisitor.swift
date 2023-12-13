@@ -20,7 +20,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: BreakLineMarkup) -> Result {
-        return makeBreakLine(in: markup)
+        return makeBreakLine(in: markup, reduceable: false)
     }
     
     func visit(_ markup: RawStringMarkup) -> Result {
@@ -95,7 +95,9 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         if paragraphSpacingPolicy == .lineBreaks {
             attributedString.append(makeBreakLine(in: markup, reduceable: false))
         }
-        attributedString.insert(makeBreakLine(in: markup, reduceable: false), at: 0)
+        if markup.parentMarkup?.childMarkups.first !== markup { // only add a prefix breakLine if there are other elements before it
+            attributedString.insert(makeBreakLine(in: markup, reduceable: false), at: 0)
+        }
         return attributedString
     }
     
@@ -188,22 +190,32 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
 extension MarkupNSAttributedStringVisitor {
     // Find continues reduceable breakline and merge it.
     // e.g. Test\n\n\n\nTest -> Test\nTest
+    // e.g. \nTest -> Test
+    // e.g. Test\n -> Test
     func reduceBreaklineInResultNSAttributedString(_ attributedString: NSAttributedString) -> NSAttributedString {
         let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
 
         let totalLength = mutableAttributedString.string.utf16.count
         mutableAttributedString.enumerateAttribute(.reduceableBreakLine, in: NSMakeRange(0, totalLength)) { reduceableBreakLine, range, _ in
             if let reduceableBreakLine = reduceableBreakLine as? Bool, reduceableBreakLine == true {
-                if range.location == 0 || range.upperBound == mutableAttributedString.string.utf16.count {
-                    // remove prefix & suffix break line
-                    mutableAttributedString.replaceCharacters(in: range, with: "")
-                } else if range.length >= 2 {
-                    // remove reduntant
+                if range.length >= 2 {
+                    // remove redundant
                     mutableAttributedString.replaceCharacters(in: range, with: "\n")
                 }
             }
         }
-        
+
+        //prefix break line:
+        var range = NSRange()
+        if mutableAttributedString.attribute(.isBreakLine, at: 0, effectiveRange: &range) != nil {
+            mutableAttributedString.replaceCharacters(in: range, with: "")
+        }
+
+        //suffix break line:
+        if mutableAttributedString.attribute(.isBreakLine, at: mutableAttributedString.string.utf16.count - 1, effectiveRange: &range) != nil {
+            mutableAttributedString.replaceCharacters(in: range, with: "")
+        }
+
         return mutableAttributedString
     }
     
@@ -292,4 +304,7 @@ private extension MarkupNSAttributedStringVisitor {
 
 private extension NSAttributedString.Key {
     static let reduceableBreakLine: NSAttributedString.Key = .init("reduceableBreakLine")
+}
+private extension NSAttributedString.Key {
+    static let isBreakLine: NSAttributedString.Key = .init("isBreakLine")
 }

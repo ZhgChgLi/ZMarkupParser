@@ -103,3 +103,6 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
 private extension NSAttributedString.Key {
     static let reduceableBreakLine: NSAttributedString.Key = .init("reduceableBreakLine")
 }
+private extension NSAttributedString.Key {
+    static let isBreakLine: NSAttributedString.Key = .init("isBreakLine")
+}
