@@ -196,24 +196,26 @@ extension MarkupNSAttributedStringVisitor {
         let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
 
         let totalLength = mutableAttributedString.string.utf16.count
-        mutableAttributedString.enumerateAttribute(.reduceableBreakLine, in: NSMakeRange(0, totalLength)) { reduceableBreakLine, range, _ in
-            if let reduceableBreakLine = reduceableBreakLine as? Bool, reduceableBreakLine == true {
-                if range.length >= 2 {
-                    // remove redundant
-                    mutableAttributedString.replaceCharacters(in: range, with: "\n")
+        if totalLength > 0 {
+            mutableAttributedString.enumerateAttribute(.reduceableBreakLine, in: NSMakeRange(0, totalLength)) { reduceableBreakLine, range, _ in
+                if let reduceableBreakLine = reduceableBreakLine as? Bool, reduceableBreakLine == true {
+                    if range.length >= 2 {
+                        // remove redundant
+                        mutableAttributedString.replaceCharacters(in: range, with: "\n")
+                    }
                 }
             }
-        }
-
-        //prefix break line:
-        var range = NSRange()
-        if mutableAttributedString.attribute(.isBreakLine, at: 0, effectiveRange: &range) != nil {
-            mutableAttributedString.replaceCharacters(in: range, with: "")
-        }
-
-        //suffix break line:
-        if mutableAttributedString.attribute(.isBreakLine, at: mutableAttributedString.string.utf16.count - 1, effectiveRange: &range) != nil {
-            mutableAttributedString.replaceCharacters(in: range, with: "")
+    
+            //prefix break line:
+            var range = NSRange()
+            if mutableAttributedString.attribute(.isBreakLine, at: 0, effectiveRange: &range) != nil {
+                mutableAttributedString.replaceCharacters(in: range, with: "")
+            }
+    
+            //suffix break line:
+            if mutableAttributedString.attribute(.isBreakLine, at: mutableAttributedString.string.utf16.count - 1, effectiveRange: &range) != nil {
+                mutableAttributedString.replaceCharacters(in: range, with: "")
+            }
         }
 
         return mutableAttributedString
