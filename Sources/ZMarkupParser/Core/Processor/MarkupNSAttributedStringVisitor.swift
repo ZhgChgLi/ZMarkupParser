@@ -13,14 +13,15 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     let components: [MarkupStyleComponent]
     let rootStyle: MarkupStyle?
-    var paragraphSpacingPolicy: ParagraphSpacingPolicy = .lineBreaks
+    
+    static let breakLineSymbol = "\n"
     
     func visit(_ markup: RootMarkup) -> Result {
         return reduceBreaklineInResultNSAttributedString(collectAttributedString(markup))
     }
     
     func visit(_ markup: BreakLineMarkup) -> Result {
-        return makeBreakLine(in: markup)
+        return makeString(in: markup, string: Self.breakLineSymbol, attributes: [.breaklinePlaceholder: true])
     }
     
     func visit(_ markup: RawStringMarkup) -> Result {
@@ -37,10 +38,11 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: HorizontalLineMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
+        let thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string: String(repeating: "-", count: markup.dashLength)))
+        thisAttributedString.markPrefixTagBoundaryBreakline()
+        thisAttributedString.markSuffixTagBoundaryBreakline()
         
-        attributedString.append(makeBreakLine(in: markup))
-        attributedString.append(makeString(in: markup, string: String(repeating: "-", count: markup.dashLength)))
-        attributedString.insert(makeBreakLine(in: markup), at: 0)
+        attributedString.append(thisAttributedString)
         return attributedString
     }
     
@@ -66,16 +68,27 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         // We don't set NSTextList to NSParagraphStyle directly, because NSTextList have abnormal extra spaces.
         // ref: https://stackoverflow.com/questions/66714650/nstextlist-formatting
         
+        var level = 0
+        var parentMarkup: Markup? = markup.parentMarkup as? ListMarkup
+        while (parentMarkup != nil) {
+            if parentMarkup is ListMarkup {
+                level += 1
+            }
+            parentMarkup = parentMarkup?.parentMarkup
+        }
+        let indent = String(repeating: " ", count: level)
+        
         if let parentMarkup = markup.parentMarkup as? ListMarkup {
+            let thisAttributedString: NSMutableAttributedString
             if parentMarkup.styleList.type.isOrder() {
                 let siblingListItems = markup.parentMarkup?.childMarkups.filter({ $0 is ListItemMarkup }) ?? []
                 let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentMarkup.styleList.startingItemNumber
-                attributedString.insert(makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: position)), at: 0)
+                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:indent+parentMarkup.styleList.marker(forItemNumber: position)))
             } else {
-                attributedString.insert(makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: parentMarkup.styleList.startingItemNumber)), at: 0)
+                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:indent+parentMarkup.styleList.marker(forItemNumber: parentMarkup.styleList.startingItemNumber)))
             }
-            
-            attributedString.append(makeBreakLine(in: markup))
+            attributedString.insert(thisAttributedString, at: 0)
+            attributedString.markSuffixTagBoundaryBreakline()
         }
         
         return attributedString
@@ -83,20 +96,20 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: ListMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        if paragraphSpacingPolicy == .lineBreaks {
-            attributedString.append(makeBreakLine(in: markup))
-        }
-        attributedString.insert(makeBreakLine(in: markup), at: 0)
-        return attributedString
+        let thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        thisAttributedString.markPrefixTagBoundaryBreakline()
+        thisAttributedString.markSuffixTagBoundaryBreakline()
+        
+        return thisAttributedString
     }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        if paragraphSpacingPolicy == .lineBreaks {
-            attributedString.append(makeBreakLine(in: markup, reduceable: false))
-        }
-        attributedString.insert(makeBreakLine(in: markup, reduceable: false), at: 0)
-        return attributedString
+        let thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        thisAttributedString.markPrefixTagBoundaryBreakline()
+        thisAttributedString.markSuffixTagBoundaryBreakline()
+        
+        return thisAttributedString
     }
     
     func visit(_ markup: UnderlineMarkup) -> Result {
@@ -142,26 +155,28 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: TableRowMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        attributedString.append(makeBreakLine(in: markup))
-        return attributedString
+        let thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        thisAttributedString.markSuffixTagBoundaryBreakline()
+
+        return thisAttributedString
     }
     
     func visit(_ markup: TableMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        if paragraphSpacingPolicy == .lineBreaks {
-            attributedString.append(makeBreakLine(in: markup))
-        }
-        attributedString.insert(makeBreakLine(in: markup), at: 0)
-        return attributedString
+        let thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        thisAttributedString.markPrefixTagBoundaryBreakline()
+        thisAttributedString.markSuffixTagBoundaryBreakline()
+        
+        return thisAttributedString
     }
     
     func visit(_ markup: HeadMarkup) -> NSAttributedString {
         let attributedString = collectAttributedString(markup)
-        if paragraphSpacingPolicy == .lineBreaks {
-            attributedString.append(makeBreakLine(in: markup))
-        }
-        attributedString.insert(makeBreakLine(in: markup), at: 0)
-        return attributedString
+        let thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        thisAttributedString.markPrefixTagBoundaryBreakline()
+        thisAttributedString.markSuffixTagBoundaryBreakline()
+        
+        return thisAttributedString
     }
 
     func visit(_ markup: ImageMarkup) -> NSAttributedString {
@@ -172,11 +187,11 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: BlockQuoteMarkup) -> NSAttributedString {
         let attributedString = collectAttributedString(markup)
-        if paragraphSpacingPolicy == .lineBreaks {
-            attributedString.append(makeBreakLine(in: markup))
-        }
-        attributedString.insert(makeBreakLine(in: markup), at: 0)
-        return attributedString
+        let thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        thisAttributedString.markPrefixTagBoundaryBreakline()
+        thisAttributedString.markSuffixTagBoundaryBreakline()
+        
+        return thisAttributedString
     }
     
     func visit(_ markup: CodeMarkup) -> NSAttributedString {
@@ -187,19 +202,33 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
 
 extension MarkupNSAttributedStringVisitor {
     // Find continues reduceable breakline and merge it.
-    // e.g. Test\n\n\n\nTest -> Test\nTest
     func reduceBreaklineInResultNSAttributedString(_ attributedString: NSAttributedString) -> NSAttributedString {
         let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
 
+        let breaklineLength = Self.breakLineSymbol.utf16.count
         let totalLength = mutableAttributedString.string.utf16.count
-        mutableAttributedString.enumerateAttribute(.reduceableBreakLine, in: NSMakeRange(0, totalLength)) { reduceableBreakLine, range, _ in
-            if let reduceableBreakLine = reduceableBreakLine as? Bool, reduceableBreakLine == true {
-                if range.location == 0 || range.upperBound == mutableAttributedString.string.utf16.count {
-                    // remove prefix & suffix break line
-                    mutableAttributedString.replaceCharacters(in: range, with: "")
-                } else if range.length >= 2 {
-                    // remove reduntant
-                    mutableAttributedString.replaceCharacters(in: range, with: "\n")
+        mutableAttributedString.enumerateAttribute(.breaklinePlaceholder, in: NSMakeRange(0, totalLength)) { value, range, _ in
+            if let breaklinePlaceholder = value as? Bool, breaklinePlaceholder == true {
+                let thisAttributedString = mutableAttributedString.attributedSubstring(from: range)
+                let thisAttributedStringTotalLength = thisAttributedString.string.utf16.count
+                var tagBoundaryBreaklinePlaceholderCount = 0
+                thisAttributedString.enumerateAttribute(.tagBoundaryBreaklinePlaceholder, in: NSMakeRange(0, thisAttributedStringTotalLength)) { thisValue, thisRange, _ in
+                    if let tagBoundaryBreaklinePlaceholder = thisValue as? Bool, tagBoundaryBreaklinePlaceholder == true {
+                        tagBoundaryBreaklinePlaceholderCount += thisRange.length
+                    }
+                }
+                
+                if tagBoundaryBreaklinePlaceholderCount > 0 {
+                    if range.location == 0 {
+                        mutableAttributedString.deleteCharacters(in: range)
+                    } else if range.length > breaklineLength {
+                        // remove reduntant
+                        var reset = range.length - tagBoundaryBreaklinePlaceholderCount
+                        if reset < breaklineLength {
+                            reset = breaklineLength
+                        }
+                        mutableAttributedString.replaceCharacters(in: NSRange(location: range.location, length: range.length), with: String(repeating: Self.breakLineSymbol, count: (reset / breaklineLength)))
+                    }
                 }
             }
         }
@@ -223,14 +252,6 @@ extension MarkupNSAttributedStringVisitor {
         
         mutableAttributedString.addAttributes(markupStyle.render(), range: NSMakeRange(0, mutableAttributedString.string.utf16.count))
         return mutableAttributedString
-    }
-    
-    func makeBreakLine(in markup: Markup, reduceable: Bool = true) -> NSAttributedString {
-        if reduceable {
-            return makeString(in: markup, string: "\n", attributes: [.reduceableBreakLine: true])
-        } else {
-            return makeString(in: markup, string: "\n")
-        }
     }
     
     func makeString(in markup: Markup, string: String, attributes attrs: [NSAttributedString.Key : Any]? = nil) -> NSAttributedString {
@@ -292,4 +313,17 @@ private extension MarkupNSAttributedStringVisitor {
 
 private extension NSAttributedString.Key {
     static let reduceableBreakLine: NSAttributedString.Key = .init("reduceableBreakLine")
+    
+    static let tagBoundaryBreaklinePlaceholder: NSAttributedString.Key = .init("tagBoundaryBreaklinePlaceholder")
+    static let breaklinePlaceholder: NSAttributedString.Key = .init("breaklinePlaceholder")
+}
+
+private extension NSMutableAttributedString {
+    func markPrefixTagBoundaryBreakline() {
+        self.insert(NSAttributedString(string: MarkupNSAttributedStringVisitor.breakLineSymbol, attributes: [.tagBoundaryBreaklinePlaceholder: true, .breaklinePlaceholder: true]), at: 0)
+    }
+    
+    func markSuffixTagBoundaryBreakline() {
+        self.append(NSAttributedString(string: MarkupNSAttributedStringVisitor.breakLineSymbol, attributes: [.tagBoundaryBreaklinePlaceholder: true, .breaklinePlaceholder: true]))
+    }
 }
