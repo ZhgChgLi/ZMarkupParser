@@ -53,44 +53,45 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         XCTAssertEqual(result.string, "boldTextunderlineWithBoldTextrawText", "should be boldTextunderlineWithBoldTextrawText in visitor result.")
     }
     
-    func testReduceBreaklineInResultNSAttributedStringRemovePrefix() {
+    func testReduceBreaklineInResultNSAttributedString() {
+        //        <div>
+        //          <div style="background-color:red">
+        //            <ul>
+        //              <li>111</li>
+        //              <li>22<br/>22</li>
+        //              <li>333<br/><br/></li>
+        //            </ul>
+        //          </div>
+        //        </div>
         let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
-        let mutableAttributedString = NSMutableAttributedString(string: "\nTest")
-        XCTAssertEqual(visitor.reduceBreaklineInResultNSAttributedString(mutableAttributedString).string, "\nTest", "Shoud only remove break line with attritube:reduceableBreakLine")
+        let rootMarkup = RootMarkup()
+        let paragraphMarkup_1 = ParagraphMarkup()
+        let paragraphMarkup_2 = ParagraphMarkup()
+        let listMarkup = ListMarkup(styleList: MarkupStyleList(type: .circle, format: "%@", startingItemNumber: 1))
+        let listItemMarkup_1 = ListItemMarkup()
+        listItemMarkup_1.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "11")))
+        let listItemMarkup_2 = ListItemMarkup()
+        listItemMarkup_2.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "22")))
+        listItemMarkup_2.appendChild(markup: BreakLineMarkup())
+        listItemMarkup_2.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "22")))
+        listItemMarkup_2.appendChild(markup: BreakLineMarkup())
+        let listItemMarkup_3 = ListItemMarkup()
+        listItemMarkup_3.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "333")))
+        listItemMarkup_3.appendChild(markup: BreakLineMarkup())
+        listItemMarkup_3.appendChild(markup: BreakLineMarkup())
+        listMarkup.appendChild(markup: listItemMarkup_1)
+        listMarkup.appendChild(markup: listItemMarkup_2)
+        listMarkup.appendChild(markup: listItemMarkup_3)
         
+        paragraphMarkup_1.appendChild(markup: listMarkup)
+        paragraphMarkup_2.appendChild(markup: paragraphMarkup_1)
+        rootMarkup.appendChild(markup: paragraphMarkup_2)
         
-        mutableAttributedString.addAttributes([.reduceableBreakLine: true], range: NSMakeRange(0, 1))
-        XCTAssertEqual(visitor.reduceBreaklineInResultNSAttributedString(mutableAttributedString).string, "Test", "Shoud remove break line with attritube:reduceableBreakLine")
+        let result = visitor.visit(rootMarkup).string
+        
+        XCTAssertEqual(result, " ◦11\n ◦22\n22\n ◦333\n\n", "Breakline reduce failed!")
     }
     
-    func testReduceBreaklineInResultNSAttributedStringRemoveSuffix() {
-        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
-        let mutableAttributedString = NSMutableAttributedString(string: "Test\n")
-        XCTAssertEqual(visitor.reduceBreaklineInResultNSAttributedString(mutableAttributedString).string, "Test\n", "Shoud only remove break line with attritube:reduceableBreakLine")
-        
-        
-        mutableAttributedString.addAttributes([.reduceableBreakLine: true], range: NSMakeRange(mutableAttributedString.length - 1, 1))
-        XCTAssertEqual(visitor.reduceBreaklineInResultNSAttributedString(mutableAttributedString).string, "Test", "Shoud remove break line with attritube:reduceableBreakLine")
-    }
-    
-    func testReduceBreaklineInResultNSAttributedStringRemoveReduntantBreakLine() {
-        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
-        let mutableAttributedString = NSMutableAttributedString()
-        mutableAttributedString.append(NSAttributedString(string: "\n\n\n\n\n", attributes: [.reduceableBreakLine: true]))
-        mutableAttributedString.append(NSAttributedString(string: "\nTTTT\n\n")) // origin break line should not remove
-        mutableAttributedString.append(NSAttributedString(string: "AAAA\n\n", attributes: [.reduceableBreakLine: false])) // false reduceableBreakLine break line should not remove
-        
-        mutableAttributedString.append(NSAttributedString(string: "\n\n\n\n\n", attributes: [.reduceableBreakLine: true])) // true reduceableBreakLine break line should replace to one \n
-        mutableAttributedString.append(NSAttributedString(string: "BBBB"))
-        mutableAttributedString.append(NSAttributedString(string: "\n\n", attributes: [.reduceableBreakLine: true]))
-        mutableAttributedString.append(NSAttributedString(string: "DDD"))
-        mutableAttributedString.append(NSAttributedString(string: "\n\n\n\n\n", attributes: [.reduceableBreakLine: true]))
-        mutableAttributedString.append(NSAttributedString(string: "CCCC\n"))
-        mutableAttributedString.append(NSAttributedString(string: "\n\n\n\n\n", attributes: [.reduceableBreakLine: true]))
-        
-        let result = visitor.reduceBreaklineInResultNSAttributedString(mutableAttributedString).string
-        XCTAssertEqual(result, "\nTTTT\n\nAAAA\n\n\nBBBB\nDDD\nCCCC\n", "Shoud only remove break line with attritube:reduceableBreakLine")
-    }
     
     func testApplyMarkupStyle() {
         let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
@@ -98,8 +99,4 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         
         XCTAssertEqual(result.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 999)
     }
-}
-
-private extension NSAttributedString.Key {
-    static let reduceableBreakLine: NSAttributedString.Key = .init("reduceableBreakLine")
 }
