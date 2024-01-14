@@ -24,14 +24,13 @@ public final class ZHTMLParser {
         htmlTags: [HTMLTag],
         styleAttributes: [HTMLTagStyleAttribute],
         policy: MarkupStylePolicy,
-        rootStyle: MarkupStyle?,
-        paragraphSpacingPolicy: ParagraphSpacingPolicy = .lineBreaks
+        rootStyle: MarkupStyle?
     ) {
         self.htmlTags = htmlTags
         self.styleAttributes = styleAttributes
         self.rootStyle = rootStyle
         
-        self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle, paragraphSpacingPolicy: paragraphSpacingPolicy)
+        self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle)
         
         self.htmlParsedResultToHTMLElementWithRootMarkupProcessor = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: htmlTags)
         self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, policy: policy)

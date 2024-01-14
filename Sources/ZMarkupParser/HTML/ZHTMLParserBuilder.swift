@@ -13,7 +13,6 @@ public final class ZHTMLParserBuilder {
     private(set) var styleAttributes: [HTMLTagStyleAttribute] = []
     private(set) var rootStyle: MarkupStyle? = .default
     private(set) var policy: MarkupStylePolicy = .respectMarkupStyleFromHTMLStyleAttribute
-    private(set) var paragraphSpacingPolicy: ParagraphSpacingPolicy = .lineBreaks
     
     public init() {
         
@@ -64,18 +63,12 @@ public final class ZHTMLParserBuilder {
         return self
     }
     
-    public func set(spacingPolicy: ParagraphSpacingPolicy) -> Self {
-        self.paragraphSpacingPolicy = spacingPolicy
-        return self
-    }
-    
     public func build() -> ZHTMLParser {
         return ZHTMLParser(
             htmlTags: htmlTags,
             styleAttributes: styleAttributes,
             policy: policy,
-            rootStyle: rootStyle,
-            paragraphSpacingPolicy: paragraphSpacingPolicy
+            rootStyle: rootStyle
         )
     }
 }
