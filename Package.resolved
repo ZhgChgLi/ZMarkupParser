@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ZhgChgLi/ZNSTextAttachment",
       "state" : {
-        "revision" : "1dcb1c58ed092cf9403604969f2f896003b8cbce",
-        "version" : "1.1.7"
+        "revision" : "8c6c34e82eb31ad373b209cb88c2a2aff76c6cdf",
+        "version" : "1.1.9"
       }
     }
   ],
