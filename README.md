@@ -74,7 +74,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 1.8.0'
+  pod 'ZMarkupParser', '~> 1.8.1'
 end
 ```
 
