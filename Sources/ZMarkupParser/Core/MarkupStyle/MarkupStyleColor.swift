@@ -1,6 +1,6 @@
 //
 //  MarkupStyleColor.swift
-//  
+//
 //
 //  Created by https://zhgchg.li on 2023/2/4.
 //
@@ -13,11 +13,12 @@ import AppKit
 #endif
 
 public struct MarkupStyleColor {
-    let red: Int
-    let green: Int
-    let blue: Int
-    let alpha: CGFloat
-    
+#if canImport(UIKit)
+    let color: UIColor
+#elseif canImport(AppKit)
+    let color: NSColor
+#endif
+       
     init?(red: Int, green: Int, blue: Int, alpha: CGFloat) {
         guard red >= 0 && red <= 255,
               green >= 0 && green <= 255,
@@ -25,11 +26,12 @@ public struct MarkupStyleColor {
               alpha >= 0 && alpha <= 1 else {
             return nil
         }
-        
-        self.red = red
-        self.green = green
-        self.blue = blue
-        self.alpha = alpha
+        #if canImport(UIKit)
+            self.color = UIColor(red: CGFloat(red)/255.0, green: CGFloat(green)/255.0, blue: CGFloat(blue)/255.0, alpha: alpha)
+        #elseif canImport(AppKit)
+            self.color = NSColor(red: CGFloat(red)/255.0, green: CGFloat(green)/255.0, blue: CGFloat(blue)/255.0, alpha: alpha)
+        #endif
+
     }
     
     public init?(name: MarkupStyleColorName) {
@@ -112,32 +114,23 @@ public struct MarkupStyleColor {
 extension MarkupStyleColor {
     
     public func getColor() -> UIColor {
-        return UIColor(red: CGFloat(red)/255.0, green: CGFloat(green)/255.0, blue: CGFloat(blue)/255.0, alpha: alpha)
+        return color
     }
     
     public init(color: UIColor) {
-        let ciColor = CIColor(color: color)
-        self.red = Int(ciColor.red * 255)
-        self.green = Int(ciColor.green * 255)
-        self.blue = Int(ciColor.blue * 255)
-        self.alpha = ciColor.alpha
+        self.color = color
     }
 }
 
 #elseif canImport(AppKit)
 
 extension MarkupStyleColor {
-
     public func getColor() -> NSColor {
-        return NSColor(red: CGFloat(red)/255.0, green: CGFloat(green)/255.0, blue: CGFloat(blue)/255.0, alpha: alpha)
+        return color
     }
     
     public init(color: NSColor) {
-        let ciColor = CIColor(color: color)
-        self.red = Int((ciColor?.red ?? 0) * 255)
-        self.green = Int((ciColor?.green ?? 0) * 255)
-        self.blue = Int((ciColor?.blue ?? 0) * 255)
-        self.alpha = ciColor?.alpha ?? 1
+        self.color = color
     }
 }
 
