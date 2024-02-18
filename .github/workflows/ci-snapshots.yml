@@ -1,0 +1,22 @@
+name: CI Snapshots
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-13
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
+      - uses: actions/checkout@v3
+      - name: iOS build and test
+        run: |
+          xcodebuild test -workspace ZMarkupParser.xcworkspace -testPlan ZMarkupParser -scheme ZMarkupParser -enableCodeCoverage YES -resultBundlePath './scripts/TestResult.xcresult' -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0.1' build test | xcpretty
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "commit snapshots changed"
+          commit_user_name: "ZhgChgLi"
+          commit_user_email: "zhgchgli@gmail.com"
+          commit_author: ZhgChgLi <zhgchgli@gmail.com>

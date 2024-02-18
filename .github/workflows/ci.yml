@@ -10,8 +10,11 @@ on:
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
       - uses: actions/checkout@v3
       - name: macOS build and test
         run: |
@@ -20,7 +23,7 @@ jobs:
       - name: iOS build and test
         run: |
           set -o pipefail
-          xcodebuild test -workspace ZMarkupParser.xcworkspace -testPlan ZMarkupParser -scheme ZMarkupParser -enableCodeCoverage YES -resultBundlePath './scripts/TestResult.xcresult' -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0.1' build test | xcpretty
+          xcodebuild test -workspace ZMarkupParser.xcworkspace -testPlan UnitTest -scheme ZMarkupParser -enableCodeCoverage YES -resultBundlePath './scripts/TestResult.xcresult' -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0.1' build test | xcpretty
       - name: Codecov
         uses: codecov/codecov-action@v3.1.1
         with:
