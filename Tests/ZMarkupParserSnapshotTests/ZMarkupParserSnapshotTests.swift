@@ -118,7 +118,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.backgroundColor = .white
         textView.setHtmlString(attributedHTMLString, with: parser)
         textView.layoutIfNeeded()
-        assertSnapshot(matching: textView, as: .image, record: self.record)
+        assertSnapshot(matching: textView, as: .image(traits: .init(userInterfaceStyle: .light)), record: self.record)
     }
     
     func testUITextViewSetHTMLString() {
@@ -129,7 +129,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         textView.backgroundColor = .white
         textView.setHtmlString(htmlString, with: parser)
         textView.layoutIfNeeded()
-        assertSnapshot(matching: textView, as: .image, record: self.record)
+        assertSnapshot(matching: textView, as: .image(traits: .init(userInterfaceStyle: .light)), record: self.record)
     }
     
     func testUITextViewSetHTMLStringAsync() {
@@ -141,7 +141,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         let expectation = self.expectation(description: "testUITextViewSetHTMLStringAsync")
         textView.setHtmlString(htmlString, with: parser) { _ in
             textView.layoutIfNeeded()
-            assertSnapshot(matching: textView, as: .image, record: self.record)
+            assertSnapshot(matching: textView, as: .image(traits: .init(userInterfaceStyle: .light)), record: self.record)
             expectation.fulfill()
         }
         self.waitForExpectations(timeout: 5, handler: nil)
@@ -155,7 +155,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         label.numberOfLines = 0
         label.setHtmlString(htmlString, with: parser)
         label.layoutIfNeeded()
-        assertSnapshot(matching: label, as: .image, record: self.record)
+        assertSnapshot(matching: label, as: .image(traits: .init(userInterfaceStyle: .light)), record: self.record)
     }
     
     func testUILabelSetHTMLStringAsync() {
@@ -167,7 +167,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
         let expectation = self.expectation(description: "testUILabelSetHTMLStringAsync")
         label.setHtmlString(htmlString, with: parser) { _ in
             label.layoutIfNeeded()
-            assertSnapshot(matching: label, as: .image, record: self.record)
+            assertSnapshot(matching: label, as: .image(traits: .init(userInterfaceStyle: .light)), record: self.record)
             expectation.fulfill()
         }
         self.waitForExpectations(timeout: 5, handler: nil)
@@ -197,7 +197,7 @@ extension ZHTMLToNSAttributedStringSnapshotTests: ZNSTextAttachmentDelegate, ZNS
         #if canImport(UIKit)
         if let textView = testAsyncImageTextView {
             textView.layoutIfNeeded()
-            assertSnapshot(matching: textView, as: .image, record: self.record, testName: "testAsyncImageNSAttributedString_uiTextView")
+            assertSnapshot(matching: textView, as: .image(traits: .init(userInterfaceStyle: .light)), record: self.record, testName: "testAsyncImageNSAttributedString_uiTextView")
         }
         testAsyncXCTestExpectation?.fulfill()
         #endif
