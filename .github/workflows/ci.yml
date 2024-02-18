@@ -12,9 +12,9 @@ jobs:
   build:
     runs-on: macos-13
     steps:
-    - uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '15.2'
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.2'
       - uses: actions/checkout@v3
       - name: macOS build and test
         run: |
