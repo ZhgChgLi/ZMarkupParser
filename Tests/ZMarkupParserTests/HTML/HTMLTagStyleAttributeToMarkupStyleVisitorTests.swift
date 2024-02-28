@@ -20,22 +20,22 @@ final class HTMLTagStyleAttributeToMarkupStyleVisitorTests: XCTestCase {
     
     func testColorHTMLTagStyleAttribute() {
         let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: "#ff0000")
-        let markupStyle = visitor.visit(ColorHTMLTagStyleAttribute())
+        let markupColor = visitor.visit(ColorHTMLTagStyleAttribute())?.foregroundColor?.getColor()
+        XCTAssertNotNil(markupColor)
         
-        XCTAssertEqual(markupStyle?.foregroundColor?.red, MarkupStyleColor(string: "#ff0000")?.red)
-        XCTAssertEqual(markupStyle?.foregroundColor?.green, MarkupStyleColor(string: "#ff0000")?.green)
-        XCTAssertEqual(markupStyle?.foregroundColor?.blue, MarkupStyleColor(string: "#ff0000")?.blue)
-        XCTAssertEqual(markupStyle?.foregroundColor?.alpha, MarkupStyleColor(string: "#ff0000")?.alpha)
+        let comparisonColor = MarkupStyleColor(string: "#ff0000")?.getColor()
+        XCTAssertNotNil(comparisonColor)
+        XCTAssertTrue(markupColor!.isEqual(comparisonColor))
     }
     
     func testBackgroundColorHTMLTagStyleAttribute() {
         let visitor = HTMLTagStyleAttributeToMarkupStyleVisitor(value: "#ff0000")
-        let markupStyle = visitor.visit(BackgroundColorHTMLTagStyleAttribute())
-        
-        XCTAssertEqual(markupStyle?.backgroundColor?.red, MarkupStyleColor(string: "#ff0000")?.red)
-        XCTAssertEqual(markupStyle?.backgroundColor?.green, MarkupStyleColor(string: "#ff0000")?.green)
-        XCTAssertEqual(markupStyle?.backgroundColor?.blue, MarkupStyleColor(string: "#ff0000")?.blue)
-        XCTAssertEqual(markupStyle?.backgroundColor?.alpha, MarkupStyleColor(string: "#ff0000")?.alpha)
+        let markupColor = visitor.visit(BackgroundColorHTMLTagStyleAttribute())?.backgroundColor?.getColor()
+        XCTAssertNotNil(markupColor)
+
+        let comparisonColor = MarkupStyleColor(string: "#ff0000")?.getColor()
+        XCTAssertNotNil(comparisonColor)
+        XCTAssertTrue(markupColor!.isEqual(comparisonColor))
     }
     
     func testFontSizeHTMLTagStyleAttribute() {

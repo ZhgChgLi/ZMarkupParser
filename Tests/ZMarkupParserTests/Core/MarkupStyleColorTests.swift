@@ -22,11 +22,11 @@ final class MarkupStyleColorTests: XCTestCase {
         for colorName in allCases {
             let sponsor = MarkupStyleSponsorColor.pinkoi(colorName)
             
-            let markupStyleColor = MarkupStyleColor(sponsor: sponsor)
-            XCTAssertEqual(markupStyleColor?.red, colorName.rgb.0)
-            XCTAssertEqual(markupStyleColor?.green, colorName.rgb.1)
-            XCTAssertEqual(markupStyleColor?.blue, colorName.rgb.2)
-            XCTAssertEqual(markupStyleColor?.alpha, 1)
+            let markupStyleColor = MarkupStyleColor(sponsor: sponsor)?.getColor()
+            XCTAssertNotNil(markupStyleColor)
+            
+            let comparison = MarkupStyleColor(red: colorName.rgb.0, green: colorName.rgb.1, blue: colorName.rgb.2, alpha: 1)?.getColor()
+            XCTAssertTrue(markupStyleColor!.isEqual(comparison!))
         }
     }
     
@@ -34,23 +34,23 @@ final class MarkupStyleColorTests: XCTestCase {
         let allCases = MarkupStyleVendorColor.PinkoiColor.allCases
         for colorName in allCases {
             let vendor = MarkupStyleVendorColor.pinkoi(colorName)
+                        
+            let markupStyleColor = MarkupStyleColor(vendor: vendor)?.getColor()
+            XCTAssertNotNil(markupStyleColor)
             
-            let markupStyleColor = MarkupStyleColor(vendor: vendor)
-            XCTAssertEqual(markupStyleColor?.red, colorName.rgb.0)
-            XCTAssertEqual(markupStyleColor?.green, colorName.rgb.1)
-            XCTAssertEqual(markupStyleColor?.blue, colorName.rgb.2)
-            XCTAssertEqual(markupStyleColor?.alpha, 1)
+            let comparison = MarkupStyleColor(red: colorName.rgb.0, green: colorName.rgb.1, blue: colorName.rgb.2, alpha: 1)?.getColor()
+            XCTAssertTrue(markupStyleColor!.isEqual(comparison!))
         }
     }
     
     func testInitStyleFromColorName() throws {
         let allCases = MarkupStyleColorName.allCases
         for colorName in allCases {
-            let markupStyleColor = MarkupStyleColor(name: colorName)
-            XCTAssertEqual(markupStyleColor?.red, colorName.rgb.0)
-            XCTAssertEqual(markupStyleColor?.green, colorName.rgb.1)
-            XCTAssertEqual(markupStyleColor?.blue, colorName.rgb.2)
-            XCTAssertEqual(markupStyleColor?.alpha, 1)
+            let markupStyleColor = MarkupStyleColor(name: colorName)?.getColor()
+            XCTAssertNotNil(markupStyleColor)
+            
+            let comparison = MarkupStyleColor(red: colorName.rgb.0, green: colorName.rgb.1, blue: colorName.rgb.2, alpha: 1)?.getColor()
+            XCTAssertTrue(markupStyleColor!.isEqual(comparison!))
         }
     }
 
