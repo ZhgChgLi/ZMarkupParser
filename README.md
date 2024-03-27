@@ -268,29 +268,6 @@ To extend the tag name and customize its style, you can use the ExtendTagName cl
 let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).build()
 ```
 
-#### Paragraph Spacing Policy
-
-Often, you will want to create some type of spacing between various paragraphs or elements to increase legibility. There are two strategies to handle this:
-
-1. Create additional line breaks in between paragraphs and sections. This means that there will be the size of 1 empty paragraph between each other paragraph. This is the default behaviour. In this mode you will likely want to ensure you are ***Not*** using paragraph spacing in in your markup styles.
-2. Make use of `paragraphSpacing` through `MarkupStyleParagraphStyle` or `NSParagraphStyle`. If you are using these you will likely want to disable the additional line breaks.
-
-This can be configured on your your `ZHTMLParserBuilder` as follows:
-
-```swift
-let parser = ZHTMLParserBuilder
-    .initWithDefault()
-    // Indicate that we should use paragraph spacing for spacing.
-    .set(spacingPolicy: .paragraphSpacing)
-    // Create our spacing using paragraphSpacing.
-    .set(rootStyle: .init(
-        paragraphStyle: .init(
-            paragraphSpacing: 12
-        )
-    ))
-    .build()
-```
-
 ### Render HTML String
 ```swift
 parser.render(htmlString) // NSAttributedString
