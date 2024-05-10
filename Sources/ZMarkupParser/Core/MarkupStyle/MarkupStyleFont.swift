@@ -164,10 +164,10 @@ extension MarkupStyleFont {
             traits.append(.traitItalic)
         }
         
-        if traits.isEmpty {
-            return font
+        return if traits.isEmpty {
+            font.withWeight(weight)
         } else {
-            return withTraits(font: font, traits: traits)
+            withTraits(font: font, traits: traits).withWeight(weight)
         }
     }
     
@@ -349,3 +349,20 @@ private extension NSFont.Weight {
 }
 
 #endif
+
+private extension UIFont {
+    func withWeight(_ weight: UIFont.Weight) -> UIFont {
+        var attributes = fontDescriptor.fontAttributes
+        var traits = (attributes[.traits] as? [UIFontDescriptor.TraitKey: Any]) ?? [:]
+        
+        traits[.weight] = weight
+        
+        attributes[.name] = nil
+        attributes[.traits] = traits
+        attributes[.family] = familyName
+        
+        let descriptor = UIFontDescriptor(fontAttributes: attributes)
+        
+        return UIFont(descriptor: descriptor, size: pointSize)
+    }
+}
