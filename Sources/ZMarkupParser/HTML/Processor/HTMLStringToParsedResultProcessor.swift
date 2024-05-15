@@ -26,12 +26,12 @@ final class HTMLStringToParsedResultProcessor: ParserProcessor {
     // e.g 3. </span>
     // selfClosingTag = /
     // tagName = span
-    static let htmlTagRegexPattern: String = #"<(?:(?<closeTag>\/)?(?<tagName>[A-Za-z0-9]+)(?<tagAttributes>(?:\s*(\w+)\s*=\s*(["|']).*?\5)*)\s*(?<selfClosingTag>\/)?>)"#
+    static let htmlTagRegexPattern: String = #"<(?:(?<closeTag>\/)?(?<tagName>[A-Za-z0-9]+)(?<tagAttributes>(?:\s*([\w\-]+)\s*=\s*(["|']).*?\5)*)\s*(?<selfClosingTag>\/)?>)"#
     
     // e.g. href="https://zhgchg.li"
     // name = href
     // value = https://zhgchg.li
-    static let htmlTagAttributesRegexPattern: String = #"\s*(?<name>(?:\w+))\s*={1}\s*(["|']){1}(?<value>.*?)\2\s*"#
+    static let htmlTagAttributesRegexPattern: String = #"\s*(?<name>(?:[\w\-]+))\s*={1}\s*(["|']){1}(?<value>.*?)\2\s*"#
     
     // will match:
     // <!--Test--> / <\!DOCTYPE html> / ` \n `
