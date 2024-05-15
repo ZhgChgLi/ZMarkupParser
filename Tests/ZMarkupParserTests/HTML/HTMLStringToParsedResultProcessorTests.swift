@@ -11,7 +11,7 @@ import XCTest
 
 final class HTMLStringToParsedResultProcessorTests: XCTestCase {
     func testNormalProcess() {
-        let result = HTMLStringToParsedResultProcessor().process(from: NSAttributedString(string: "Test<a href=\"https://zhgchg.li/about?g=f#hey\" style=\"color:red\">Hello<b>ssss</a>Zhg</b>chgli<br>.<br/>C<br />B"))
+        let result = HTMLStringToParsedResultProcessor().process(from: NSAttributedString(string: "Test<a href=\"https://zhgchg.li/about?g=f#hey\" style=\"color:red\" custom-attribute=\"true\">Hello<b>ssss</a>Zhg</b>chgli<br>.<br/>C<br />B"))
         let items = result.items
         XCTAssertEqual(items.count, 15, "Should have 15 elements.")
         XCTAssertEqual(result.needFormatter, true, "Should have need formatter.")
@@ -27,9 +27,10 @@ final class HTMLStringToParsedResultProcessorTests: XCTestCase {
             case 1:
                 if case let HTMLParsedResult.start(startItem) = item {
                     XCTAssertEqual(startItem.tagName, "a", "expected `a` tag at index:\(index).")
-                    XCTAssertEqual(startItem.attributes?.count, 2, "expected 2 attributes in `a` tag at index:\(index).")
+                    XCTAssertEqual(startItem.attributes?.count, 3, "expected 3 attributes in `a` tag at index:\(index).")
                     XCTAssertEqual(startItem.attributes?["href"], "https://zhgchg.li/about?g=f#hey", "expected  href attribute in `a` tag at index:\(index).")
                     XCTAssertEqual(startItem.attributes?["style"], "color:red", "expected  style attribute in `a` tag at index:\(index).")
+                    XCTAssertEqual(startItem.attributes?["custom-attribute"], "true", "expected custom-attribute attribute in `a` tag at index:\(index).")
                 } else{
                     XCTFail("expected a tag at index:\(index).")
                 }
