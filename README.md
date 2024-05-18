@@ -48,14 +48,14 @@ The chart above shows the elapsed time (in seconds) to render different HTML str
 
 - File > Swift Packages > Add Package Dependency
 - Add `https://github.com/ZhgChgLi/ZMarkupParser.git`
-- Select "Up to Next Major" with "1.8.1"
+- Select "Up to Next Major" with "1.8.2"
 
 or 
 
 ```swift
 ...
 dependencies: [
-  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.8.1"),
+  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "1.8.2"),
 ]
 ...
 .target(
@@ -74,7 +74,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 1.8.1'
+  pod 'ZMarkupParser', '~> 1.8.2'
 end
 ```
 
