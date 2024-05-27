@@ -42,8 +42,9 @@ public struct MarkupStyle: MarkupStyleItem {
     public var expansion:NSNumber? = nil
     public var writingDirection:NSNumber? = nil
     public var verticalGlyphForm:NSNumber? = nil
+    public var listStyle: MarkupStyleListStyle? = nil
     
-    public init(font: MarkupStyleFont = MarkupStyleFont(), fontCase: MarkupStyleFont.CaseStyle? = nil, paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: String? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSNumber? = nil, verticalGlyphForm: NSNumber? = nil) {
+    public init(font: MarkupStyleFont = MarkupStyleFont(), fontCase: MarkupStyleFont.CaseStyle? = nil, paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: String? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSNumber? = nil, verticalGlyphForm: NSNumber? = nil, listStyle: MarkupStyleListStyle? = nil) {
         self.font = font
         self.fontCase = fontCase
         self.paragraphStyle = paragraphStyle
@@ -67,6 +68,7 @@ public struct MarkupStyle: MarkupStyleItem {
         self.expansion = expansion
         self.writingDirection = writingDirection
         self.verticalGlyphForm = verticalGlyphForm
+        self.listStyle = listStyle
     }
     
     mutating func fillIfNil(from: MarkupStyle?) {
@@ -100,6 +102,7 @@ public struct MarkupStyle: MarkupStyleItem {
         self.expansion = self.expansion ?? from.expansion
         self.writingDirection = self.writingDirection ?? from.writingDirection
         self.verticalGlyphForm = self.verticalGlyphForm ?? from.verticalGlyphForm
+        self.listStyle = self.listStyle ?? from.listStyle
     }
     
     func isNil() -> Bool {
@@ -235,8 +238,9 @@ public struct MarkupStyle {
     public var spellingState:NSAttributedString.SpellingState? = nil
     public var superscript:NSNumber? = nil
     public var glyphInfo:NSGlyphInfo? = nil
+    public var listStyle: MarkupStyleListStyle? = nil
     
-    public init(font: MarkupStyleFont = MarkupStyleFont(), fontCase: MarkupStyleFont.CaseStyle? = nil, paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: NSAttributedString.TextEffectStyle? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSArray? = nil, verticalGlyphForm: NSNumber? = nil, cursor: NSCursor? = nil, toolTip: String? = nil, markedClauseSegment: NSNumber? = nil, textAlternatives: NSTextAlternatives? = nil, spellingState: NSAttributedString.SpellingState? = nil, superscript: NSNumber? = nil, glyphInfo: NSGlyphInfo? = nil) {
+    public init(font: MarkupStyleFont = MarkupStyleFont(), fontCase: MarkupStyleFont.CaseStyle? = nil, paragraphStyle: MarkupStyleParagraphStyle = MarkupStyleParagraphStyle(), foregroundColor: MarkupStyleColor? = nil, backgroundColor: MarkupStyleColor? = nil, ligature: NSNumber? = nil, kern: NSNumber? = nil, tracking: NSNumber? = nil, strikethroughStyle: NSUnderlineStyle? = nil, underlineStyle: NSUnderlineStyle? = nil, strokeColor: MarkupStyleColor? = nil, strokeWidth: NSNumber? = nil, shadow: NSShadow? = nil, textEffect: NSAttributedString.TextEffectStyle? = nil, attachment: NSTextAttachment? = nil, link: URL? = nil, baselineOffset: NSNumber? = nil, underlineColor: MarkupStyleColor? = nil, strikethroughColor: MarkupStyleColor? = nil, obliqueness: NSNumber? = nil, expansion: NSNumber? = nil, writingDirection: NSArray? = nil, verticalGlyphForm: NSNumber? = nil, cursor: NSCursor? = nil, toolTip: String? = nil, markedClauseSegment: NSNumber? = nil, textAlternatives: NSTextAlternatives? = nil, spellingState: NSAttributedString.SpellingState? = nil, superscript: NSNumber? = nil, glyphInfo: NSGlyphInfo? = nil, listStyle: MarkupStyleListStyle? = nil) {
         self.font = font
         self.fontCase = fontCase
         self.paragraphStyle = paragraphStyle
@@ -267,6 +271,7 @@ public struct MarkupStyle {
         self.spellingState = spellingState
         self.superscript = superscript
         self.glyphInfo = glyphInfo
+        self.listStyle = listStyle
     }
     
     mutating func fillIfNil(from: MarkupStyle?) {
@@ -308,6 +313,7 @@ public struct MarkupStyle {
         self.spellingState = self.spellingState ?? from.spellingState
         self.superscript = self.superscript ?? from.superscript
         self.glyphInfo = self.glyphInfo ?? from.glyphInfo
+        self.listStyle = self.listStyle ?? from.listStyle
     }
     
     func render() -> [NSAttributedString.Key: Any] {
