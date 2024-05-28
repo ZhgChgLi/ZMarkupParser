@@ -67,7 +67,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         let rootMarkup = RootMarkup()
         let paragraphMarkup_1 = ParagraphMarkup()
         let paragraphMarkup_2 = ParagraphMarkup()
-        let listMarkup = ListMarkup(styleList: MarkupStyleList(type: .circle, format: "%@", indentSymobol: "\t", startingItemNumber: 1))
+        let listMarkup = ListMarkup(styleList: MarkupStyleList(type: .circle, startingItemNumber: 1))
         let listItemMarkup_1 = ListItemMarkup()
         listItemMarkup_1.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "11")))
         let listItemMarkup_2 = ListItemMarkup()
@@ -89,7 +89,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         
         let result = visitor.visit(rootMarkup).string
         
-        XCTAssertEqual(result, "◦11\n◦22\n22\n◦333\n\n", "Breakline reduce failed!")
+        XCTAssertEqual(result, "\t◦\t11\n\t◦\t22\n22\n\t◦\t333\n\n", "Breakline reduce failed!")
     }
     
     
