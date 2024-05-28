@@ -68,31 +68,14 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         // We don't set NSTextList to NSParagraphStyle directly, because NSTextList have abnormal extra spaces.
         // ref: https://stackoverflow.com/questions/66714650/nstextlist-formatting
         
-        var level = 0
-        var parentMarkup: Markup? = markup.parentMarkup as? ListMarkup
-        while (parentMarkup != nil) {
-            if parentMarkup is ListMarkup {
-                level += 1
-            }
-            parentMarkup = parentMarkup?.parentMarkup
-        }
-        let indent = String(repeating: "\t", count: level - 1)
-        
         if let parentMarkup = markup.parentMarkup as? ListMarkup {
             let thisAttributedString: NSMutableAttributedString
             if parentMarkup.styleList.type.isOrder() {
                 let siblingListItems = markup.parentMarkup?.childMarkups.filter({ $0 is ListItemMarkup }) ?? []
                 let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentMarkup.styleList.startingItemNumber
-                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:indent+parentMarkup.styleList.marker(forItemNumber: position)))
+                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: position)))
             } else {
-                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:indent+parentMarkup.styleList.marker(forItemNumber: parentMarkup.styleList.startingItemNumber)))
-            }
-            
-            // Since we use \t as an indentation character, the list text cannot contain \t, otherwise it will cause formatting issues, so we replace \t with spaces directly.
-            var tabRange = attributedString.mutableString.range(of: "\t", options: .caseInsensitive)
-            while tabRange.location != NSNotFound {
-                attributedString.replaceCharacters(in: tabRange, with: "        ") // the default width of a \t character is typically equivalent to 8 spaces
-                tabRange = attributedString.mutableString.range(of: "\t", options: .caseInsensitive)
+                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: parentMarkup.styleList.startingItemNumber)))
             }
             
             attributedString.insert(thisAttributedString, at: 0)
