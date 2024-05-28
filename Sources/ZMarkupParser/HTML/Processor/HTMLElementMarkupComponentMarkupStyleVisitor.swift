@@ -76,35 +76,27 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     
     func visit(_ markup: ListMarkup) -> Result {
         var style = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
-       
-        var level = 1
-        var parentMarkup: Markup? = markup.parentMarkup as? ListMarkup
-        while (parentMarkup != nil) {
-            if parentMarkup is ListMarkup {
-                level += 1
-            }
-            parentMarkup = parentMarkup?.parentMarkup
-        }
+        
         
         let headIndent = (style.font.size ?? 16) * markup.styleList.headIndentMultiply
         let indent = (style.font.size ?? 16) * markup.styleList.indentMultiply
-
-        style.paragraphStyle.headIndent = CGFloat(level) * (style.paragraphStyle.headIndent ?? indent) + headIndent + (indent * CGFloat(level))
+        let dotIndent: CGFloat = (markup.styleList.type.isOrder()) ? (indent) : (0) // for 1. -> "."
         
-        if style.paragraphStyle.tabStops == nil {
-            var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent)]
-            for i in 1...level {
-                let dotWidth: CGFloat
-                if markup.styleList.type.isOrder() {
-                    dotWidth = indent * CGFloat(i)
-                } else {
-                    dotWidth = 0
-                }
-                tabStops.append(.init(textAlignment: .left, location: CGFloat(i) * indent + headIndent + dotWidth))
+        var parentIndent: CGFloat = 0
+        var parentMarkup: Markup? = markup.parentMarkup
+        while (parentMarkup != nil) {
+            if let thisParentMarkup = parentMarkup as? ListMarkup {
+                parentIndent += visit(markup: thisParentMarkup)?.paragraphStyle.headIndent ?? 0
             }
-            style.paragraphStyle.tabStops = tabStops
+            parentMarkup = parentMarkup?.parentMarkup
         }
+
+        var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent + parentIndent)]
+        tabStops.append(.init(textAlignment: .left, location: headIndent + parentIndent + dotIndent + indent))
         
+        
+        style.paragraphStyle.tabStops = style.paragraphStyle.tabStops ?? tabStops
+        style.paragraphStyle.headIndent = style.paragraphStyle.headIndent ?? style.paragraphStyle.tabStops?.last?.location
         return style
     }
     
