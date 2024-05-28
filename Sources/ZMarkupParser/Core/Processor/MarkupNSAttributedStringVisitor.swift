@@ -76,7 +76,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
             }
             parentMarkup = parentMarkup?.parentMarkup
         }
-        let indent = String(repeating: " ", count: level)
+        let indent = String(repeating: "\t", count: level - 1)
         
         if let parentMarkup = markup.parentMarkup as? ListMarkup {
             let thisAttributedString: NSMutableAttributedString
@@ -87,6 +87,14 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
             } else {
                 thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:indent+parentMarkup.styleList.marker(forItemNumber: parentMarkup.styleList.startingItemNumber)))
             }
+            
+            // Since we use \t as an indentation character, the list text cannot contain \t, otherwise it will cause formatting issues, so we replace \t with spaces directly.
+            var tabRange = attributedString.mutableString.range(of: "\t", options: .caseInsensitive)
+            while tabRange.location != NSNotFound {
+                attributedString.replaceCharacters(in: tabRange, with: "        ") // the default width of a \t character is typically equivalent to 8 spaces
+                tabRange = attributedString.mutableString.range(of: "\t", options: .caseInsensitive)
+            }
+            
             attributedString.insert(thisAttributedString, at: 0)
             attributedString.markSuffixTagBoundaryBreakline()
         }

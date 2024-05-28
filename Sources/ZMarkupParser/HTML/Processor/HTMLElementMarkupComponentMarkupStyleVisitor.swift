@@ -6,6 +6,11 @@
 //
 
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 public enum MarkupStylePolicy {
     case respectMarkupStyleFromCode
@@ -70,7 +75,37 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ListMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        var style = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
+       
+        var level = 1
+        var parentMarkup: Markup? = markup.parentMarkup as? ListMarkup
+        while (parentMarkup != nil) {
+            if parentMarkup is ListMarkup {
+                level += 1
+            }
+            parentMarkup = parentMarkup?.parentMarkup
+        }
+        
+        let headIndent = (style.font.size ?? 16) * markup.styleList.headIndentMultiply
+        let indent = (style.font.size ?? 16) * markup.styleList.indentMultiply
+
+        style.paragraphStyle.headIndent = CGFloat(level) * (style.paragraphStyle.headIndent ?? indent) + headIndent + (indent * CGFloat(level))
+        
+        if style.paragraphStyle.tabStops == nil {
+            var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent)]
+            for i in 1...level {
+                let dotWidth: CGFloat
+                if markup.styleList.type.isOrder() {
+                    dotWidth = indent * CGFloat(i)
+                } else {
+                    dotWidth = 0
+                }
+                tabStops.append(.init(textAlignment: .left, location: CGFloat(i) * indent + headIndent + dotWidth))
+            }
+            style.paragraphStyle.tabStops = tabStops
+        }
+        
+        return style
     }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
