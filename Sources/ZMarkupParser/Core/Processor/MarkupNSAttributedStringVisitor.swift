@@ -76,9 +76,9 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
             }
             parentMarkup = parentMarkup?.parentMarkup
         }
-        let indent = String(repeating: " ", count: level)
         
         if let parentMarkup = markup.parentMarkup as? ListMarkup {
+            let indent = String(repeating: parentMarkup.styleList.indentSymobol, count: level - 1)
             let thisAttributedString: NSMutableAttributedString
             if parentMarkup.styleList.type.isOrder() {
                 let siblingListItems = markup.parentMarkup?.childMarkups.filter({ $0 is ListItemMarkup }) ?? []

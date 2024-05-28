@@ -6,6 +6,11 @@
 //
 
 import Foundation
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 public enum MarkupStylePolicy {
     case respectMarkupStyleFromCode
@@ -70,7 +75,31 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ListMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        var style = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
+       
+        var level = 1
+        var parentMarkup: Markup? = markup.parentMarkup as? ListMarkup
+        while (parentMarkup != nil) {
+            if parentMarkup is ListMarkup {
+                level += 1
+            }
+            parentMarkup = parentMarkup?.parentMarkup
+        }
+        
+        let base: CGFloat = 16
+        let headIndent = style.paragraphStyle.headIndent ?? base
+        
+        style.paragraphStyle.headIndent = CGFloat(level) * headIndent
+        
+        if style.paragraphStyle.tabStops == nil {
+            var tabStops: [NSTextTab] = []
+            for i in 1...level {
+                tabStops.append(.init(textAlignment: .left, location: CGFloat(i) * base))
+            }
+            style.paragraphStyle.tabStops = tabStops
+        }
+        
+        return style
     }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
