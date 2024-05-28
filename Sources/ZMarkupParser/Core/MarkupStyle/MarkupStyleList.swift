@@ -15,12 +15,14 @@ import AppKit
 public struct MarkupStyleList {
     let type: MarkupStyleType
     let format: String
+    let indentSymobol: String
     let startingItemNumber: Int
     
-    public init(type: MarkupStyleType, format: String, startingItemNumber: Int) {
+    public init(type: MarkupStyleType = .disc, format: String = "%@\t", indentSymobol: String = "\t", startingItemNumber: Int = 1) {
         self.type = type
         self.format = format
         self.startingItemNumber = startingItemNumber
+        self.indentSymobol = indentSymobol
     }
     
     func marker(forItemNumber: Int) -> String {
@@ -28,6 +30,7 @@ public struct MarkupStyleList {
     }
     
     public enum MarkupStyleType {
+        case custom(String)
         case octal
         case lowercaseAlpha
         case decimal
@@ -50,54 +53,87 @@ public struct MarkupStyleList {
             switch self {
             case .octal,.lowercaseAlpha,.decimal,.lowercaseHexadecimal,.lowercaseLatin,.lowercaseRoman,.uppercaseAlpha,.uppercaseLatin,.uppercaseRoman,.uppercaseHexadecimal:
                 return true
-            case .hyphen, .check, .circle, .disc, .diamond, .box, .square:
+            case .hyphen, .check, .circle, .disc, .diamond, .box, .square, .custom:
                 return false
             }
         }
         
         func marker(forItemNumber: Int, startingItemNumber: Int, format: String) -> String {
-            let textList = NSTextList(markerFormat: self.markerFormat(), options: 0)
-            textList.startingItemNumber = startingItemNumber
-            return String(format: format, textList.marker(forItemNumber: forItemNumber))
-        }
-        
-        private func markerFormat() -> NSTextList.MarkerFormat {
+            let string: String
             switch self {
             case .octal:
-                return .octal
+                let textList = NSTextList(markerFormat: .octal, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .lowercaseAlpha:
-                return .lowercaseAlpha
+                let textList = NSTextList(markerFormat: .lowercaseAlpha, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .decimal:
-                return .decimal
+                let textList = NSTextList(markerFormat: .decimal, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .lowercaseHexadecimal:
-                return .lowercaseHexadecimal
+                let textList = NSTextList(markerFormat: .lowercaseHexadecimal, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .lowercaseLatin:
-                return .lowercaseLatin
+                let textList = NSTextList(markerFormat: .lowercaseLatin, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .lowercaseRoman:
-                return .lowercaseRoman
+                let textList = NSTextList(markerFormat: .lowercaseRoman, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .uppercaseAlpha:
-                return .uppercaseAlpha
+                let textList = NSTextList(markerFormat: .uppercaseAlpha, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .uppercaseLatin:
-                return .uppercaseLatin
+                let textList = NSTextList(markerFormat: .uppercaseLatin, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .uppercaseRoman:
-                return .uppercaseRoman
+                let textList = NSTextList(markerFormat: .uppercaseRoman, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .uppercaseHexadecimal:
-                return .uppercaseHexadecimal
+                let textList = NSTextList(markerFormat: .uppercaseHexadecimal, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .hyphen:
-                return .hyphen
+                let textList = NSTextList(markerFormat: .hyphen, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .check:
-                return .check
+                let textList = NSTextList(markerFormat: .check, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .circle:
-                return .circle
+                let textList = NSTextList(markerFormat: .circle, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .disc:
-                return .disc
+                let textList = NSTextList(markerFormat: .disc, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .diamond:
-                return .diamond
+                let textList = NSTextList(markerFormat: .diamond, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .box:
-                return .box
+                let textList = NSTextList(markerFormat: .box, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
             case .square:
-                return .square
+                let textList = NSTextList(markerFormat: .square, options: 0)
+                textList.startingItemNumber = startingItemNumber
+                string = String(format: format, textList.marker(forItemNumber: forItemNumber))
+            case .custom(let symbol):
+                string = String(format: format, symbol)
             }
+            
+            return string
         }
     }
 
