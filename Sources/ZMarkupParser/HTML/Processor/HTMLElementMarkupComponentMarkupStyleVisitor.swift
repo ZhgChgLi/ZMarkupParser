@@ -86,15 +86,21 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
             parentMarkup = parentMarkup?.parentMarkup
         }
         
-        let base: CGFloat = 16
-        let headIndent = style.paragraphStyle.headIndent ?? base
-        
-        style.paragraphStyle.headIndent = CGFloat(level) * headIndent
+        let headIndent = (style.font.size ?? 16) * markup.styleList.headIndentMultiply
+        let indent = (style.font.size ?? 16) * markup.styleList.indentMultiply
+
+        style.paragraphStyle.headIndent = CGFloat(level) * (style.paragraphStyle.headIndent ?? indent) + headIndent + (indent * CGFloat(level))
         
         if style.paragraphStyle.tabStops == nil {
-            var tabStops: [NSTextTab] = []
+            var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent)]
             for i in 1...level {
-                tabStops.append(.init(textAlignment: .left, location: CGFloat(i) * base))
+                let dotWidth: CGFloat
+                if markup.styleList.type.isOrder() {
+                    dotWidth = indent * CGFloat(i)
+                } else {
+                    dotWidth = 0
+                }
+                tabStops.append(.init(textAlignment: .left, location: CGFloat(i) * indent + headIndent + dotWidth))
             }
             style.paragraphStyle.tabStops = tabStops
         }

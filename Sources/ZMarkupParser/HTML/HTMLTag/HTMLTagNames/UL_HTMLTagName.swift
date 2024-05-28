@@ -10,7 +10,7 @@ import Foundation
 public struct UL_HTMLTagName: HTMLTagName {
     public let string: String = WC3HTMLTagName.ul.rawValue
     public let listStyle: MarkupStyleList
-    public init(listStyle: MarkupStyleList = MarkupStyleList(type: .disc, format: "%@\t", indentSymobol: "\t", startingItemNumber: 1)) {
+    public init(listStyle: MarkupStyleList = MarkupStyleList(type: .disc, startingItemNumber: 1)) {
         self.listStyle = listStyle
     }
     
