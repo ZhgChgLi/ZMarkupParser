@@ -96,11 +96,12 @@ public final class ZHTMLParser {
     }
     
     public func stripper(_ attributedString: NSAttributedString) -> NSAttributedString {
-        let items = process(attributedString)
+        let stripedAttributedString = decodeHTMLEntities(attributedString)
+        let items = process(stripedAttributedString)
         let reuslt = htmlParsedResultToHTMLElementWithRootMarkupProcessor.process(from: items)
-        let attributedString = markupStripperProcessor.process(from: reuslt.markup)
+        let resultAttributedString = markupStripperProcessor.process(from: reuslt.markup)
         
-        return attributedString
+        return resultAttributedString
     }
     
     //
