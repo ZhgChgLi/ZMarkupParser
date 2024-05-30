@@ -254,6 +254,13 @@ Then, the `set(rootStyle: MarkupStyle)` method is called to specify the default 
 
 Finally, the `build()` method is called at the end to generate the parser object.
 
+
+#### Customized List Item Tag (`ul/ol`)
+```
+let parser = ZHTMLParserBuilder.initWithDefault().add(OL_HTMLTagName(), withCustomStyle: MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(textListStyleType: .circle, textListHeadIndent: 4, textListIndent: 8))).build()
+```
+![ZhgChgLi-2024-05-30_23-25-57](https://github.com/ZhgChgLi/ZMarkupParser/assets/33706588/6f4fe41d-4c22-4e3a-a6cd-967902a7d99d)
+
 #### Customized Tag Style/Extend Tag Name
 
 These code snippets demonstrate how to customize the style of a tag or extend the tag name:
