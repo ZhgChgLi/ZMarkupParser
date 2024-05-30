@@ -92,19 +92,17 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         }
         
         
-        
-        let thisAttributedString: NSMutableAttributedString
+        let string: String
         if listStyleType.isOrder() {
             let siblingListItems = parentListMarkup.childMarkups.filter({ $0 is ListItemMarkup })
             let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentListMarkup.startingItemNumber
-            let string = listStyleType.getString(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: position)
             
-            thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string: string, style: style))
+            string = String(format: listStyleType.getFormat(), listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: position))
         } else {
-            thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:listStyleType.getString(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: parentListMarkup.startingItemNumber), style: style))
+            string = String(format: listStyleType.getFormat(), listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: parentListMarkup.startingItemNumber))
         }
         
-        attributedString.insert(thisAttributedString, at: 0)
+        attributedString.insert(makeString(in: markup, string: string, style: style), at: 0)
         attributedString.markSuffixTagBoundaryBreakline()
         
         return attributedString

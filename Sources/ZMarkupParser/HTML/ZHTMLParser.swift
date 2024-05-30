@@ -33,7 +33,7 @@ public final class ZHTMLParser {
         self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle)
         
         self.htmlParsedResultToHTMLElementWithRootMarkupProcessor = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: htmlTags)
-        self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, policy: policy)
+        self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, policy: policy, rootStyle: rootStyle)
     }
     
     static let dispatchQueue: DispatchQueue = DispatchQueue(label: "ZHTMLParser.Queue")
