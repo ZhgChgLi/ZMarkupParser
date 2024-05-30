@@ -136,6 +136,8 @@ public struct MarkupStyleParagraphStyle: MarkupStyleItem {
         self.allowsDefaultTighteningForTruncation = self.allowsDefaultTighteningForTruncation ?? from?.allowsDefaultTighteningForTruncation
         self.lineBreakStrategy = self.lineBreakStrategy ?? from?.lineBreakStrategy
         self.textListStyleType = self.textListStyleType ?? from?.textListStyleType
+        self.textListIndent = self.textListIndent ?? from?.textListIndent
+        self.textListHeadIndent = self.textListHeadIndent ?? from?.textListHeadIndent
     }
     
     func isNil() -> Bool {

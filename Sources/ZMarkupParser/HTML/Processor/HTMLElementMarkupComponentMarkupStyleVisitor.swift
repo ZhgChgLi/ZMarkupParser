@@ -108,16 +108,17 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
             item = listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: parentListMarkup.startingItemNumber)
         }
         
+        let inheritStyle = collectMarkupStyle(markup, defaultStyle: defaultStyle) ?? defaultStyle
+        
         let headIndent: CGFloat
         if let parentIndent = parentIndent, parentIndent > 0 {
             headIndent = parentIndent
         } else {
-            headIndent = defaultStyle.paragraphStyle.textListHeadIndent ?? 4
+            headIndent = inheritStyle.paragraphStyle.textListHeadIndent ?? 4
         }
         
-        let indent = defaultStyle.paragraphStyle.textListIndent ?? 8
+        let indent = inheritStyle.paragraphStyle.textListIndent ?? 8
         
-        let inheritStyle = collectMarkupStyle(markup, defaultStyle: defaultStyle) ?? defaultStyle
         let itemWidth: CGFloat
         if inheritStyle.font.size != nil {
             itemWidth = inheritStyle.font.sizeOf(string: item)?.width ?? 4
