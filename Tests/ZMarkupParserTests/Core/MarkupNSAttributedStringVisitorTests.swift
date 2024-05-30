@@ -89,7 +89,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         
         let result = visitor.visit(rootMarkup).string
         
-        XCTAssertEqual(result, "\t◦\t11\n\t◦\t22\n22\n\t◦\t333\n\n", "Breakline reduce failed!")
+        XCTAssertEqual(result, "\t•\t11\n\t•\t22\n22\n\t•\t333\n\n", "Breakline reduce failed!")
     }
     
     

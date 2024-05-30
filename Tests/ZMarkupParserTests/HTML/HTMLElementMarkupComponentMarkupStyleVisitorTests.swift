@@ -12,7 +12,7 @@ import XCTest
 final class HTMLElementMarkupComponentMarkupStyleVisitorTests: XCTestCase {
 
     func testDefaultStyleByDefault() {
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [], styleAttributes: [])
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [], styleAttributes: [], rootStyle: nil)
         
         let result = visitor.visit(markup: HeadMarkup(level: .h1))
         XCTAssertEqual(result?.font.size, MarkupStyle.h1.font.size)
@@ -21,7 +21,7 @@ final class HTMLElementMarkupComponentMarkupStyleVisitorTests: XCTestCase {
     func testDefaultStyleByCustomStyle() {
         let markup = InlineMarkup()
         let customStyle = MarkupStyle(font: .init(size: 99))
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<span>test</span>"), attributes: [:]))], styleAttributes: [])
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<span>test</span>"), attributes: [:]))], styleAttributes: [], rootStyle: nil)
         
         let result = visitor.visit(markup: markup)
         XCTAssertEqual(result?.font.size, customStyle.font.size)
@@ -30,7 +30,7 @@ final class HTMLElementMarkupComponentMarkupStyleVisitorTests: XCTestCase {
     func testDefaultStyleShouldOverrideByCustomStyle() {
         let markup = HeadMarkup(level: .h1)
         let customStyle = MarkupStyle(font: .init(size: 99))
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: [:]))], styleAttributes: [])
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: [:]))], styleAttributes: [], rootStyle: nil)
         
         let result = visitor.visit(markup: markup)
         XCTAssertEqual(result?.font.size, customStyle.font.size)
@@ -38,7 +38,7 @@ final class HTMLElementMarkupComponentMarkupStyleVisitorTests: XCTestCase {
     
     func testDefaultStyleShouldOverrideByStyleAttributed() {
         let markup = HeadMarkup(level: .h1)
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName()), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: ["style": "font-size:99pt"]))], styleAttributes: [FontSizeHTMLTagStyleAttribute()])
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName()), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: ["style": "font-size:99pt"]))], styleAttributes: [FontSizeHTMLTagStyleAttribute()], rootStyle: nil)
         
         let result = visitor.visit(markup: markup)
         XCTAssertEqual(result?.font.size, 99)
@@ -47,7 +47,7 @@ final class HTMLElementMarkupComponentMarkupStyleVisitorTests: XCTestCase {
     func testDefaultStylePolicyRespectMarkupStyleFromCode() {
         let markup = HeadMarkup(level: .h1)
         let customStyle = MarkupStyle(font: .init(size: 109))
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: ["style": "font-size:99pt"]))], styleAttributes: [FontSizeHTMLTagStyleAttribute()])
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromCode, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: ["style": "font-size:99pt"]))], styleAttributes: [FontSizeHTMLTagStyleAttribute()], rootStyle: nil)
         
         let result = visitor.visit(markup: markup)
         XCTAssertEqual(result?.font.size, customStyle.font.size)
@@ -56,7 +56,7 @@ final class HTMLElementMarkupComponentMarkupStyleVisitorTests: XCTestCase {
     func testDefaultStylePolicyRespectMarkupStyleFromHTMLStyleAttribute() {
         let markup = HeadMarkup(level: .h1)
         let customStyle = MarkupStyle(font: .init(size: 109))
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromHTMLStyleAttribute, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: ["style": "font-size:99pt"]))], styleAttributes: [FontSizeHTMLTagStyleAttribute()])
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: .respectMarkupStyleFromHTMLStyleAttribute, components: [.init(markup: markup, value: .init(tag: .init(tagName: H1_HTMLTagName(), customStyle: customStyle), tagAttributedString: NSAttributedString(string: "<h1>test</h1>"), attributes: ["style": "font-size:99pt"]))], styleAttributes: [FontSizeHTMLTagStyleAttribute()], rootStyle: nil)
         
         let result = visitor.visit(markup: markup)
         XCTAssertEqual(result?.font.size, 99)
