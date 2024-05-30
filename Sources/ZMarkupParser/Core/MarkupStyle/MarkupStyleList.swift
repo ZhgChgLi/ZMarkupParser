@@ -12,7 +12,7 @@ import UIKit
 import AppKit
 #endif
 
-public enum MarkupStyleType: String {
+public enum MarkupStyleType {
     case octal
     case lowercaseAlpha
     case decimal
@@ -30,6 +30,7 @@ public enum MarkupStyleType: String {
     case diamond
     case box
     case square
+    case custom(String)
     
     public init?(format: NSTextList.MarkerFormat) {
         switch format {
@@ -76,60 +77,89 @@ public enum MarkupStyleType: String {
         switch self {
         case .octal,.lowercaseAlpha,.decimal,.lowercaseHexadecimal,.lowercaseLatin,.lowercaseRoman,.uppercaseAlpha,.uppercaseLatin,.uppercaseRoman,.uppercaseHexadecimal:
             return true
-        case .hyphen, .check, .circle, .disc, .diamond, .box, .square:
+        case .hyphen, .check, .circle, .disc, .diamond, .box, .square, .custom:
             return false
         }
     }
     
-    func getString(startingItemNumber: Int, forItemNumber: Int) -> String {
+    func getItem(startingItemNumber: Int, forItemNumber: Int) -> String {
         // We only NSTextList to generate symbol, because NSTextList have abnormal extra spaces.
         // ref: https://stackoverflow.com/questions/66714650/nstextlist-formatting
-        let textList: NSTextList = NSTextList(markerFormat: self.getMarkerFormat(), options: 0)
-        textList.startingItemNumber = startingItemNumber
-       
-        return String(format: self.getFormat(), textList.marker(forItemNumber: forItemNumber))
+        switch self {
+        case .octal:
+            let textList = NSTextList(markerFormat: .octal, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .lowercaseAlpha:
+            let textList = NSTextList(markerFormat: .lowercaseAlpha, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .decimal:
+            let textList = NSTextList(markerFormat: .decimal, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .lowercaseHexadecimal:
+            let textList = NSTextList(markerFormat: .lowercaseHexadecimal, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .lowercaseLatin:
+            let textList = NSTextList(markerFormat: .lowercaseLatin, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .lowercaseRoman:
+            let textList = NSTextList(markerFormat: .lowercaseRoman, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .uppercaseAlpha:
+            let textList = NSTextList(markerFormat: .uppercaseAlpha, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .uppercaseLatin:
+            let textList = NSTextList(markerFormat: .uppercaseLatin, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .uppercaseRoman:
+            let textList = NSTextList(markerFormat: .uppercaseRoman, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .uppercaseHexadecimal:
+            let textList = NSTextList(markerFormat: .uppercaseHexadecimal, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .hyphen:
+            let textList = NSTextList(markerFormat: .hyphen, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .check:
+            let textList = NSTextList(markerFormat: .check, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .circle:
+            let textList = NSTextList(markerFormat: .circle, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .disc:
+            let textList = NSTextList(markerFormat: .disc, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .diamond:
+            let textList = NSTextList(markerFormat: .diamond, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .box:
+            let textList = NSTextList(markerFormat: .box, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .square:
+            let textList = NSTextList(markerFormat: .square, options: 0)
+            textList.startingItemNumber = startingItemNumber
+            return textList.marker(forItemNumber: forItemNumber)
+        case .custom(let custom):
+            return custom
+        }
     }
     
     func getFormat() -> String {
         return (isOrder()) ? ("\t%@.\t") : ("\t%@\t")
-    }
-    
-    func getMarkerFormat() -> NSTextList.MarkerFormat {
-        switch self {
-        case .octal:
-            return .octal
-        case .lowercaseAlpha:
-            return .lowercaseAlpha
-        case .decimal:
-            return .decimal
-        case .lowercaseHexadecimal:
-            return .lowercaseHexadecimal
-        case .lowercaseLatin:
-            return .lowercaseLatin
-        case .lowercaseRoman:
-            return .lowercaseRoman
-        case .uppercaseAlpha:
-            return .uppercaseAlpha
-        case .uppercaseLatin:
-            return .uppercaseLatin
-        case .uppercaseRoman:
-            return .uppercaseRoman
-        case .uppercaseHexadecimal:
-            return .uppercaseHexadecimal
-        case .hyphen:
-            return .hyphen
-        case .check:
-            return .check
-        case .circle:
-            return .circle
-        case .disc:
-            return .disc
-        case .diamond:
-            return .diamond
-        case .box:
-            return .box
-        case .square:
-            return .square
-        }
     }
 }
