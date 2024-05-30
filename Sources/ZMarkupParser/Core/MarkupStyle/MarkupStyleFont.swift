@@ -122,6 +122,14 @@ public struct MarkupStyleFont: MarkupStyleItem {
                  italic,
                  familyName] as [Any?]).contains(where: { $0 != nil})
     }
+    
+    func sizeOf(string: String) -> CGSize? {
+        guard let font = getFont() else {
+            return nil
+        }
+        
+        return (string as NSString).size(withAttributes: [.font: font])
+    }
 }
 
 #if canImport(UIKit)

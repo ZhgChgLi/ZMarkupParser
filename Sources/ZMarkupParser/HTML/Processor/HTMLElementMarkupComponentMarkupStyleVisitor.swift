@@ -24,6 +24,7 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     let policy: MarkupStylePolicy
     let components: [HTMLElementMarkupComponent]
     let styleAttributes: [HTMLTagStyleAttribute]
+    let rootStyle: MarkupStyle?
     
     func visit(_ markup: RootMarkup) -> Result {
         return nil
@@ -70,35 +71,68 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         return markupStyle
     }
     
-    func visit(_ markup: ListItemMarkup) -> Result {
+    func visit(_ markup: ListMarkup) -> Result {
         return defaultVisit(components.value(markup: markup))
     }
     
-    func visit(_ markup: ListMarkup) -> Result {
-        var style = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
+    func visit(_ markup: ListItemMarkup) -> Result {
+        var defaultStyle = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
         
-        
-        let headIndent = (style.font.size ?? 16) * markup.styleList.headIndentMultiply
-        let indent = (style.font.size ?? 16) * markup.styleList.indentMultiply
-        let dotIndent: CGFloat = (markup.styleList.type.isOrder()) ? (indent) : (0) // for 1. -> "."
-        
-        // Find Parent Indent if exists.
-        var parentIndent: CGFloat = 0
-        var parentMarkup: Markup? = markup.parentMarkup
-        while (parentMarkup != nil) {
-            if let thisParentMarkup = parentMarkup as? ListMarkup {
-                parentIndent = visit(markup: thisParentMarkup)?.paragraphStyle.headIndent ?? 0
-                break
+        var currentMarkup: Markup? = markup.parentMarkup
+        var parentListMarkup: ListMarkup?
+        var parentIndent: CGFloat?
+        var listStyleType: MarkupStyleType = .disc
+        while let thisMarkup = currentMarkup {
+            if parentListMarkup == nil, let listMarkup = thisMarkup as? ListMarkup {
+                // my parent
+                parentListMarkup = listMarkup
+                listStyleType = visit(listMarkup)?.paragraphStyle.textListStyleType ?? .disc
+            } else if parentIndent == nil, let listItemMarkup = thisMarkup as? ListItemMarkup {
+                // my grand list item e.g. <ol><li>Grand<ol><li>You</li></ol></li></ol>
+                parentIndent = visit(markup: listItemMarkup)?.paragraphStyle.headIndent ?? 0
             }
-            parentMarkup = parentMarkup?.parentMarkup
+            currentMarkup = currentMarkup?.parentMarkup
         }
-
-        var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent + parentIndent)]
-        tabStops.append(.init(textAlignment: .left, location: headIndent + parentIndent + dotIndent + indent))
         
-        style.paragraphStyle.tabStops = style.paragraphStyle.tabStops ?? tabStops
-        style.paragraphStyle.headIndent = style.paragraphStyle.headIndent ?? style.paragraphStyle.tabStops?.last?.location
-        return style
+        guard let parentListMarkup = parentListMarkup else {
+            return defaultStyle
+        }
+        
+        
+        let item: String
+        if listStyleType.isOrder() {
+            let siblingListItems = parentListMarkup.childMarkups.filter({ $0 is ListItemMarkup })
+            let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentListMarkup.startingItemNumber
+            item = listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: position)
+        } else {
+            item = listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: parentListMarkup.startingItemNumber)
+        }
+        
+        let inheritStyle = collectMarkupStyle(markup, defaultStyle: defaultStyle) ?? defaultStyle
+        
+        let headIndent: CGFloat
+        if let parentIndent = parentIndent, parentIndent > 0 {
+            headIndent = parentIndent
+        } else {
+            headIndent = inheritStyle.paragraphStyle.textListHeadIndent ?? 4
+        }
+        
+        let indent = inheritStyle.paragraphStyle.textListIndent ?? 8
+        
+        let itemWidth: CGFloat
+        if inheritStyle.font.size != nil {
+            itemWidth = inheritStyle.font.sizeOf(string: item)?.width ?? 4
+        } else {
+            itemWidth = MarkupStyle.default.font.sizeOf(string: item)?.width ?? 4
+        }
+        
+        var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent)]
+        tabStops.append(.init(textAlignment: .left, location: headIndent + itemWidth + indent))
+        
+        defaultStyle.paragraphStyle.tabStops = defaultStyle.paragraphStyle.tabStops ?? tabStops
+        defaultStyle.paragraphStyle.headIndent = defaultStyle.paragraphStyle.headIndent ?? defaultStyle.paragraphStyle.tabStops?.last?.location
+        
+        return defaultStyle
     }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
@@ -169,6 +203,37 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
             return nil
         }
         return customStyle
+    }
+    
+    private func collectMarkupStyle(_ markup: Markup, defaultStyle: MarkupStyle? = nil) -> MarkupStyle? {
+        // collect from upstream
+        // String("Test") -> Bold -> Italic -> Root
+        // Result: style: Bold+Italic
+        
+        var currentMarkup: Markup? = markup.parentMarkup
+        var currentStyle = defaultStyle
+        while let thisMarkup = currentMarkup {
+            guard let thisMarkupStyle = visit(markup: thisMarkup) else {
+                currentMarkup = thisMarkup.parentMarkup
+                continue
+            }
+
+            if var thisCurrentStyle = currentStyle {
+                thisCurrentStyle.fillIfNil(from: thisMarkupStyle)
+                currentStyle = thisCurrentStyle
+            } else {
+                currentStyle = thisMarkupStyle
+            }
+
+            currentMarkup = thisMarkup.parentMarkup
+        }
+        
+        if var currentStyle = currentStyle {
+            currentStyle.fillIfNil(from: rootStyle)
+            return currentStyle
+        } else {
+            return rootStyle
+        }
     }
     
     func defaultVisit(_ htmlElement: HTMLElementMarkupComponent.HTMLElement?, defaultStyle: MarkupStyle? = nil) -> Result {

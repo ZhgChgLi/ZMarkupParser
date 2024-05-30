@@ -20,8 +20,8 @@ public final class ZHTMLParserBuilder {
     
     public static func initWithDefault() -> Self {
         var builder = Self.init()
-        for htmlTagName in ZHTMLParserBuilder.htmlTagNames {
-            builder = builder.add(htmlTagName)
+        for (htmlTagName, customStyle) in ZHTMLParserBuilder.htmlTagNames {
+            builder = builder.add(htmlTagName, withCustomStyle: customStyle)
         }
         for styleAttribute in ZHTMLParserBuilder.styleAttributes {
             builder = builder.add(styleAttribute)

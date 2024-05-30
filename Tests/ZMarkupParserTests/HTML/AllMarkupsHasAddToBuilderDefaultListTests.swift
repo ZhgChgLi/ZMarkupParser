@@ -13,7 +13,7 @@ final class AllMarkupsHasAddToBuilderDefaultListTests: XCTestCase {
     func testCheckDefaultList() {
         let visitor = StubVisitor()
         ZHTMLParserBuilder.htmlTagNames.forEach { tagName in
-            let _ = visitor.visit(tagName: tagName)
+            let _ = visitor.visit(tagName: tagName.0)
         }
 
         XCTAssertEqual(visitor.count, 31, "Must added new pre-defined HTMLTagName to ZHTMLParserBuilder.htmlTagNames")

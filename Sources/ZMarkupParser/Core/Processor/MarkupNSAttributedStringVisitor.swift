@@ -21,7 +21,8 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: BreakLineMarkup) -> Result {
-        return makeString(in: markup, string: Self.breakLineSymbol, attributes: [.breaklinePlaceholder: NSAttributedString.Key.BreaklinePlaceholder.breaklineTag])
+        let style = collectMarkupStyle(markup)
+        return makeString(in: markup, string: Self.breakLineSymbol, attributes: [.breaklinePlaceholder: NSAttributedString.Key.BreaklinePlaceholder.breaklineTag], style: style)
     }
     
     func visit(_ markup: RawStringMarkup) -> Result {
@@ -38,7 +39,8 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: HorizontalLineMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        let thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string: String(repeating: "-", count: markup.dashLength)))
+        let style = collectMarkupStyle(markup)
+        let thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string: String(repeating: "-", count: markup.dashLength), style: style))
         thisAttributedString.markPrefixTagBoundaryBreakline()
         thisAttributedString.markSuffixTagBoundaryBreakline()
         
@@ -64,23 +66,44 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: ListItemMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
+        let style = collectMarkupStyle(markup)
         
         // We don't set NSTextList to NSParagraphStyle directly, because NSTextList have abnormal extra spaces.
         // ref: https://stackoverflow.com/questions/66714650/nstextlist-formatting
         
-        if let parentMarkup = markup.parentMarkup as? ListMarkup {
-            let thisAttributedString: NSMutableAttributedString
-            if parentMarkup.styleList.type.isOrder() {
-                let siblingListItems = markup.parentMarkup?.childMarkups.filter({ $0 is ListItemMarkup }) ?? []
-                let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentMarkup.styleList.startingItemNumber
-                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: position)))
-            } else {
-                thisAttributedString = NSMutableAttributedString(attributedString: makeString(in: markup, string:parentMarkup.styleList.marker(forItemNumber: parentMarkup.styleList.startingItemNumber)))
+        var parentListMarkup: ListMarkup?
+        var listStyleType: MarkupStyleType = .disc
+        var currentMarkup: Markup? = markup.parentMarkup
+        
+        while let thisMarkup = currentMarkup {
+            if let listMarkup = thisMarkup as? ListMarkup {
+                parentListMarkup = listMarkup
+                if let textListStyleType = components.value(markup: thisMarkup)?.paragraphStyle.textListStyleType {
+                    listStyleType = textListStyleType
+                }
+                break
             }
             
-            attributedString.insert(thisAttributedString, at: 0)
-            attributedString.markSuffixTagBoundaryBreakline()
+            currentMarkup = currentMarkup?.parentMarkup
         }
+        
+        guard let parentListMarkup = parentListMarkup else {
+            return attributedString
+        }
+        
+        
+        let string: String
+        if listStyleType.isOrder() {
+            let siblingListItems = parentListMarkup.childMarkups.filter({ $0 is ListItemMarkup })
+            let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentListMarkup.startingItemNumber
+            
+            string = String(format: listStyleType.getFormat(), listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: position))
+        } else {
+            string = String(format: listStyleType.getFormat(), listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: parentListMarkup.startingItemNumber))
+        }
+        
+        attributedString.insert(makeString(in: markup, string: string, style: style), at: 0)
+        attributedString.markSuffixTagBoundaryBreakline()
         
         return attributedString
     }
@@ -115,6 +138,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         let attributedString = collectAttributedString(markup)
         let siblingColumns = markup.parentMarkup?.childMarkups.filter({ $0 is TableColumnMarkup }) ?? []
         let position = (siblingColumns.firstIndex(where: { $0 === markup }) ?? 0)
+        let style = collectMarkupStyle(markup)
         
         var maxLength: Int? = markup.fixedMaxLength
         if maxLength == nil {
@@ -138,7 +162,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         }
         
         if position < siblingColumns.count - 1 {
-            attributedString.append(makeString(in: markup, string: String(repeating: " ", count: markup.spacing)))
+            attributedString.append(makeString(in: markup, string: String(repeating: " ", count: markup.spacing), style: style))
         }
         
         return attributedString
@@ -257,14 +281,14 @@ extension MarkupNSAttributedStringVisitor {
         return mutableAttributedString
     }
     
-    func makeString(in markup: Markup, string: String, attributes attrs: [NSAttributedString.Key : Any]? = nil) -> NSAttributedString {
+    func makeString(in markup: Markup, string: String, attributes attrs: [NSAttributedString.Key : Any]? = nil, style: MarkupStyle?) -> NSAttributedString {
         let attributedString: NSAttributedString
         if let attrs = attrs, !attrs.isEmpty {
             attributedString = NSAttributedString(string: string, attributes: attrs)
         } else {
             attributedString = NSAttributedString(string: string)
         }
-        return applyMarkupStyle(attributedString, with: collectMarkupStyle(markup))
+        return applyMarkupStyle(attributedString, with: style)
     }
 }
 

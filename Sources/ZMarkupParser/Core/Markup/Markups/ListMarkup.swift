@@ -11,9 +11,9 @@ final class ListMarkup: Markup {
     weak var parentMarkup: Markup? = nil
     var childMarkups: [Markup] = []
     
-    let styleList: MarkupStyleList
-    init(styleList: MarkupStyleList) {
-        self.styleList = styleList
+    let startingItemNumber: Int
+    init(startingItemNumber: Int = 1) {
+        self.startingItemNumber = startingItemNumber
     }
     
     func accept<V>(_ visitor: V) -> V.Result where V : MarkupVisitor {

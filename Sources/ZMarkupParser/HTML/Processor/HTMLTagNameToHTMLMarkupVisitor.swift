@@ -58,7 +58,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: OL_HTMLTagName) -> Result {
-        return ListMarkup(styleList: tagName.listStyle)
+        return ListMarkup(startingItemNumber: tagName.startingItemNumber)
     }
     
     func visit(_ tagName: P_HTMLTagName) -> Result {
@@ -90,7 +90,7 @@ struct HTMLTagNameToMarkupVisitor: HTMLTagNameVisitor {
     }
     
     func visit(_ tagName: UL_HTMLTagName) -> Result {
-        return ListMarkup(styleList: tagName.listStyle)
+        return ListMarkup(startingItemNumber: tagName.startingItemNumber)
     }
     
     func visit(_ tagName: DEL_HTMLTagName) -> Result {

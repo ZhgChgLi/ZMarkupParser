@@ -11,7 +11,7 @@ import XCTest
 
 final class HTMLParsedResultToHTMLElementWithRootMarkupProcessorTests: XCTestCase {
     func testProcessor() {
-        let result = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: ZHTMLParserBuilder.htmlTagNames.map({ HTMLTag(tagName: $0) })).process(from: [
+        let result = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: ZHTMLParserBuilder.htmlTagNames.map({ HTMLTag(tagName: $0.0) })).process(from: [
             .rawString(NSAttributedString(string: "Hello")),
             .start(.init(tagName: "i", tagAttributedString: NSAttributedString(string: "<i>"), attributes: nil)),
             .rawString(NSAttributedString(string: "Test")),
