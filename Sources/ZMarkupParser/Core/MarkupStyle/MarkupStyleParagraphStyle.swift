@@ -33,7 +33,12 @@ public struct MarkupStyleParagraphStyle: MarkupStyleItem {
     public var allowsDefaultTighteningForTruncation:Bool? = nil
     public var lineBreakStrategy: NSParagraphStyle.LineBreakStrategy? = nil
     
-    public init(lineSpacing: CGFloat? = nil, paragraphSpacing: CGFloat? = nil, alignment: NSTextAlignment? = nil, headIndent: CGFloat? = nil, tailIndent: CGFloat? = nil, firstLineHeadIndent: CGFloat? = nil, minimumLineHeight: CGFloat? = nil, maximumLineHeight: CGFloat? = nil, lineBreakMode: NSLineBreakMode? = nil, baseWritingDirection: NSWritingDirection? = nil, lineHeightMultiple: CGFloat? = nil, paragraphSpacingBefore: CGFloat? = nil, hyphenationFactor: Float? = nil, usesDefaultHyphenation: Bool? = nil, tabStops: [NSTextTab]? = nil, defaultTabInterval: CGFloat? = nil, textLists: [NSTextList]? = nil, allowsDefaultTighteningForTruncation: Bool? = nil, lineBreakStrategy: NSParagraphStyle.LineBreakStrategy? = nil) {
+    public var textListStyleType: MarkupStyleType? = nil
+    public var textListHeadIndent: CGFloat? = nil
+    public var textListIndent: CGFloat? = nil
+    
+    
+    public init(lineSpacing: CGFloat? = nil, paragraphSpacing: CGFloat? = nil, alignment: NSTextAlignment? = nil, headIndent: CGFloat? = nil, tailIndent: CGFloat? = nil, firstLineHeadIndent: CGFloat? = nil, minimumLineHeight: CGFloat? = nil, maximumLineHeight: CGFloat? = nil, lineBreakMode: NSLineBreakMode? = nil, baseWritingDirection: NSWritingDirection? = nil, lineHeightMultiple: CGFloat? = nil, paragraphSpacingBefore: CGFloat? = nil, hyphenationFactor: Float? = nil, usesDefaultHyphenation: Bool? = nil, tabStops: [NSTextTab]? = nil, defaultTabInterval: CGFloat? = nil, textLists: [NSTextList]? = nil, allowsDefaultTighteningForTruncation: Bool? = nil, lineBreakStrategy: NSParagraphStyle.LineBreakStrategy? = nil, textListStyleType: MarkupStyleType? = nil, textListHeadIndent: CGFloat? = nil, textListIndent: CGFloat? = nil) {
         self.lineSpacing = lineSpacing
         self.paragraphSpacing = paragraphSpacing
         self.alignment = alignment
@@ -53,6 +58,10 @@ public struct MarkupStyleParagraphStyle: MarkupStyleItem {
         self.textLists = textLists
         self.allowsDefaultTighteningForTruncation = allowsDefaultTighteningForTruncation
         self.lineBreakStrategy = lineBreakStrategy
+        
+        self.textListStyleType = textListStyleType
+        self.textListHeadIndent = textListHeadIndent
+        self.textListIndent = textListIndent
     }
     
     public init(_ paragraphStyle: NSParagraphStyle) {
@@ -87,6 +96,12 @@ public struct MarkupStyleParagraphStyle: MarkupStyleItem {
         self.textLists = paragraphStyle.textLists
         self.allowsDefaultTighteningForTruncation = paragraphStyle.allowsDefaultTighteningForTruncation
         self.lineBreakStrategy = paragraphStyle.lineBreakStrategy
+        
+        if let firstTextListMarkerFromat = paragraphStyle.textLists.first?.markerFormat {
+            self.textListStyleType = .init(format: firstTextListMarkerFromat)
+        } else {
+            self.textListStyleType = nil
+        }
     }
 
     mutating func fillIfNil(from: MarkupStyleParagraphStyle?) {
@@ -120,6 +135,7 @@ public struct MarkupStyleParagraphStyle: MarkupStyleItem {
         
         self.allowsDefaultTighteningForTruncation = self.allowsDefaultTighteningForTruncation ?? from?.allowsDefaultTighteningForTruncation
         self.lineBreakStrategy = self.lineBreakStrategy ?? from?.lineBreakStrategy
+        self.textListStyleType = self.textListStyleType ?? from?.textListStyleType
     }
     
     func isNil() -> Bool {
@@ -141,7 +157,10 @@ public struct MarkupStyleParagraphStyle: MarkupStyleItem {
                  defaultTabInterval,
                  textLists,
                  allowsDefaultTighteningForTruncation,
-                 lineBreakStrategy] as [Any?]).contains(where: { $0 != nil})
+                 lineBreakStrategy,
+                 textListStyleType,
+                 textListIndent,
+                 textListHeadIndent] as [Any?]).contains(where: { $0 != nil})
     }
 }
 

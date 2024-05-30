@@ -70,36 +70,74 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         return markupStyle
     }
     
-    func visit(_ markup: ListItemMarkup) -> Result {
+    func visit(_ markup: ListMarkup) -> Result {
         return defaultVisit(components.value(markup: markup))
     }
     
-    func visit(_ markup: ListMarkup) -> Result {
+    func visit(_ markup: ListItemMarkup) -> Result {
         var style = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
         
+        var parentListMarkup: ListMarkup?
+        var currentMarkup: Markup? = markup.parentMarkup
         
-        let headIndent = (style.font.size ?? 16) * markup.styleList.headIndentMultiply
-        let indent = (style.font.size ?? 16) * markup.styleList.indentMultiply
-        let dotIndent: CGFloat = (markup.styleList.type.isOrder()) ? (indent) : (0) // for 1. -> "."
-        
-        // Find Parent Indent if exists.
-        var parentIndent: CGFloat = 0
-        var parentMarkup: Markup? = markup.parentMarkup
-        while (parentMarkup != nil) {
-            if let thisParentMarkup = parentMarkup as? ListMarkup {
-                parentIndent = visit(markup: thisParentMarkup)?.paragraphStyle.headIndent ?? 0
-                break
+        while let thisMarkup = currentMarkup {
+            if parentListMarkup == nil,
+               let listMarkup = thisMarkup as? ListMarkup {
+                parentListMarkup = listMarkup
             }
-            parentMarkup = parentMarkup?.parentMarkup
+            style.fillIfNil(from: visit(markup: thisMarkup))
+            currentMarkup = currentMarkup?.parentMarkup
         }
-
-        var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent + parentIndent)]
-        tabStops.append(.init(textAlignment: .left, location: headIndent + parentIndent + dotIndent + indent))
         
-        style.paragraphStyle.tabStops = style.paragraphStyle.tabStops ?? tabStops
-        style.paragraphStyle.headIndent = style.paragraphStyle.headIndent ?? style.paragraphStyle.tabStops?.last?.location
+        guard let parentListMarkup = parentListMarkup else {
+            return style
+        }
+        
+        let listStyleType = style.paragraphStyle.textListStyleType ?? .disc
+        let size: CGFloat
+        if listStyleType.isOrder() {
+            let siblingListItems = parentListMarkup.childMarkups.filter({ $0 is ListItemMarkup })
+            let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentListMarkup.startingItemNumber
+            let string = listStyleType.getString(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: position)
+            size = style.font.sizeOf(string: string)?.width ?? 4
+        } else {
+            let string = listStyleType.getString(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: parentListMarkup.startingItemNumber)
+            size = style.font.sizeOf(string: string)?.width ?? 4
+        }
+        
+        
+        
         return style
     }
+    
+//    func visit2(_ markup: ListMarkup) -> Result {
+//        var style = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
+//        
+//        print(MarkupStyleFont(size: 12).sizeOf(string: ".")?.width)
+//        
+//        let type = style.paragraphStyle.textListStyleType ?? .disc
+//        let headIndent = (style.font.size ?? 16) * (markup.styleList.customHeadIndentMultiply ?? type.defaultHeadIndentMultiply())
+//        let indent = (style.font.size ?? 16) * (markup.styleList.customIndentMultiply ?? type.defaultIndentMultiply())
+//        let dotIndent: CGFloat = (type.isOrder()) ? (indent) : (0) // for 1. -> "."
+//        
+//        // Find Parent Indent if exists.
+//        var parentIndent: CGFloat = 0
+//        var parentMarkup: Markup? = markup.parentMarkup
+//        while (parentMarkup != nil) {
+//            if let thisParentMarkup = parentMarkup as? ListMarkup {
+//                parentIndent = visit(markup: thisParentMarkup)?.paragraphStyle.headIndent ?? 0
+//                break
+//            }
+//            parentMarkup = parentMarkup?.parentMarkup
+//        }
+//
+//        var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent + parentIndent)]
+//        tabStops.append(.init(textAlignment: .left, location: headIndent + parentIndent + dotIndent + indent))
+//        
+//        style.paragraphStyle.tabStops = style.paragraphStyle.tabStops ?? tabStops
+//        style.paragraphStyle.headIndent = style.paragraphStyle.headIndent ?? style.paragraphStyle.tabStops?.last?.location
+//        return style
+//    }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
         return defaultVisit(components.value(markup: markup))

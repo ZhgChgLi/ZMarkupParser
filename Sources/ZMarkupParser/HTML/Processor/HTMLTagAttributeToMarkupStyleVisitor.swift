@@ -13,6 +13,7 @@ import AppKit
 #endif
 
 struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
+
     typealias Result = MarkupStyle?
     
     let value: String
@@ -38,6 +39,35 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
     func visit(_ styleAttribute: FontSizeHTMLTagStyleAttribute) -> Result {
         guard let size = self.convert(fromPX: value) else { return nil }
         return MarkupStyle(font: MarkupStyleFont(size: CGFloat(size)))
+    }
+    
+    func visit(_ styleAttribute: ListStyleTypeHTMLTagStyleAttribute) -> MarkupStyle? {
+        let type: MarkupStyleType
+        switch value {
+        case "disc":
+            type = .disc
+        case "square":
+            type = .square
+        case "circle":
+            type = .circle
+        case "decimal", "decimal-leading-zero":
+            type = .decimal
+        case "lower-alpha", "lower-greek":
+            type = .lowercaseAlpha
+        case "lower-latin":
+            type = .lowercaseLatin
+        case "lower-roman":
+            type = .lowercaseRoman
+        case "upper-alpha", "upper-greek":
+            type = .uppercaseAlpha
+        case "upper-latin":
+            type = .uppercaseLatin
+        case "upper-roman":
+            type = .uppercaseRoman
+        default:
+            type = .decimal
+        }
+        return MarkupStyle(paragraphStyle: MarkupStyleParagraphStyle(textListStyleType: type))
     }
     
     func visit(_ styleAttribute: FontWeightHTMLTagStyleAttribute) -> Result {

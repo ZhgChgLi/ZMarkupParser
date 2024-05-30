@@ -67,7 +67,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         let rootMarkup = RootMarkup()
         let paragraphMarkup_1 = ParagraphMarkup()
         let paragraphMarkup_2 = ParagraphMarkup()
-        let listMarkup = ListMarkup(styleList: MarkupStyleList(type: .circle, startingItemNumber: 1))
+        let listMarkup = ListMarkup(startingItemNumber: 1)
         let listItemMarkup_1 = ListItemMarkup()
         listItemMarkup_1.appendChild(markup: RawStringMarkup(attributedString: NSAttributedString(string: "11")))
         let listItemMarkup_2 = ListItemMarkup()
