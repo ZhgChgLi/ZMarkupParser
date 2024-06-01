@@ -123,12 +123,13 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         if inheritStyle.font.size != nil {
             itemWidth = inheritStyle.font.sizeOf(string: item)?.width ?? 4
         } else {
-            itemWidth = MarkupStyle.default.font.sizeOf(string: item)?.width ?? 4
+            itemWidth = ceil(MarkupStyle.default.font.sizeOf(string: item)?.width ?? 4)
         }
         
         var tabStops: [NSTextTab] = [.init(textAlignment: .left, location: headIndent)]
         tabStops.append(.init(textAlignment: .left, location: headIndent + itemWidth + indent))
         
+        defaultStyle.paragraphStyle.defaultTabInterval = defaultStyle.paragraphStyle.defaultTabInterval ?? 28
         defaultStyle.paragraphStyle.tabStops = defaultStyle.paragraphStyle.tabStops ?? tabStops
         defaultStyle.paragraphStyle.headIndent = defaultStyle.paragraphStyle.headIndent ?? defaultStyle.paragraphStyle.tabStops?.last?.location
         
