@@ -275,6 +275,27 @@ To extend the tag name and customize its style, you can use the ExtendTagName cl
 let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).build()
 ```
 
+####Support for Class/ID Style Mapping and Parsing
+
+The class HTML attribute can use the HTMLTagClassAttribute to define classNames with pre-defined styles.
+
+HTML allows specifying multiple `class` attributes separated by spaces, but the `id` attribute can only be assigned a single value per HTML tag.
+
+e.g.:
+```
+<span id="header">hey</span>hey <span id="text-red text-small">Teste de texto text small</span> hey<span class="text-red">hey</span>heyhey
+```
+
+```
+let parser = ZHTMLParserBuilder.initWithDefault().add(HTMLTagClassAttribute(className: "text-red", render: {
+    return MarkupStyle(foregroundColor: MarkupStyleColor(color: .red))
+})).add(HTMLTagClassAttribute(className: "text-small", render: {
+    return MarkupStyle(font: MarkupStyleFont(.systemFont(ofSize: 6)))
+})).add(HTMLTagIdAttribute(idName: "header", render: {
+    return MarkupStyle(font: MarkupStyleFont(.systemFont(ofSize: 36)))
+})).build()
+```
+
 ### Render HTML String
 ```swift
 parser.render(htmlString) // NSAttributedString
