@@ -275,7 +275,7 @@ To extend the tag name and customize its style, you can use the ExtendTagName cl
 let parser = ZHTMLParserBuilder.initWithDefault().add(ExtendTagName("zhgchgli"), withCustomStyle: MarkupStyle(backgroundColor: MarkupStyleColor(name: .aquamarine))).build()
 ```
 
-####Support for Class/ID Style Mapping and Parsing
+#### Support for Class/ID Style Mapping and Parsing
 
 The class HTML attribute can use the HTMLTagClassAttribute to define classNames with pre-defined styles.
 
