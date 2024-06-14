@@ -52,11 +52,26 @@ final class ZHTMLParserBuilderTests: XCTestCase {
     func testAddHTMLTagStyleAttribute() {
         var builder = ZHTMLParserBuilder()
         XCTAssertEqual(builder.styleAttributes.count, 0, "styleAttributes should be empty after init.")
+        XCTAssertEqual(builder.idAttributes.count, 0, "idAttributes should be empty after init.")
+        XCTAssertEqual(builder.classAttributes.count, 0, "classAttributes should be empty after init.")
+        
         builder = builder.add(ExtendHTMLTagStyleAttribute(styleName: "zhgchgli", render: { _ in
             return nil
         }))
         XCTAssertEqual(builder.styleAttributes.count, 1, "styleAttributes should have 1 element.")
         XCTAssertEqual(builder.styleAttributes[0].styleName, "zhgchgli", "styleAttributes should have zhgchgli style name element.")
+        
+        builder = builder.add(HTMLTagClassAttribute(className: "zhgchgli", render: {
+            return nil
+        }))
+        XCTAssertEqual(builder.classAttributes.count, 1, "classAttributes should have 1 element.")
+        XCTAssertEqual(builder.classAttributes[0].className, "zhgchgli", "classAttributes should have zhgchgli class element.")
+        
+        builder = builder.add(HTMLTagIdAttribute(idName: "zhgchgli", render: {
+            return nil
+        }))
+        XCTAssertEqual(builder.idAttributes.count, 1, "idAttributes should have 1 element.")
+        XCTAssertEqual(builder.idAttributes[0].idName, "zhgchgli", "idAttributes should have zhgchgli id element.")
     }
     
     func testBuild() {

@@ -12,17 +12,22 @@ final class HTMLElementWithMarkupToMarkupStyleProcessor: ParserProcessor {
     typealias To = [MarkupStyleComponent]
     
     let styleAttributes: [HTMLTagStyleAttribute]
+    let classAttributes: [HTMLTagClassAttribute]
+    let idAttributes: [HTMLTagIdAttribute]
+    
     let policy: MarkupStylePolicy
     let rootStyle: MarkupStyle?
-    init(styleAttributes: [HTMLTagStyleAttribute], policy: MarkupStylePolicy, rootStyle: MarkupStyle?) {
+    init(styleAttributes: [HTMLTagStyleAttribute], classAttributes: [HTMLTagClassAttribute], idAttributes: [HTMLTagIdAttribute], policy: MarkupStylePolicy, rootStyle: MarkupStyle?) {
         self.styleAttributes = styleAttributes
+        self.classAttributes = classAttributes
+        self.idAttributes = idAttributes
         self.policy = policy
         self.rootStyle = rootStyle
     }
     
     func process(from: From) -> To {
         var components: [MarkupStyleComponent] = []
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: policy, components: from.1, styleAttributes: styleAttributes, rootStyle: rootStyle)
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: policy, components: from.1, styleAttributes: styleAttributes, classAttributes: classAttributes, idAttributes: idAttributes, rootStyle: rootStyle)
         walk(markup: from.0, visitor: visitor, components: &components)
         return components
     }

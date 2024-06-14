@@ -24,6 +24,9 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     let policy: MarkupStylePolicy
     let components: [HTMLElementMarkupComponent]
     let styleAttributes: [HTMLTagStyleAttribute]
+    let classAttributes: [HTMLTagClassAttribute]
+    let idAttributes: [HTMLTagIdAttribute]
+    
     let rootStyle: MarkupStyle?
     
     func visit(_ markup: RootMarkup) -> Result {
@@ -245,6 +248,45 @@ extension HTMLElementMarkupComponentMarkupStyleVisitor {
             markupStyle = customStyle
         }
         
+        // id
+        if let idString = htmlElement?.attributes?["id"],
+           let idAttribute = idAttributes.first(where: { $0.isEqualTo(idName: idString) }),
+           var thisMarkupStyle = idAttribute.render() {
+            switch policy {
+            case .respectMarkupStyleFromCode:
+                if var markupStyle = markupStyle {
+                    markupStyle.fillIfNil(from: thisMarkupStyle)
+                } else {
+                    markupStyle = thisMarkupStyle
+                }
+            case .respectMarkupStyleFromHTMLStyleAttribute:
+                thisMarkupStyle.fillIfNil(from: markupStyle ?? defaultStyle)
+                markupStyle = thisMarkupStyle
+            }
+        }
+        // class
+        if let classString = htmlElement?.attributes?["class"],
+           classAttributes.count > 0 {
+            let classNames = classString.split(separator: " ").filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != "" }
+            
+            for className in classNames {
+                if let classAttribute = classAttributes.first(where: { $0.isEqualTo(className: String(className)) }),
+                   var thisMarkupStyle = classAttribute.render() {
+                    switch policy {
+                    case .respectMarkupStyleFromCode:
+                        if var markupStyle = markupStyle {
+                            markupStyle.fillIfNil(from: thisMarkupStyle)
+                        } else {
+                            markupStyle = thisMarkupStyle
+                        }
+                    case .respectMarkupStyleFromHTMLStyleAttribute:
+                        thisMarkupStyle.fillIfNil(from: markupStyle ?? defaultStyle)
+                        markupStyle = thisMarkupStyle
+                    }
+                }
+            }
+        }
+        // style
         if let styleString = htmlElement?.attributes?["style"],
               styleAttributes.count > 0 {
             let styles = styleString.split(separator: ";").filter { $0.trimmingCharacters(in: .whitespacesAndNewlines) != "" }.map { $0.split(separator: ":") }

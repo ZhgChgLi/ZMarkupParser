@@ -11,7 +11,7 @@ import XCTest
 
 final class ZHTMLParserTests: XCTestCase {
 
-    private let parser = ZHTMLParser(htmlTags: ZHTMLParserBuilder.htmlTagNames.map({ HTMLTag(tagName: $0.0) }), styleAttributes: ZHTMLParserBuilder.styleAttributes, policy: .respectMarkupStyleFromCode, rootStyle: MarkupStyle(kern: 999))
+    private let parser = ZHTMLParser(htmlTags: ZHTMLParserBuilder.htmlTagNames.map({ HTMLTag(tagName: $0.0) }), styleAttributes: ZHTMLParserBuilder.styleAttributes, classAttributes: [], idAttributes: [], policy: .respectMarkupStyleFromCode, rootStyle: MarkupStyle(kern: 999))
 
     func testRender() {
         let string = "Test<a href=\"https://zhgchg.li\">Qoo</a>DDD"
