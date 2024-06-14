@@ -11,6 +11,8 @@ public final class ZHTMLParserBuilder {
     
     private(set) var htmlTags: [HTMLTag] = []
     private(set) var styleAttributes: [HTMLTagStyleAttribute] = []
+    private(set) var classAttributes: [HTMLTagClassAttribute] = []
+    private(set) var idAttributes: [HTMLTagIdAttribute] = []
     private(set) var rootStyle: MarkupStyle? = .default
     private(set) var policy: MarkupStylePolicy = .respectMarkupStyleFromHTMLStyleAttribute
     
@@ -53,6 +55,26 @@ public final class ZHTMLParserBuilder {
         return self
     }
     
+    public func add(_ classAttribute: HTMLTagClassAttribute) -> Self {
+        classAttributes.removeAll { thisAttribute in
+            return thisAttribute.className == classAttribute.className
+        }
+        
+        classAttributes.append(classAttribute)
+        
+        return self
+    }
+    
+    public func add(_ idAttribute: HTMLTagIdAttribute) -> Self {
+        idAttributes.removeAll { thisAttribute in
+            return thisAttribute.idName == idAttribute.idName
+        }
+        
+        idAttributes.append(idAttribute)
+        
+        return self
+    }
+    
     public func set(rootStyle: MarkupStyle) -> Self {
         self.rootStyle = rootStyle
         return self
@@ -67,6 +89,8 @@ public final class ZHTMLParserBuilder {
         return ZHTMLParser(
             htmlTags: htmlTags,
             styleAttributes: styleAttributes,
+            classAttributes: classAttributes,
+            idAttributes: idAttributes,
             policy: policy,
             rootStyle: rootStyle
         )

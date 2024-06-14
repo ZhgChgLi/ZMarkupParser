@@ -23,6 +23,8 @@ public final class ZHTMLParser {
     init(
         htmlTags: [HTMLTag],
         styleAttributes: [HTMLTagStyleAttribute],
+        classAttributes: [HTMLTagClassAttribute],
+        idAttributes: [HTMLTagIdAttribute],
         policy: MarkupStylePolicy,
         rootStyle: MarkupStyle?
     ) {
@@ -33,7 +35,7 @@ public final class ZHTMLParser {
         self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle)
         
         self.htmlParsedResultToHTMLElementWithRootMarkupProcessor = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: htmlTags)
-        self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, policy: policy, rootStyle: rootStyle)
+        self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, classAttributes: classAttributes, idAttributes: idAttributes, policy: policy, rootStyle: rootStyle)
     }
     
     static let dispatchQueue: DispatchQueue = DispatchQueue(label: "ZHTMLParser.Queue")
