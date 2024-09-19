@@ -223,7 +223,7 @@ extension MarkupNSAttributedStringVisitor {
         
         // merge tag Boundary Breakline, e.g. </p></div> -> /n/n -> /n
         var pre: (NSRange, NSAttributedString.Key.BreaklinePlaceholder)?
-        mutableAttributedString.enumerateAttribute(.breaklinePlaceholder, in: NSMakeRange(0, totalLength)) { value, range, _ in
+        mutableAttributedString.enumerateAttribute(.breaklinePlaceholder, in: NSMakeRange(0, totalLength), options: .reverse) { value, range, _ in
             if let breaklinePlaceholder = value as? NSAttributedString.Key.BreaklinePlaceholder {
                 if range.location == 0 {
                     mutableAttributedString.deleteCharacters(in: range)
