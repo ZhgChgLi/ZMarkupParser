@@ -22,7 +22,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: BreakLineMarkup) -> Result {
         let style = collectMarkupStyle(markup)
-        return makeString(in: markup, string: Self.breakLineSymbol, attributes: [.breaklinePlaceholder: NSAttributedString.Key.BreaklinePlaceholder.breaklineTag], style: style)
+        return makeString(in: markup, string: Self.breakLineSymbol, attributes: [.breaklinePlaceholder: BreaklineTag()], style: style)
     }
     
     func visit(_ markup: RawStringMarkup) -> Result {
@@ -119,7 +119,16 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     func visit(_ markup: ParagraphMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
-        let thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+        var thisAttributedString = NSMutableAttributedString(attributedString: attributedString)
+
+        // This code replicates browser behavior by trimming leading and trailing whitespace around HTML tags.
+        // It removes unnecessary spaces and newlines at the beginning and end of the NSAttributedString.
+        // If the entire content is just whitespace, it replaces it with an empty string.
+
+        if thisAttributedString.string.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            thisAttributedString = NSMutableAttributedString(string: "")
+        }
+        
         thisAttributedString.markPrefixTagBoundaryBreakline()
         thisAttributedString.markSuffixTagBoundaryBreakline()
         
@@ -221,35 +230,37 @@ extension MarkupNSAttributedStringVisitor {
         let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
         let totalLength = mutableAttributedString.string.utf16.count
         
+        var rangesToDelete: [NSRange] = []
+        
         // merge tag Boundary Breakline, e.g. </p></div> -> /n/n -> /n
-        var pre: (NSRange, NSAttributedString.Key.BreaklinePlaceholder)?
+        var pre: (NSRange, any BreaklinePlaceholder)?
         mutableAttributedString.enumerateAttribute(.breaklinePlaceholder, in: NSMakeRange(0, totalLength)) { value, range, _ in
-            if let breaklinePlaceholder = value as? NSAttributedString.Key.BreaklinePlaceholder {
+            if let breaklinePlaceholder = value as? any BreaklinePlaceholder {
                 if range.location == 0 {
-                    mutableAttributedString.deleteCharacters(in: range)
+                    rangesToDelete.append(range)
                 } else if let pre = pre {
                     let preRange = pre.0
                     let preBreaklinePlaceholder = pre.1
                     
                     switch (preBreaklinePlaceholder, breaklinePlaceholder) {
-                    case (.breaklineTag, .tagBoundarySuffix):
+                    case (is BreaklineTag, is TagBoundarySuffix):
                         // <br/></div> -> /n/n -> /n
-                        mutableAttributedString.deleteCharacters(in: preRange)
-                    case (.breaklineTag, .tagBoundaryPrefix):
+                        rangesToDelete.append(preRange)
+                    case (is BreaklineTag, is TagBoundaryPrefix):
                         // <br/><p> -> /n/n -> /n
-                        mutableAttributedString.deleteCharacters(in: preRange)
-                    case (.tagBoundarySuffix, .tagBoundarySuffix):
+                        rangesToDelete.append(preRange)
+                    case (is TagBoundarySuffix, is TagBoundarySuffix):
                         // </div></div> -> /n/n -> /n
-                        mutableAttributedString.deleteCharacters(in: preRange)
-                    case (.tagBoundarySuffix, .tagBoundaryPrefix):
+                        rangesToDelete.append(preRange)
+                    case (is TagBoundarySuffix, is TagBoundaryPrefix):
                         // </div><p> -> /n/n -> /n
-                        mutableAttributedString.deleteCharacters(in: preRange)
-                    case (.tagBoundaryPrefix, .tagBoundaryPrefix):
+                        rangesToDelete.append(preRange)
+                    case (is TagBoundaryPrefix, is TagBoundaryPrefix):
                         // <div><p> -> /n/n -> /n
-                        mutableAttributedString.deleteCharacters(in: preRange)
-                    case (.tagBoundaryPrefix, .tagBoundarySuffix):
+                        rangesToDelete.append(preRange)
+                    case (is TagBoundaryPrefix, is TagBoundarySuffix):
                         // <p></p> -> /n/n -> /n
-                        mutableAttributedString.deleteCharacters(in: preRange)
+                        rangesToDelete.append(preRange)
                     default:
                         break
                     }
@@ -258,6 +269,11 @@ extension MarkupNSAttributedStringVisitor {
             } else {
                 pre = nil
             }
+        }
+        
+        // Delete ranges in reverse order to avoid range shifting issues
+        for range in rangesToDelete.reversed() {
+            mutableAttributedString.deleteCharacters(in: range)
         }
         
         return mutableAttributedString
@@ -338,23 +354,33 @@ private extension MarkupNSAttributedStringVisitor {
     }
 }
 
+private protocol BreaklinePlaceholder: Hashable {
+    
+}
+
+private class TagBoundaryPrefix: NSObject, BreaklinePlaceholder{
+    
+}
+
+private class TagBoundarySuffix: NSObject, BreaklinePlaceholder{
+    
+}
+
+private class BreaklineTag: NSObject, BreaklinePlaceholder{
+    
+}
+
+
 private extension NSAttributedString.Key {
     static let breaklinePlaceholder: NSAttributedString.Key = .init("breaklinePlaceholder")
-    struct BreaklinePlaceholder: OptionSet {
-        let rawValue: Int
-
-        static let tagBoundaryPrefix = BreaklinePlaceholder(rawValue: 1)
-        static let tagBoundarySuffix = BreaklinePlaceholder(rawValue: 2)
-        static let breaklineTag = BreaklinePlaceholder(rawValue: 3)
-    }
 }
 
 private extension NSMutableAttributedString {
     func markPrefixTagBoundaryBreakline() {
-        self.insert(NSAttributedString(string: MarkupNSAttributedStringVisitor.breakLineSymbol, attributes: [.breaklinePlaceholder: NSAttributedString.Key.BreaklinePlaceholder.tagBoundaryPrefix]), at: 0)
+        self.insert(NSAttributedString(string: MarkupNSAttributedStringVisitor.breakLineSymbol, attributes: [.breaklinePlaceholder: TagBoundaryPrefix()]), at: 0)
     }
     
     func markSuffixTagBoundaryBreakline() {
-        self.append(NSAttributedString(string: MarkupNSAttributedStringVisitor.breakLineSymbol, attributes: [.breaklinePlaceholder: NSAttributedString.Key.BreaklinePlaceholder.tagBoundarySuffix]))
+        self.append(NSAttributedString(string: MarkupNSAttributedStringVisitor.breakLineSymbol, attributes: [.breaklinePlaceholder: TagBoundarySuffix()]))
     }
 }
