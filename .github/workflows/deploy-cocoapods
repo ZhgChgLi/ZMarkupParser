@@ -1,0 +1,23 @@
+name: Deploy Cocoapods
+
+on:
+  push:
+    branches: 
+      - main
+    paths:
+      - scripts/ZMarkupParser.podspec
+
+jobs:
+
+  deploy:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: gem install cocoapods
+    - env:
+        COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+      run: |
+        set -eo pipefail
+        pod trunk push --allow-warnings
+
+        
