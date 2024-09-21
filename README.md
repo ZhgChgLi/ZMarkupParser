@@ -8,6 +8,8 @@
 
 ZMarkupParser is a pure-Swift library that helps you convert HTML strings into NSAttributedString with customized styles and tags.
 
+[![Follow My Medium ZhgChgLi](https://github.com/user-attachments/assets/b64fb10f-23ae-481b-ac12-867ee7cde3f9)](https://medium.com/@zhgchgli)
+
 ## Technical Details:
 - \[Chinese\] [Development Notes](https://medium.com/zrealm-ios-dev/zmarkupparser-html-string-%E8%BD%89%E6%8F%9B-nsattributedstring-%E5%B7%A5%E5%85%B7-a5643de271e4)
 - \[English\] [Development Notes (translated using ChatGPT)](https://en.zhgchg.li/posts/2724f02f6e7/)
