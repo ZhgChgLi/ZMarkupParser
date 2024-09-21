@@ -80,6 +80,11 @@ target 'MyApp' do
 end
 ```
 
+### Carthage
+```ogdl
+github "ZhgChgLi/ZMarkupParser"
+```
+
 ## How it works? (explain with Pseudocode)
 1. Input html string: `<a>Link<b>LinkBold</a>Bold</b>`
 2. Convert string to array of tag element through Regex:
