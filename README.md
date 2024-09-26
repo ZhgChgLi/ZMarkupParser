@@ -25,7 +25,7 @@ ZMarkupParser is a pure-Swift library that helps you convert HTML strings into N
 - [x] Better performance compared to `NSAttributedString.DocumentType.html`.
 - [x] Fully test cases and test coverage.
 
-# Buy me coffee ❤️❤️❤️
+# Buy me a coffee ❤️❤️❤️
 
 <a href="https://www.buymeacoffee.com/zhgchgli" target="_blank"><img width="545" alt="bmc-button" src="https://github.com/user-attachments/assets/5983bfc9-27fd-49e0-a7f4-eb07657c6e31"></a>
 
