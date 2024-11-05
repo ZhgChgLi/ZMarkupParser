@@ -142,7 +142,7 @@ extension MarkupStyleFont {
         if let fontWeight = FontWeightStyle.init(font: font) {
             self.weight = FontWeight.style(fontWeight)
         }
-        self.familyName = .familyNames([font.familyName])
+        self.familyName = .familyNames([font.fontName, font.familyName])
     }
     
     func getFont() -> UIFont? {
@@ -164,7 +164,7 @@ extension MarkupStyleFont {
             font = UIFont.systemFont(ofSize: size, weight: weight)
         }
         
-        if weight.rawValue >= UIFont.Weight.medium.rawValue {
+        if weight.rawValue >= UIFont.Weight.semibold.rawValue {
             traits.append(.traitBold)
         }
         
