@@ -235,7 +235,7 @@ private extension UIFont.Weight {
     }
 }
 
-public extension UIFont {
+private extension UIFont {
 
     /// Returns a font object that is the same as the receiver but which has the specified weight and symbolic traits
     func with(weight: Weight, symbolicTraits: UIFontDescriptor.SymbolicTraits) -> UIFont {
