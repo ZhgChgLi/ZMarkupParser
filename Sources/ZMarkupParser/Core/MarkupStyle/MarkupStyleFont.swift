@@ -81,9 +81,6 @@ public struct MarkupStyleFont: MarkupStyleItem {
             if let traits = font.fontDescriptor.fontAttributes[.traits] as? [NSFontDescriptor.TraitKey: Any], let weight = traits[.weight] as? NSFont.Weight {
                 self = weight.convertFontWeightStyle()
                 return
-            } else if font.fontDescriptor.symbolicTraits.contains(.bold) {
-                self = .bold
-                return
             } else if let weightName = font.fontDescriptor.object(forKey: .face) as? String, let weight = Self.init(rawValue: weightName) {
                 self = weight
                 return
@@ -273,7 +270,7 @@ extension MarkupStyleFont {
     func getFont() -> NSFont? {
         guard !isNil() else { return nil }
 
-        var traits: [NSFontDescriptor.SymbolicTraits] = []
+        var traits: NSFontDescriptor.SymbolicTraits = []
 
         let size = (self.size ?? MarkupStyle.default.font.size) ?? NSFont.systemFontSize
         let weight = self.weight?.convertToUIFontWeight() ?? .regular
@@ -289,24 +286,15 @@ extension MarkupStyleFont {
             font = NSFont.systemFont(ofSize: size, weight: weight)
         }
 
-        if weight.rawValue >= NSFont.Weight.medium.rawValue {
-            traits.append(.bold)
+        if bold == true {
+            traits.insert(.bold)
         }
 
         if let italic = self.italic, italic {
-            traits.append(.italic)
+            traits.insert(.italic)
         }
 
-        if traits.isEmpty {
-            return font
-        } else {
-            return withTraits(font: font, traits: traits)
-        }
-    }
-
-    private func withTraits(font: NSFont, traits: [NSFontDescriptor.SymbolicTraits]) -> NSFont {
-        let descriptor = font.fontDescriptor.withSymbolicTraits(NSFontDescriptor.SymbolicTraits(traits))
-        return NSFont(descriptor: descriptor, size: font.pointSize) ?? font
+        return font.with(weight: weight, symbolicTraits: traits)
     }
 }
 
@@ -364,6 +352,28 @@ private extension NSFont.Weight {
         default:
             return .regular
         }
+    }
+}
+
+private extension NSFont {
+
+    /// Returns a font object that is the same as the receiver but which has the specified weight and symbolic traits
+    func with(weight: Weight, symbolicTraits: NSFontDescriptor.SymbolicTraits) -> NSFont {
+
+        var mergedsymbolicTraits = fontDescriptor.symbolicTraits
+        mergedsymbolicTraits.formUnion(symbolicTraits)
+
+        var traits = fontDescriptor.fontAttributes[.traits] as? [NSFontDescriptor.TraitKey: Any] ?? [:]
+        traits[.weight] = weight
+        traits[.symbolic] = mergedsymbolicTraits.rawValue
+
+        var fontAttributes: [NSFontDescriptor.AttributeName: Any] = [:]
+        fontAttributes[.family] = familyName
+        fontAttributes[.traits] = traits
+
+        let font = NSFont(descriptor: NSFontDescriptor(fontAttributes: fontAttributes), size: pointSize)
+        // return UIFontMetrics.default.scaledFont(for: font)
+        return font ?? self
     }
 }
 
