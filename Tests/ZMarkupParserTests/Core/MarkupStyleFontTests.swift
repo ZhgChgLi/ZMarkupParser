@@ -17,7 +17,7 @@ import AppKit
 final class MarkupStyleFontTests: XCTestCase {
     func testInit() {
         #if canImport(UIKit)
-            let markupStyleFont = MarkupStyleFont(UIFont.boldSystemFont(ofSize: 16))
+            let markupStyleFont = MarkupStyleFont(UIFont.systemFont(ofSize: 16, weight: .bold))
             if case let .style(weight) = markupStyleFont.weight, weight == .bold {
                  // Success
                 XCTAssertEqual(markupStyleFont.size, 16)
@@ -161,7 +161,7 @@ final class MarkupStyleFontTests: XCTestCase {
         
         XCTAssertEqual(resultMarkupStyleFont.size, markupStyleFont.size!)
         if case let .style(weight) = resultMarkupStyleFont.weight {
-            XCTAssertEqual(weight, .bold)
+            XCTAssertEqual(weight, .heavy)
         } else {
             XCTFail()
         }
