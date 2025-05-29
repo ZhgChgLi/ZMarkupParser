@@ -194,9 +194,9 @@ struct HTMLTagStyleAttributeToMarkupStyleVisitor: HTMLTagStyleAttributeVisitor {
              return .justified
          case "natural":
              return .natural
-         case "right", "start":
+         case "right", "end":
              return .right
-         case "left", "end":
+         case "left", "start":
              return .left
          default:
              return nil
