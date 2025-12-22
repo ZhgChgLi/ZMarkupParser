@@ -25,11 +25,11 @@ ZMarkupParser is a pure-Swift library that helps you convert HTML strings into N
 - [x] Better performance compared to `NSAttributedString.DocumentType.html`.
 - [x] Fully test cases and test coverage.
 
-# Buy me a coffee ❤️❤️❤️
+# Buy me a beer ❤️❤️❤️
 
-<a href="https://www.buymeacoffee.com/zhgchgli" target="_blank"><img width="545" alt="bmc-button" src="https://github.com/user-attachments/assets/5983bfc9-27fd-49e0-a7f4-eb07657c6e31"></a>
+[![Buy Me A Beer](https://github.com/user-attachments/assets/63f01edf-2aa5-4d91-8f8a-861e5b6b4feb)](https://www.paypal.com/ncp/payment/CMALMPT8UUTY2)
 
-[**If this project has helped you, feel free to sponsor me a cup of coffee, thank you.**](https://www.buymeacoffee.com/zhgchgli)
+[**If this project has helped you, feel free to sponsor me a cup of coffee, thank you.**](https://www.paypal.com/ncp/payment/CMALMPT8UUTY2)
 
 ## Try it!
 
@@ -385,7 +385,7 @@ If you want to render huge html string, please use async instead.
 
 # Donate
 
-[![Buy Me A Coffe](https://img.buymeacoffee.com/button-api/?text=Buy%20me%20a%20beer!&emoji=%F0%9F%8D%BA&slug=zhgchgli&button_colour=FFDD00&font_colour=000000&font_family=Bree&outline_colour=000000&coffee_colour=ffffff)](https://www.buymeacoffee.com/zhgchgli)
+[![Buy Me A Beer](https://github.com/user-attachments/assets/63f01edf-2aa5-4d91-8f8a-861e5b6b4feb)](https://www.paypal.com/ncp/payment/CMALMPT8UUTY2)
 
 If you find this library helpful, please consider starring the repo or recommending it to your friends.
 
