@@ -1,25 +1,19 @@
 //
 //  HTMLElementMarkupComponent.swift
-//  
 //
-//  Created by https://zhgchg.li on 2023/3/8.
+//
+//  Namespace for the parsed-HTML element value type that the
+//  HTML pipeline associates with each Markup node via `MarkupIndex`.
+//  The outer type is intentionally a caseless enum — there are
+//  no instances; only the nested `HTMLElement` value is used.
 //
 
 import Foundation
 
-struct HTMLElementMarkupComponent: MarkupComponent {
+enum HTMLElementMarkupComponent {
     struct HTMLElement {
         let tag: HTMLTag
         let tagAttributedString: NSAttributedString
         let attributes: [String: String]?
-    }
-    
-    typealias T = HTMLElement
-    
-    let markup: Markup
-    let value: HTMLElement
-    init(markup: Markup, value: HTMLElement) {
-        self.markup = markup
-        self.value = value
     }
 }

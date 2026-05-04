@@ -10,19 +10,20 @@ import Foundation
 final class MarkupStripperProcessor: ParserProcessor {
     typealias From = Markup
     typealias To = NSAttributedString
-    
+
     func process(from: From) -> To {
-        return attributedString(from)
+        let result = NSMutableAttributedString()
+        append(markup: from, into: result)
+        return result
     }
-    
-    private func attributedString(_ markup: Markup) -> NSAttributedString {
+
+    private func append(markup: Markup, into result: NSMutableAttributedString) {
         if let rawStringMarkup = markup as? RawStringMarkup {
-            return rawStringMarkup.attributedString
-        } else {
-            return markup.childMarkups.compactMap({ attributedString($0) }).reduce(NSMutableAttributedString()) { partialResult, attributedString in
-                partialResult.append(attributedString)
-                return partialResult
-            }
+            result.append(rawStringMarkup.attributedString)
+            return
+        }
+        for child in markup.childMarkups {
+            append(markup: child, into: result)
         }
     }
 }

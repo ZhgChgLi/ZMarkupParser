@@ -22,7 +22,7 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     typealias Result = MarkupStyle?
     
     let policy: MarkupStylePolicy
-    let components: [HTMLElementMarkupComponent]
+    let components: MarkupIndex<HTMLElementMarkupComponent.HTMLElement>
     let styleAttributes: [HTMLTagStyleAttribute]
     let classAttributes: [HTMLTagClassAttribute]
     let idAttributes: [HTMLTagIdAttribute]

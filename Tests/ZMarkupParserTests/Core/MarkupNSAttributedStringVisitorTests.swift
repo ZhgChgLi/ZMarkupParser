@@ -11,13 +11,13 @@ import XCTest
 
 final class MarkupNSAttributedStringVisitorTests: XCTestCase {
     func testVisitMakup() {
-        var compoments: [MarkupStyleComponent] = []
+        var compoments = MarkupIndex<MarkupStyle>()
         let rootMarkup = RootMarkup()
         let rootStyle = MarkupStyle(kern: 99)
         let boldMarkup = BoldMarkup()
-        compoments.append(.init(markup: boldMarkup, value: MarkupStyle(font: MarkupStyleFont(size: 10, weight: .style(.semibold)))))
+        compoments.set(MarkupStyle(font: MarkupStyleFont(size: 10, weight: .style(.semibold))), for: boldMarkup)
         let underlineMarkup = UnderlineMarkup()
-        compoments.append(.init(markup: underlineMarkup, value: MarkupStyle(underlineStyle: .single)))
+        compoments.set(MarkupStyle(underlineStyle: .single), for: underlineMarkup)
         let boldRawString = RawStringMarkup(attributedString: NSAttributedString(string: "boldText"))
         let underlineBoldRawString = RawStringMarkup(attributedString: NSAttributedString(string: "underlineWithBoldText"))
         let rawString = RawStringMarkup(attributedString: NSAttributedString(string: "rawText"))
@@ -63,7 +63,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
         //            </ul>
         //          </div>
         //        </div>
-        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
+        let visitor = MarkupNSAttributedStringVisitor(components: MarkupIndex<MarkupStyle>(), rootStyle: nil)
         let rootMarkup = RootMarkup()
         let paragraphMarkup_1 = ParagraphMarkup()
         let paragraphMarkup_2 = ParagraphMarkup()
@@ -94,7 +94,7 @@ final class MarkupNSAttributedStringVisitorTests: XCTestCase {
     
     
     func testApplyMarkupStyle() {
-        let visitor = MarkupNSAttributedStringVisitor(components: [], rootStyle: nil)
+        let visitor = MarkupNSAttributedStringVisitor(components: MarkupIndex<MarkupStyle>(), rootStyle: nil)
         let result = visitor.applyMarkupStyle(NSAttributedString(string: "Test"), with: MarkupStyle(kern: 999))
         
         XCTAssertEqual(result.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 999)

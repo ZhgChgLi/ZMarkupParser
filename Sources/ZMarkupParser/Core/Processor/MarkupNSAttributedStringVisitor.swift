@@ -11,7 +11,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     
     typealias Result = NSAttributedString
     
-    let components: [MarkupStyleComponent]
+    let components: MarkupIndex<MarkupStyle>
     let rootStyle: MarkupStyle?
     
     static let breakLineSymbol = "\n"
@@ -315,11 +315,12 @@ private extension MarkupNSAttributedStringVisitor {
         //      \
         //       > String("Test")
         // Result: Bold Test
-        
-        return markup.childMarkups.compactMap({ visit(markup: $0) }).reduce(NSMutableAttributedString()) { partialResult, attributedString in
-            partialResult.append(attributedString)
-            return partialResult
+
+        let result = NSMutableAttributedString()
+        for child in markup.childMarkups {
+            result.append(visit(markup: child))
         }
+        return result
     }
     
     func collectMarkupStyle(_ markup: Markup) -> MarkupStyle? {

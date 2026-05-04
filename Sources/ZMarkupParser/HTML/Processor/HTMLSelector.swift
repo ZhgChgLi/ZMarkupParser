@@ -10,8 +10,8 @@ import Foundation
 public class HTMLSelector: CustomStringConvertible {
     
     let markup: Markup
-    let componets: [HTMLElementMarkupComponent]
-    init(markup: Markup, componets: [HTMLElementMarkupComponent]) {
+    let componets: MarkupIndex<HTMLElementMarkupComponent.HTMLElement>
+    init(markup: Markup, componets: MarkupIndex<HTMLElementMarkupComponent.HTMLElement>) {
         self.markup = markup
         self.componets = componets
     }
