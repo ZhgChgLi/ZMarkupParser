@@ -75,6 +75,24 @@ final class MarkupTraversalTests: XCTestCase {
         XCTAssertEqual(makeParser().stripper(html), "abc")
     }
 
+    func testStripperOnBranchedTreeConcatenatesAllRawStrings() {
+        // The previous tests only walked a single chain of children;
+        // this one has multiple siblings at every level so the
+        // append-into-mutable rewrite is exercised across forks.
+        let html = "<p>one <b>two <i>three</i> four</b> five</p><p>six</p>"
+        XCTAssertEqual(makeParser().stripper(html), "one two three four fivesix")
+    }
+
+    // MARK: - Empty content
+
+    func testRenderOfEmptyInlineElementProducesEmptyString() {
+        // collectAttributedString must handle a Markup whose childMarkups
+        // is empty without producing junk output. This is the boundary
+        // case the for-loop rewrite has to keep correct. <b> is inline
+        // so no boundary breaklines are inserted.
+        XCTAssertEqual(makeParser().render("<b></b>").string, "")
+    }
+
     // MARK: - Style inheritance fixed point
 
     func testNestedStyleResolvesToInnermostFont() {

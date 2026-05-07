@@ -67,4 +67,29 @@ final class MarkupIndexTests: XCTestCase {
 
         XCTAssertEqual(index.value(markup: bold)?.tag.tagName.string, "b")
     }
+
+    func testInitWithMinimumCapacityIsEquivalentToEmptyInit() {
+        // The capacity hint must not change observable behavior.
+        var hinted = MarkupIndex<Int>(minimumCapacity: 1024)
+        XCTAssertTrue(hinted.isEmpty)
+        XCTAssertEqual(hinted.count, 0)
+
+        let bold = BoldMarkup()
+        hinted.set(7, for: bold)
+        XCTAssertEqual(hinted.value(markup: bold), 7)
+    }
+
+    func testReserveCapacityKeepsExistingEntries() {
+        var index = MarkupIndex<Int>()
+        let a = BoldMarkup()
+        let b = ItalicMarkup()
+        index.set(1, for: a)
+        index.set(2, for: b)
+
+        index.reserveCapacity(4096)
+
+        XCTAssertEqual(index.count, 2)
+        XCTAssertEqual(index.value(markup: a), 1)
+        XCTAssertEqual(index.value(markup: b), 2)
+    }
 }
