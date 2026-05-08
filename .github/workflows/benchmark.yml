@@ -1,5 +1,9 @@
 name: Benchmark
 
+# workflow_dispatch can only be triggered after the workflow file
+# lands on the default branch. To run this against the current PR
+# without merging first, use the labeled trigger: add a label named
+# `benchmark` to the PR and this fires once.
 on:
   workflow_dispatch:
     inputs:
@@ -12,26 +16,34 @@ on:
         required: false
         default: "main"
         type: string
+  pull_request:
+    types: [labeled]
 
 jobs:
   benchmark:
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'benchmark'
     runs-on: macos-14
     permissions:
       pull-requests: write
+    env:
+      PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr_number }}
+      BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || inputs.base_ref }}
+      HEAD_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: "15.2"
 
-      - name: Checkout baseline (${{ inputs.base_ref }})
+      - name: Checkout baseline
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.base_ref }}
+          ref: ${{ env.BASE_REF }}
           path: baseline
 
       - name: Checkout PR HEAD
         uses: actions/checkout@v4
         with:
+          ref: ${{ env.HEAD_REF }}
           path: pr
 
       - name: Bench baseline
@@ -63,8 +75,6 @@ jobs:
       - name: Post comparison comment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ inputs.pr_number }}
-          BASE_REF: ${{ inputs.base_ref }}
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
@@ -74,7 +84,6 @@ jobs:
           HEAD_ZMP=$(jq -r '.avgTime' pr/Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserMeasure.json)
           HEAD_DT=$(jq -r '.avgTime' pr/Tests/ZMarkupParserPerformanceTests/Report/testDocumentTypeHTMLMeasure.json)
 
-          # Speedup of PR over baseline ZMarkupParser, and PR over DocumentType.html.
           ZMP_SPEEDUP=$(awk "BEGIN { printf \"%.2f\", $BASE_ZMP / $HEAD_ZMP }")
           DT_SPEEDUP=$(awk "BEGIN { printf \"%.2f\", $HEAD_DT / $HEAD_ZMP }")
 
