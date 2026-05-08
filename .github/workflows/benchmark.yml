@@ -193,122 +193,149 @@ jobs:
           cat doctype_results/results.json
 
       - name: Post comparison comment
-        # `set +e` because we want to surface diagnostic output below
-        # before any single jq/gh failure aborts the step.
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          set +e
-          set -uo pipefail
+          set -e
+          python3 <<'PY'
+          import json, os, subprocess, sys
+          from pathlib import Path
 
-          REPORT_DIR="Tests/ZMarkupParserPerformanceTests/Report"
-          BASE_ZMP_SMALL="baseline/$REPORT_DIR/testZHTMLMarkupParserSweep.json"
-          BASE_DT_SMALL="baseline/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
-          HEAD_ZMP_SMALL="pr/$REPORT_DIR/testZHTMLMarkupParserSweep.small.json"
-          HEAD_DT_SMALL="pr/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
-          HEAD_ZMP_LARGE="pr/$REPORT_DIR/testZHTMLMarkupParserSweep.large.json"
-          DT_CRASH="doctype_results/results.json"
+          REPORT = Path("Tests/ZMarkupParserPerformanceTests/Report")
+          BASE = Path("baseline")
+          PR = Path("pr")
 
-          # Diagnostic dump: which files exist, what's in them. Makes
-          # it possible to debug a missing-input failure without
-          # rerunning the full ~25-min benchmark just to see logs.
-          echo "::group::Input files"
-          for F in "$BASE_ZMP_SMALL" "$BASE_DT_SMALL" "$HEAD_ZMP_SMALL" "$HEAD_DT_SMALL" "$HEAD_ZMP_LARGE" "$DT_CRASH"; do
-              if [ -f "$F" ]; then
-                  echo "✅ $F ($(wc -c < "$F") bytes)"
-                  head -c 500 "$F"; echo
-              else
-                  echo "❌ MISSING: $F"
-              fi
-          done
-          echo "::endgroup::"
-
-          fmt() {
-            awk -v v="$1" 'BEGIN { if (v < 0) print "n/a"; else printf "%.3f", v }'
+          INPUTS = {
+              "base_zmp_small": BASE / REPORT / "testZHTMLMarkupParserSweep.json",
+              "base_dt_small":  BASE / REPORT / "testDocumentTypeHTMLSweep.json",
+              "head_zmp_small": PR   / REPORT / "testZHTMLMarkupParserSweep.small.json",
+              "head_dt_small":  PR   / REPORT / "testDocumentTypeHTMLSweep.json",
+              "head_zmp_large": PR   / REPORT / "testZHTMLMarkupParserSweep.large.json",
+              "dt_crash":       Path("doctype_results/results.json"),
           }
 
-          ratio() {
-            awk -v a="$1" -v b="$2" 'BEGIN {
-              if (a < 0 || b < 0 || b == 0) print "n/a";
-              else printf "%.2f×", a / b
-            }'
-          }
+          # Load every input but tolerate misses — we'd rather post a
+          # partial table that says "missing" than fail the whole job
+          # and leave no record.
+          loaded = {}
+          for k, p in INPUTS.items():
+              if not p.is_file():
+                  print(f"::warning::missing {p}")
+                  loaded[k] = None
+                  continue
+              try:
+                  loaded[k] = json.loads(p.read_text())
+                  print(f"loaded {p} ({p.stat().st_size} bytes)")
+              except json.JSONDecodeError as e:
+                  print(f"::warning::invalid JSON in {p}: {e}")
+                  loaded[k] = None
 
-          # ----- Small-size comparison table (PR vs baseline vs DocType) -----
-          ROWS_SMALL=$(jq -n --slurpfile a "$BASE_ZMP_SMALL" \
-                             --slurpfile b "$HEAD_ZMP_SMALL" \
-                             --slurpfile c "$BASE_DT_SMALL" \
-                             --slurpfile d "$HEAD_DT_SMALL" '
-            $a[0] as $az | $b[0] as $bz | $c[0] as $ad | $d[0] as $bd
-            | [range(0; $az | length)] | map(. as $i |
-                {
-                  count: ($az[$i].count),
-                  length: ($az[$i].length),
-                  base_zmp: ($az[$i].avgTime),
-                  head_zmp: ($bz[$i].avgTime),
-                  head_dt: ($bd[$i].avgTime)
-                }
-              )')
+          def fmt_time(t):
+              if t is None: return "missing"
+              if t < 0:     return "n/a"
+              return f"{t:.3f}"
 
-          TABLE_SMALL=""
-          while IFS=$'\t' read -r COUNT LENGTH BASE_ZMP_VAL HEAD_ZMP_VAL HEAD_DT_VAL; do
-            BASE_ZMP_F=$(fmt "$BASE_ZMP_VAL")
-            HEAD_ZMP_F=$(fmt "$HEAD_ZMP_VAL")
-            HEAD_DT_F=$(fmt "$HEAD_DT_VAL")
-            ZMP_SPEEDUP=$(ratio "$BASE_ZMP_VAL" "$HEAD_ZMP_VAL")
-            DT_SPEEDUP=$(ratio "$HEAD_DT_VAL" "$HEAD_ZMP_VAL")
-            LENGTH_KB=$(awk -v l="$LENGTH" 'BEGIN { printf "%.0f", l / 1024 }')
-            TABLE_SMALL+="| ${COUNT} (~${LENGTH_KB} KB) | ${BASE_ZMP_F} | ${HEAD_ZMP_F} | ${ZMP_SPEEDUP} | ${HEAD_DT_F} | ${DT_SPEEDUP} |"$'\n'
-          done < <(echo "$ROWS_SMALL" | jq -r '.[] | [.count, .length, .base_zmp, .head_zmp, .head_dt] | @tsv')
+          def fmt_kb(length):
+              return f"{round(length / 1024)}"
 
-          # ----- Large-size scaling table (PR only) -----
-          TABLE_LARGE=""
-          while IFS=$'\t' read -r COUNT LENGTH ELAPSED; do
-            LENGTH_KB=$(awk -v l="$LENGTH" 'BEGIN { printf "%.0f", l / 1024 }')
-            ELAPSED_F=$(fmt "$ELAPSED")
-            TABLE_LARGE+="| ${COUNT} (~${LENGTH_KB} KB) | ${ELAPSED_F} |"$'\n'
-          done < <(jq -r '.[] | [.count, .length, .avgTime] | @tsv' "$HEAD_ZMP_LARGE")
+          def ratio(a, b):
+              if a is None or b is None: return "n/a"
+              if a < 0 or b <= 0:        return "n/a"
+              return f"{a / b:.2f}×"
 
-          # ----- DocType crash sweep table -----
-          TABLE_DT_CRASH=""
-          while IFS=$'\t' read -r COUNT LENGTH ELAPSED STATUS EXIT; do
-            LENGTH_KB=$(awk -v l="$LENGTH" 'BEGIN { printf "%.0f", l / 1024 }')
-            case "$STATUS" in
-              ok)      EMOJI="✅"; ELAPSED_F="$(fmt "$ELAPSED") s" ;;
-              timeout) EMOJI="⏱"; ELAPSED_F=">600 s (timed out)" ;;
-              *)       EMOJI="💥"; ELAPSED_F="crash (exit $EXIT)" ;;
-            esac
-            TABLE_DT_CRASH+="| ${COUNT} (~${LENGTH_KB} KB) | ${EMOJI} ${ELAPSED_F} |"$'\n'
-          done < <(jq -r '.[] | [.count, .length, .elapsed, .status, .exit] | @tsv' "$DT_CRASH")
+          # ----- Small-size comparison -----
+          base_ref = os.environ.get("BASE_REF", "main")
+          rows_small = []
+          base_zmp = loaded["base_zmp_small"] or []
+          head_zmp = loaded["head_zmp_small"] or []
+          head_dt  = loaded["head_dt_small"]  or []
+          for i in range(max(len(base_zmp), len(head_zmp), len(head_dt))):
+              get = lambda lst, idx, key: (lst[idx].get(key) if idx < len(lst) else None)
+              count = get(head_zmp, i, "count") or get(base_zmp, i, "count") or get(head_dt, i, "count")
+              length = get(head_zmp, i, "length") or get(base_zmp, i, "length") or get(head_dt, i, "length") or 0
+              bz = get(base_zmp, i, "avgTime")
+              hz = get(head_zmp, i, "avgTime")
+              hd = get(head_dt,  i, "avgTime")
+              rows_small.append((count, length, bz, hz, hd))
 
-          BODY=$(cat <<EOF
-          ## Benchmark sweep — small sizes (PR vs \`$BASE_REF\` vs DocumentType.html)
+          table_small = ""
+          for count, length, bz, hz, hd in rows_small:
+              table_small += (
+                  f"| {count} (~{fmt_kb(length)} KB) "
+                  f"| {fmt_time(bz)} "
+                  f"| {fmt_time(hz)} "
+                  f"| {ratio(bz, hz)} "
+                  f"| {fmt_time(hd)} "
+                  f"| {ratio(hd, hz)} |\n"
+              )
 
-          Average of 3 runs. Runner: macos-14, Xcode 15.2, \`platform=macOS\`.
+          # ----- Large-size scaling (PR only) -----
+          table_large = ""
+          for entry in (loaded["head_zmp_large"] or []):
+              table_large += (
+                  f"| {entry['count']} (~{fmt_kb(entry['length'])} KB) "
+                  f"| {fmt_time(entry['avgTime'])} |\n"
+              )
+          if not table_large:
+              table_large = "| _missing_ | _missing_ |\n"
 
-          | size (count, bytes) | ZMP \`$BASE_REF\` (s) | ZMP PR (s) | PR vs \`$BASE_REF\` | DocType.html PR (s) | PR vs DocType.html |
+          # ----- DocType crash sweep -----
+          table_dt = ""
+          for entry in (loaded["dt_crash"] or []):
+              status = entry.get("status")
+              exit_code = entry.get("exit")
+              if status == "ok":
+                  cell = f"✅ {fmt_time(entry['elapsed'])} s"
+              elif status == "timeout":
+                  cell = "⏱ timed out"
+              else:
+                  cell = f"💥 crash (exit {exit_code})"
+              table_dt += (
+                  f"| {entry['count']} (~{fmt_kb(entry['length'])} KB) | {cell} |\n"
+              )
+          if not table_dt:
+              table_dt = "| _missing_ | _missing_ |\n"
+
+          run_id = os.environ["RUN_ID"]
+          repo   = os.environ["REPO"]
+          pr_num = os.environ["PR_NUMBER"]
+
+          body = f"""## Benchmark sweep — small sizes (PR vs `{base_ref}` vs DocumentType.html)
+
+          Average of 3 runs. Runner: macos-14, Xcode 15.2, `platform=macOS`.
+
+          | size (count, bytes) | ZMP `{base_ref}` (s) | ZMP PR (s) | PR vs `{base_ref}` | DocType.html PR (s) | PR vs DocType.html |
           | --- | --- | --- | --- | --- | --- |
-          $TABLE_SMALL
-
+          {table_small}
           ## ZMarkupParser PR — large-size scaling (single run per size)
 
           Probes whether the post-refactor renderer keeps a linear curve at sizes well past where DocumentType.html breaks.
 
           | size (count, bytes) | ZMP PR (s) |
           | --- | --- |
-          $TABLE_LARGE
-
+          {table_large}
           ## NSAttributedString.DocumentType.html — crash sweep (subprocess per size)
 
-          Each size is invoked in its own subprocess so a CoreFoundation crash on a large input doesn't take the workflow down. The sweep stops at the first non-success size.
+          Each size runs in its own subprocess so a CoreFoundation crash doesn't kill the workflow. The sweep stops at the first non-success size.
 
           | size (count, bytes) | result |
           | --- | --- |
-          $TABLE_DT_CRASH
+          {table_dt}
+          [Run details](https://github.com/{repo}/actions/runs/{run_id})
+          """
+          # Strip the YAML/run-block leading indentation that Python's
+          # multi-line string preserves.
+          body = "\n".join(line[10:] if line.startswith(" " * 10) else line
+                            for line in body.splitlines())
 
-          [Run details](https://github.com/$REPO/actions/runs/${{ github.run_id }})
-          EOF
+          print("::group::Comment body")
+          print(body)
+          print("::endgroup::")
+
+          subprocess.run(
+              ["gh", "pr", "comment", pr_num, "--repo", repo, "--body", body],
+              check=True,
           )
-
-          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$BODY"
+          PY
