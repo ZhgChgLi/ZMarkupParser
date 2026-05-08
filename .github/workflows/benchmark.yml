@@ -131,8 +131,10 @@ jobs:
               Top 10 Popular <b><span style="color:green">Christmas</span> Gift</b> Recommendations
               """
 
-          guard CommandLine.arguments.count >= 2, let count = Int(CommandLine.arguments[1]) else {
-              FileHandle.standardError.write("usage: <count>\n".data(using: .utf8)!)
+          // Read size from env to avoid swift CLI's argv-vs-flag ambiguity.
+          guard let raw = ProcessInfo.processInfo.environment["BENCH_COUNT"],
+                let count = Int(raw) else {
+              FileHandle.standardError.write("BENCH_COUNT env var not set\n".data(using: .utf8)!)
               exit(2)
           }
 
@@ -164,7 +166,7 @@ jobs:
           FIRST=true
           for SIZE in 300 1000 3000 10000 30000 100000; do
               echo "::group::DocType count=$SIZE"
-              OUTPUT=$(swift /tmp/doctype_bench.swift "$SIZE" 2>&1)
+              OUTPUT=$(BENCH_COUNT="$SIZE" swift /tmp/doctype_bench.swift 2>&1)
               EXIT=$?
               echo "exit=$EXIT"
               echo "$OUTPUT"
@@ -191,11 +193,14 @@ jobs:
           cat doctype_results/results.json
 
       - name: Post comparison comment
+        # `set +e` because we want to surface diagnostic output below
+        # before any single jq/gh failure aborts the step.
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          set -euo pipefail
+          set +e
+          set -uo pipefail
 
           REPORT_DIR="Tests/ZMarkupParserPerformanceTests/Report"
           BASE_ZMP_SMALL="baseline/$REPORT_DIR/testZHTMLMarkupParserSweep.json"
@@ -204,6 +209,20 @@ jobs:
           HEAD_DT_SMALL="pr/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
           HEAD_ZMP_LARGE="pr/$REPORT_DIR/testZHTMLMarkupParserSweep.large.json"
           DT_CRASH="doctype_results/results.json"
+
+          # Diagnostic dump: which files exist, what's in them. Makes
+          # it possible to debug a missing-input failure without
+          # rerunning the full ~25-min benchmark just to see logs.
+          echo "::group::Input files"
+          for F in "$BASE_ZMP_SMALL" "$BASE_DT_SMALL" "$HEAD_ZMP_SMALL" "$HEAD_DT_SMALL" "$HEAD_ZMP_LARGE" "$DT_CRASH"; do
+              if [ -f "$F" ]; then
+                  echo "✅ $F ($(wc -c < "$F") bytes)"
+                  head -c 500 "$F"; echo
+              else
+                  echo "❌ MISSING: $F"
+              fi
+          done
+          echo "::endgroup::"
 
           fmt() {
             awk -v v="$1" 'BEGIN { if (v < 0) print "n/a"; else printf "%.3f", v }'

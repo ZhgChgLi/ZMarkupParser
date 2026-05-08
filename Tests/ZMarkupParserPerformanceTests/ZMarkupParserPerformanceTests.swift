@@ -145,11 +145,11 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
         let parser = makeSUT()
         var results: [[String: Any]] = []
 
-        for count in Self.sweepSizes {
+        for count in ZMarkupParserPerformanceTests.sweepSizes {
             let input = String(repeating: htmlString, count: count)
             let length = input.utf8.count
             var total: Double = 0
-            for _ in 0..<Self.sweepRuns {
+            for _ in 0..<ZMarkupParserPerformanceTests.sweepRuns {
                 autoreleasepool {
                     let start = CFAbsoluteTimeGetCurrent()
                     _ = parser.render(input)
@@ -159,7 +159,7 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
             results.append([
                 "count": count,
                 "length": length,
-                "avgTime": total / Double(Self.sweepRuns)
+                "avgTime": total / Double(ZMarkupParserPerformanceTests.sweepRuns)
             ])
         }
 
@@ -170,14 +170,14 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
         executionTimeAllowance = TimeInterval(60 * 60)
         var results: [[String: Any]] = []
 
-        for count in Self.sweepSizes {
+        for count in ZMarkupParserPerformanceTests.sweepSizes {
             let input = String(repeating: htmlString, count: count)
             let length = input.utf8.count
 
             // Skip sizes known to risk a crash inside CoreFoundation's
             // HTML reader. -1 marks the entry as not-run so the workflow
             // can render an "n/a" cell.
-            guard length <= Self.documentTypeMaxLength else {
+            guard length <= ZMarkupParserPerformanceTests.documentTypeMaxLength else {
                 results.append([
                     "count": count,
                     "length": length,
@@ -187,7 +187,7 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
             }
 
             var total: Double = 0
-            for _ in 0..<Self.sweepRuns {
+            for _ in 0..<ZMarkupParserPerformanceTests.sweepRuns {
                 autoreleasepool {
                     let data = input.data(using: .utf8)!
                     let opts: [NSAttributedString.DocumentReadingOptionKey: Any] = [
@@ -202,7 +202,7 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
             results.append([
                 "count": count,
                 "length": length,
-                "avgTime": total / Double(Self.sweepRuns)
+                "avgTime": total / Double(ZMarkupParserPerformanceTests.sweepRuns)
             ])
         }
 
