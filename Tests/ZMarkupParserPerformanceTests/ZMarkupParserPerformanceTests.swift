@@ -208,6 +208,61 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
 
         makeResultReport(results)
     }
+
+    // Drives `NSAttributedString.DocumentType.html` at progressively
+    // larger sizes inside xctest (where the WebKit-dependent reader
+    // has its required runloop). Persists a partial JSON before each
+    // attempt so a CoreFoundation crash that takes the test process
+    // down still leaves the crash size identifiable: the last entry
+    // will be in the "started" state.
+    func testDocumentTypeHTMLCrashSweep() {
+        executionTimeAllowance = TimeInterval(60 * 60)
+        let crashSweepSizes = [300, 1000, 3000, 10000, 30000, 100000]
+        var results: [[String: Any]] = []
+
+        for count in crashSweepSizes {
+            let input = String(repeating: htmlString, count: count)
+            let length = input.utf8.count
+
+            // Mark this size as in-progress before the call so a
+            // process-level crash leaves a "started" tombstone.
+            results.append([
+                "count": count,
+                "length": length,
+                "elapsed": -1.0,
+                "status": "started"
+            ])
+            makeResultReport(results)
+
+            let data = input.data(using: .utf8)!
+            let opts: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+                .documentType: NSAttributedString.DocumentType.html,
+                .characterEncoding: String.Encoding.utf8.rawValue
+            ]
+
+            let start = CFAbsoluteTimeGetCurrent()
+            var threwError: String? = nil
+            do {
+                _ = try NSAttributedString(data: data, options: opts, documentAttributes: nil)
+            } catch {
+                threwError = error.localizedDescription
+            }
+            let elapsed = CFAbsoluteTimeGetCurrent() - start
+
+            // Replace the in-progress entry with the resolved one.
+            var entry: [String: Any] = [
+                "count": count,
+                "length": length,
+                "elapsed": elapsed,
+                "status": threwError == nil ? "ok" : "throw"
+            ]
+            if let err = threwError {
+                entry["error"] = err
+            }
+            results[results.count - 1] = entry
+            makeResultReport(results)
+        }
+    }
 }
 
 extension ZMarkupParserPerformanceTests {

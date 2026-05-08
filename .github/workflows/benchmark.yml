@@ -109,88 +109,28 @@ jobs:
           mv Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserSweep.json \
              Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserSweep.large.json
 
-      # Find DocType.html's actual crash threshold by running each size
-      # in a subprocess. If a child process crashes (SIGABRT/SIGSEGV)
-      # the parent records that and continues — without this, a
-      # CoreFoundation crash would take the whole xctest process down.
-      - name: DocType.html crash sweep (subprocess)
+      # Drives DocType.html at progressively larger sizes inside xctest,
+      # which provides the runloop the CoreFoundation HTML reader
+      # requires (a plain `swift script.swift` subprocess does not, and
+      # exits 1 even on inputs that work fine in xctest). The test
+      # method writes a partial JSON before each attempt, so if a size
+      # CoreFoundation-crashes the whole test process, the last "started"
+      # entry identifies it.
+      #
+      # `continue-on-error: true` because such a crash is exactly the
+      # outcome we want to observe.
+      - name: Bench DocType crash sweep
+        continue-on-error: true
         run: |
-          # Disable errexit explicitly: GitHub Actions' default shell is
-          # `bash -eo pipefail`, and a non-success subprocess exit
-          # (e.g. CoreFoundation crash) is exactly what we want to
-          # observe and continue past.
-          set +e
-          set -uo pipefail
-          mkdir -p doctype_results
-          cat > /tmp/doctype_bench.swift <<'SWIFT_EOF'
-          import Foundation
-
-          let html = """
-              🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
-              The <u>final <del>countdown</del></u> on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon<br>
-              Top 10 Popular <b><span style="color:green">Christmas</span> Gift</b> Recommendations
-              """
-
-          // Read size from env to avoid swift CLI's argv-vs-flag ambiguity.
-          guard let raw = ProcessInfo.processInfo.environment["BENCH_COUNT"],
-                let count = Int(raw) else {
-              FileHandle.standardError.write("BENCH_COUNT env var not set\n".data(using: .utf8)!)
-              exit(2)
-          }
-
-          let input = String(repeating: html, count: count)
-          let length = input.utf8.count
-          let data = input.data(using: .utf8)!
-          let opts: [NSAttributedString.DocumentReadingOptionKey: Any] = [
-              .documentType: NSAttributedString.DocumentType.html,
-              .characterEncoding: String.Encoding.utf8.rawValue
-          ]
-
-          let start = CFAbsoluteTimeGetCurrent()
-          do {
-              _ = try NSAttributedString(data: data, options: opts, documentAttributes: nil)
-          } catch {
-              print("THROW length=\(length) error=\(error.localizedDescription)")
-              exit(3)
-          }
-          let elapsed = CFAbsoluteTimeGetCurrent() - start
-          print("OK length=\(length) elapsed=\(elapsed)")
-          SWIFT_EOF
-
-          # Probe progressively larger sizes; first failure marks the
-          # crash threshold. Sizes in count units (htmlString ~340 bytes).
-          # No timeout wrapper — macOS doesn't ship `timeout`, and each
-          # subprocess either completes or crashes quickly. The job-level
-          # timeout is the safety net.
-          RESULTS_JSON='['
-          FIRST=true
-          for SIZE in 300 1000 3000 10000 30000 100000; do
-              echo "::group::DocType count=$SIZE"
-              OUTPUT=$(BENCH_COUNT="$SIZE" swift /tmp/doctype_bench.swift 2>&1)
-              EXIT=$?
-              echo "exit=$EXIT"
-              echo "$OUTPUT"
-              echo "::endgroup::"
-
-              if [ "$EXIT" = "0" ]; then
-                  LENGTH=$(echo "$OUTPUT" | grep "^OK " | sed -E 's/.*length=([0-9]+).*/\1/')
-                  ELAPSED=$(echo "$OUTPUT" | grep "^OK " | sed -E 's/.*elapsed=([0-9.]+).*/\1/')
-                  STATUS="ok"
-              else
-                  LENGTH=$(awk -v c="$SIZE" 'BEGIN { printf "%d", c * 340 }')
-                  ELAPSED="-1"
-                  STATUS="crash"
-              fi
-              if [ "$FIRST" = "true" ]; then FIRST=false; else RESULTS_JSON+=','; fi
-              RESULTS_JSON+="{\"count\":$SIZE,\"length\":$LENGTH,\"elapsed\":$ELAPSED,\"status\":\"$STATUS\",\"exit\":$EXIT}"
-              if [ "$STATUS" != "ok" ]; then
-                  echo "Stopping sweep at size=$SIZE (status=$STATUS)"
-                  break
-              fi
-          done
-          RESULTS_JSON+=']'
-          echo "$RESULTS_JSON" > doctype_results/results.json
-          cat doctype_results/results.json
+          set -o pipefail
+          cd pr
+          xcodebuild test \
+            -workspace ZMarkupParser.xcworkspace \
+            -testPlan Performance \
+            -scheme ZMarkupParser \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLCrashSweep \
+            -destination 'platform=macOS' \
+            build test | xcpretty || true
 
       - name: Post comparison comment
         env:
@@ -213,7 +153,7 @@ jobs:
               "head_zmp_small": PR   / REPORT / "testZHTMLMarkupParserSweep.small.json",
               "head_dt_small":  PR   / REPORT / "testDocumentTypeHTMLSweep.json",
               "head_zmp_large": PR   / REPORT / "testZHTMLMarkupParserSweep.large.json",
-              "dt_crash":       Path("doctype_results/results.json"),
+              "dt_crash":       PR   / REPORT / "testDocumentTypeHTMLCrashSweep.json",
           }
 
           # Load every input but tolerate misses — we'd rather post a
@@ -282,16 +222,24 @@ jobs:
               table_large = "| _missing_ | _missing_ |\n"
 
           # ----- DocType crash sweep -----
+          # Statuses come from the in-process xctest sweep:
+          #   "ok"      — converted, took entry["elapsed"] s
+          #   "throw"   — NSAttributedString init threw an Error
+          #   "started" — last partial entry, the process crashed here
+          #               before the post-call write could promote it
+          #               to "ok" / "throw"
           table_dt = ""
           for entry in (loaded["dt_crash"] or []):
               status = entry.get("status")
-              exit_code = entry.get("exit")
               if status == "ok":
                   cell = f"✅ {fmt_time(entry['elapsed'])} s"
-              elif status == "timeout":
-                  cell = "⏱ timed out"
+              elif status == "throw":
+                  err = entry.get("error", "thrown error")
+                  cell = f"⚠ thrown: {err}"
+              elif status == "started":
+                  cell = "💥 process crashed here"
               else:
-                  cell = f"💥 crash (exit {exit_code})"
+                  cell = f"? unknown status: {status}"
               table_dt += (
                   f"| {entry['count']} (~{fmt_kb(entry['length'])} KB) | {cell} |\n"
               )
