@@ -92,7 +92,7 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
     
     func testDocumentTypeHTMLMeasure() {
         let times: Int = 10
-        
+
         var totalTime: Double = 0
         for _ in 1...times {
             autoreleasepool {
@@ -107,10 +107,95 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
                 totalTime += time
             }
         }
-        
+
         let avgTime = totalTime/Double(times)
         print(times, avgTime)
         makeResultReport(["Times":times, "avgTime": avgTime])
+    }
+
+    // MARK: - Large-size sweep
+    //
+    // Each of these runs the same workload as the *Measure tests above
+    // but at multiple input sizes. They emit a single JSON file whose
+    // shape the benchmark workflow knows how to read:
+    //
+    //   [{ "count": Int, "length": Int, "avgTime": Double }, ...]
+    //
+    // `length == -1` is the sentinel for "skipped at this size" — used
+    // by the DocumentType.html sweep to avoid the documented crash on
+    // very large inputs.
+
+    private static let sweepSizes: [Int] = [300, 1000]
+    private static let sweepRuns: Int = 3
+    private static let documentTypeMaxLength: Int = 500_000
+
+    func testZHTMLMarkupParserSweep() {
+        executionTimeAllowance = TimeInterval(60 * 60)
+        let parser = makeSUT()
+        var results: [[String: Any]] = []
+
+        for count in Self.sweepSizes {
+            let input = String(repeating: htmlString, count: count)
+            let length = input.utf8.count
+            var total: Double = 0
+            for _ in 0..<Self.sweepRuns {
+                autoreleasepool {
+                    let start = CFAbsoluteTimeGetCurrent()
+                    _ = parser.render(input)
+                    total += CFAbsoluteTimeGetCurrent() - start
+                }
+            }
+            results.append([
+                "count": count,
+                "length": length,
+                "avgTime": total / Double(Self.sweepRuns)
+            ])
+        }
+
+        makeResultReport(results)
+    }
+
+    func testDocumentTypeHTMLSweep() {
+        executionTimeAllowance = TimeInterval(60 * 60)
+        var results: [[String: Any]] = []
+
+        for count in Self.sweepSizes {
+            let input = String(repeating: htmlString, count: count)
+            let length = input.utf8.count
+
+            // Skip sizes known to risk a crash inside CoreFoundation's
+            // HTML reader. -1 marks the entry as not-run so the workflow
+            // can render an "n/a" cell.
+            guard length <= Self.documentTypeMaxLength else {
+                results.append([
+                    "count": count,
+                    "length": length,
+                    "avgTime": -1.0
+                ])
+                continue
+            }
+
+            var total: Double = 0
+            for _ in 0..<Self.sweepRuns {
+                autoreleasepool {
+                    let data = input.data(using: .utf8)!
+                    let opts: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+                        .documentType: NSAttributedString.DocumentType.html,
+                        .characterEncoding: String.Encoding.utf8.rawValue
+                    ]
+                    let start = CFAbsoluteTimeGetCurrent()
+                    _ = try? NSAttributedString(data: data, options: opts, documentAttributes: nil)
+                    total += CFAbsoluteTimeGetCurrent() - start
+                }
+            }
+            results.append([
+                "count": count,
+                "length": length,
+                "avgTime": total / Double(Self.sweepRuns)
+            ])
+        }
+
+        makeResultReport(results)
     }
 }
 

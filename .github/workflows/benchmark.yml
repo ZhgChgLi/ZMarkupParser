@@ -25,6 +25,7 @@ jobs:
     runs-on: macos-14
     permissions:
       pull-requests: write
+    timeout-minutes: 180
     env:
       PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr_number }}
       BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || inputs.base_ref }}
@@ -46,21 +47,29 @@ jobs:
           ref: ${{ env.HEAD_REF }}
           path: pr
 
+      - name: Port sweep tests onto baseline
+        run: |
+          # Two patches for the baseline checkout:
+          # 1. Fix a pre-existing compile error in the perf test on main
+          #    (HTMLTag(tagName: $0) over a [(HTMLTagName, MarkupStyle?)]
+          #    tuple — needs $0.0).
+          # 2. Replace the perf test file entirely with the PR HEAD
+          #    version, which also adds the sweep test methods. We need
+          #    the same sweep method names to exist on both refs so the
+          #    `-only-testing:` flag finds them.
+          cp pr/Tests/ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests.swift \
+             baseline/Tests/ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests.swift
+
       - name: Bench baseline
         run: |
           set -o pipefail
           cd baseline
-          # Fix a pre-existing compile error in the perf test on main
-          # (HTMLTag(tagName: $0) over a [(HTMLTagName, MarkupStyle?)]
-          # tuple — needs $0.0). The PR HEAD already has this fix.
-          sed -i '' 's/HTMLTag(tagName: $0)/HTMLTag(tagName: $0.0)/' \
-            Tests/ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests.swift
           xcodebuild test \
             -workspace ZMarkupParser.xcworkspace \
             -testPlan Performance \
             -scheme ZMarkupParser \
-            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testZHTMLMarkupParserMeasure \
-            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLMeasure \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testZHTMLMarkupParserSweep \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLSweep \
             -destination 'platform=macOS' \
             build test | xcpretty
 
@@ -72,8 +81,8 @@ jobs:
             -workspace ZMarkupParser.xcworkspace \
             -testPlan Performance \
             -scheme ZMarkupParser \
-            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testZHTMLMarkupParserMeasure \
-            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLMeasure \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testZHTMLMarkupParserSweep \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLSweep \
             -destination 'platform=macOS' \
             build test | xcpretty
 
@@ -84,28 +93,66 @@ jobs:
         run: |
           set -euo pipefail
 
-          BASE_ZMP=$(jq -r '.avgTime' baseline/Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserMeasure.json)
-          BASE_DT=$(jq -r '.avgTime' baseline/Tests/ZMarkupParserPerformanceTests/Report/testDocumentTypeHTMLMeasure.json)
-          HEAD_ZMP=$(jq -r '.avgTime' pr/Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserMeasure.json)
-          HEAD_DT=$(jq -r '.avgTime' pr/Tests/ZMarkupParserPerformanceTests/Report/testDocumentTypeHTMLMeasure.json)
+          REPORT_DIR="Tests/ZMarkupParserPerformanceTests/Report"
+          BASE_ZMP="baseline/$REPORT_DIR/testZHTMLMarkupParserSweep.json"
+          BASE_DT="baseline/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
+          HEAD_ZMP="pr/$REPORT_DIR/testZHTMLMarkupParserSweep.json"
+          HEAD_DT="pr/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
 
-          ZMP_SPEEDUP=$(awk "BEGIN { printf \"%.2f\", $BASE_ZMP / $HEAD_ZMP }")
-          DT_SPEEDUP=$(awk "BEGIN { printf \"%.2f\", $HEAD_DT / $HEAD_ZMP }")
+          # Merge four JSON arrays into one row-per-size table via jq.
+          # Each input is [{ count, length, avgTime }, ...].
+          ROWS=$(jq -n --slurpfile a "$BASE_ZMP" \
+                       --slurpfile b "$HEAD_ZMP" \
+                       --slurpfile c "$BASE_DT" \
+                       --slurpfile d "$HEAD_DT" '
+            $a[0] as $az | $b[0] as $bz | $c[0] as $ad | $d[0] as $bd
+            | [range(0; $az | length)] | map(. as $i |
+                {
+                  count: ($az[$i].count),
+                  length: ($az[$i].length),
+                  base_zmp: ($az[$i].avgTime),
+                  head_zmp: ($bz[$i].avgTime),
+                  base_dt:  ($ad[$i].avgTime),
+                  head_dt:  ($bd[$i].avgTime)
+                }
+              )')
+
+          fmt() {
+            # -1 → "n/a", else format with 3 decimals
+            awk -v v="$1" 'BEGIN { if (v < 0) print "n/a"; else printf "%.3f", v }'
+          }
+
+          ratio() {
+            # speedup of $2 over $1 (higher is better for $2)
+            awk -v a="$1" -v b="$2" 'BEGIN {
+              if (a < 0 || b < 0 || b == 0) print "n/a";
+              else printf "%.2f×", a / b
+            }'
+          }
+
+          TABLE=""
+          while IFS=$'\t' read -r COUNT LENGTH BASE_ZMP_VAL HEAD_ZMP_VAL BASE_DT_VAL HEAD_DT_VAL; do
+            BASE_ZMP_F=$(fmt "$BASE_ZMP_VAL")
+            HEAD_ZMP_F=$(fmt "$HEAD_ZMP_VAL")
+            BASE_DT_F=$(fmt "$BASE_DT_VAL")
+            HEAD_DT_F=$(fmt "$HEAD_DT_VAL")
+            ZMP_SPEEDUP=$(ratio "$BASE_ZMP_VAL" "$HEAD_ZMP_VAL")
+            DT_SPEEDUP=$(ratio "$HEAD_DT_VAL" "$HEAD_ZMP_VAL")
+            LENGTH_KB=$(awk -v l="$LENGTH" 'BEGIN { printf "%.0f", l / 1024 }')
+            TABLE+="| ${COUNT} (~${LENGTH_KB} KB) | ${BASE_ZMP_F} | ${HEAD_ZMP_F} | ${ZMP_SPEEDUP} | ${HEAD_DT_F} | ${DT_SPEEDUP} |"$'\n'
+          done < <(echo "$ROWS" | jq -r '.[] | [.count, .length, .base_zmp, .head_zmp, .base_dt, .head_dt] | @tsv')
 
           BODY=$(cat <<EOF
-          ## Benchmark: PR vs \`$BASE_REF\` vs \`NSAttributedString.DocumentType.html\`
+          ## Benchmark sweep: PR vs \`$BASE_REF\` vs \`NSAttributedString.DocumentType.html\`
 
-          Workload: \`String(repeating: htmlString, count: 300)\`, average of 10 runs (\`testZHTMLMarkupParserMeasure\` / \`testDocumentTypeHTMLMeasure\`).
+          Workload: \`String(repeating: htmlString, count: N)\`, average of 3 runs per size (\`testZHTMLMarkupParserSweep\` / \`testDocumentTypeHTMLSweep\`).
           Runner: macos-14, Xcode 15.2, \`platform=macOS\`.
 
-          | Renderer | avg time (s) |
-          | --- | --- |
-          | \`NSAttributedString.DocumentType.html\` (PR run) | $HEAD_DT |
-          | ZMarkupParser \`$BASE_REF\` (baseline) | $BASE_ZMP |
-          | ZMarkupParser PR HEAD | $HEAD_ZMP |
+          | size (count, bytes) | ZMP \`$BASE_REF\` (s) | ZMP PR (s) | PR vs \`$BASE_REF\` | DocType.html PR (s) | PR vs DocType.html |
+          | --- | --- | --- | --- | --- | --- |
+          $TABLE
 
-          - PR vs \`$BASE_REF\` ZMarkupParser: **${ZMP_SPEEDUP}×** speedup.
-          - PR vs \`NSAttributedString.DocumentType.html\`: **${DT_SPEEDUP}×** speedup.
+          \`n/a\` = skipped (DocumentType.html is skipped above ~500 KB to avoid the documented CoreFoundation crash on very large inputs).
 
           [Run details](https://github.com/$REPO/actions/runs/${{ github.run_id }})
           EOF
