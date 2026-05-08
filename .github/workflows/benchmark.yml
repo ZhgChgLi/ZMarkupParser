@@ -25,7 +25,7 @@ jobs:
     runs-on: macos-14
     permissions:
       pull-requests: write
-    timeout-minutes: 180
+    timeout-minutes: 240
     env:
       PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || inputs.pr_number }}
       BASE_REF: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.ref || inputs.base_ref }}
@@ -49,18 +49,15 @@ jobs:
 
       - name: Port sweep tests onto baseline
         run: |
-          # Two patches for the baseline checkout:
-          # 1. Fix a pre-existing compile error in the perf test on main
-          #    (HTMLTag(tagName: $0) over a [(HTMLTagName, MarkupStyle?)]
-          #    tuple — needs $0.0).
-          # 2. Replace the perf test file entirely with the PR HEAD
-          #    version, which also adds the sweep test methods. We need
-          #    the same sweep method names to exist on both refs so the
-          #    `-only-testing:` flag finds them.
           cp pr/Tests/ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests.swift \
              baseline/Tests/ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests.swift
 
-      - name: Bench baseline
+      # Baseline only runs the small sizes. Anything larger would take
+      # 30+ min per render under the pre-fix O(N²) lookup.
+      - name: Bench baseline (small sizes)
+        env:
+          SWEEP_SIZES: "300,1000"
+          SWEEP_RUNS: "3"
         run: |
           set -o pipefail
           cd baseline
@@ -73,7 +70,13 @@ jobs:
             -destination 'platform=macOS' \
             build test | xcpretty
 
-      - name: Bench PR HEAD
+      # PR HEAD runs the full sweep including very large inputs.
+      # `runs=1` for the large sweep to keep total runtime sane —
+      # we just want a scaling-curve data point, not an average.
+      - name: Bench PR HEAD (small sizes)
+        env:
+          SWEEP_SIZES: "300,1000"
+          SWEEP_RUNS: "3"
         run: |
           set -o pipefail
           cd pr
@@ -85,6 +88,107 @@ jobs:
             -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLSweep \
             -destination 'platform=macOS' \
             build test | xcpretty
+          # Save the small-size results before they get overwritten by the next sweep.
+          mv Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserSweep.json \
+             Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserSweep.small.json
+
+      - name: Bench PR HEAD (large sizes)
+        env:
+          SWEEP_SIZES: "3000,10000,30000"
+          SWEEP_RUNS: "1"
+        run: |
+          set -o pipefail
+          cd pr
+          xcodebuild test \
+            -workspace ZMarkupParser.xcworkspace \
+            -testPlan Performance \
+            -scheme ZMarkupParser \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testZHTMLMarkupParserSweep \
+            -destination 'platform=macOS' \
+            build test | xcpretty
+          mv Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserSweep.json \
+             Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserSweep.large.json
+
+      # Find DocType.html's actual crash threshold by running each size
+      # in a subprocess. If a child process crashes (SIGABRT/SIGSEGV) or
+      # times out, the parent records that and continues — without this,
+      # a CoreFoundation crash would take the whole xctest process down.
+      - name: DocType.html crash sweep (subprocess)
+        run: |
+          set -uo pipefail
+          mkdir -p doctype_results
+          cat > /tmp/doctype_bench.swift <<'SWIFT_EOF'
+          import Foundation
+
+          let html = """
+              🎄🎄🎄 <Hottest> <b>Christmas gi<u>fts</b> are here</u>! Give you more gift-giving inspiration~<br />
+              The <u>final <del>countdown</del></u> on 12/9, NT$100 discount for all purchases over NT$1,000, plus a 12/12 one-day limited free shipping coupon<br>
+              Top 10 Popular <b><span style="color:green">Christmas</span> Gift</b> Recommendations
+              """
+
+          guard CommandLine.arguments.count >= 2, let count = Int(CommandLine.arguments[1]) else {
+              FileHandle.standardError.write("usage: <count>\n".data(using: .utf8)!)
+              exit(2)
+          }
+
+          let input = String(repeating: html, count: count)
+          let length = input.utf8.count
+          let data = input.data(using: .utf8)!
+          let opts: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+              .documentType: NSAttributedString.DocumentType.html,
+              .characterEncoding: String.Encoding.utf8.rawValue
+          ]
+
+          let start = CFAbsoluteTimeGetCurrent()
+          do {
+              _ = try NSAttributedString(data: data, options: opts, documentAttributes: nil)
+          } catch {
+              print("THROW length=\(length) error=\(error.localizedDescription)")
+              exit(3)
+          }
+          let elapsed = CFAbsoluteTimeGetCurrent() - start
+          print("OK length=\(length) elapsed=\(elapsed)")
+          SWIFT_EOF
+
+          # Probe progressively larger sizes; first failure marks the
+          # crash threshold. Sizes in count units (htmlString ~340 bytes).
+          RESULTS_JSON='['
+          FIRST=true
+          for SIZE in 300 1000 3000 10000 30000 100000; do
+              echo "::group::DocType count=$SIZE"
+              # 600s timeout per subprocess, captured via /usr/bin/time.
+              OUTPUT=$(/usr/bin/timeout 600 swift /tmp/doctype_bench.swift "$SIZE" 2>&1)
+              EXIT=$?
+              echo "exit=$EXIT"
+              echo "$OUTPUT"
+              echo "::endgroup::"
+
+              # Parse subprocess output. EXIT 0 + "OK length=L elapsed=E" => success.
+              # Other exits => crash/timeout/throw.
+              if [ "$EXIT" = "0" ]; then
+                  LENGTH=$(echo "$OUTPUT" | grep "^OK " | sed -E 's/.*length=([0-9]+).*/\1/')
+                  ELAPSED=$(echo "$OUTPUT" | grep "^OK " | sed -E 's/.*elapsed=([0-9.]+).*/\1/')
+                  STATUS="ok"
+              elif [ "$EXIT" = "124" ]; then
+                  LENGTH=$(awk -v c="$SIZE" 'BEGIN { printf "%d", c * 340 }')
+                  ELAPSED="-1"
+                  STATUS="timeout"
+              else
+                  LENGTH=$(awk -v c="$SIZE" 'BEGIN { printf "%d", c * 340 }')
+                  ELAPSED="-1"
+                  STATUS="crash"
+              fi
+              if [ "$FIRST" = "true" ]; then FIRST=false; else RESULTS_JSON+=','; fi
+              RESULTS_JSON+="{\"count\":$SIZE,\"length\":$LENGTH,\"elapsed\":$ELAPSED,\"status\":\"$STATUS\",\"exit\":$EXIT}"
+              # If we hit a crash/timeout, stop probing larger sizes.
+              if [ "$STATUS" != "ok" ]; then
+                  echo "Stopping sweep at size=$SIZE (status=$STATUS)"
+                  break
+              fi
+          done
+          RESULTS_JSON+=']'
+          echo "$RESULTS_JSON" > doctype_results/results.json
+          cat doctype_results/results.json
 
       - name: Post comparison comment
         env:
@@ -94,17 +198,29 @@ jobs:
           set -euo pipefail
 
           REPORT_DIR="Tests/ZMarkupParserPerformanceTests/Report"
-          BASE_ZMP="baseline/$REPORT_DIR/testZHTMLMarkupParserSweep.json"
-          BASE_DT="baseline/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
-          HEAD_ZMP="pr/$REPORT_DIR/testZHTMLMarkupParserSweep.json"
-          HEAD_DT="pr/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
+          BASE_ZMP_SMALL="baseline/$REPORT_DIR/testZHTMLMarkupParserSweep.json"
+          BASE_DT_SMALL="baseline/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
+          HEAD_ZMP_SMALL="pr/$REPORT_DIR/testZHTMLMarkupParserSweep.small.json"
+          HEAD_DT_SMALL="pr/$REPORT_DIR/testDocumentTypeHTMLSweep.json"
+          HEAD_ZMP_LARGE="pr/$REPORT_DIR/testZHTMLMarkupParserSweep.large.json"
+          DT_CRASH="doctype_results/results.json"
 
-          # Merge four JSON arrays into one row-per-size table via jq.
-          # Each input is [{ count, length, avgTime }, ...].
-          ROWS=$(jq -n --slurpfile a "$BASE_ZMP" \
-                       --slurpfile b "$HEAD_ZMP" \
-                       --slurpfile c "$BASE_DT" \
-                       --slurpfile d "$HEAD_DT" '
+          fmt() {
+            awk -v v="$1" 'BEGIN { if (v < 0) print "n/a"; else printf "%.3f", v }'
+          }
+
+          ratio() {
+            awk -v a="$1" -v b="$2" 'BEGIN {
+              if (a < 0 || b < 0 || b == 0) print "n/a";
+              else printf "%.2f×", a / b
+            }'
+          }
+
+          # ----- Small-size comparison table (PR vs baseline vs DocType) -----
+          ROWS_SMALL=$(jq -n --slurpfile a "$BASE_ZMP_SMALL" \
+                             --slurpfile b "$HEAD_ZMP_SMALL" \
+                             --slurpfile c "$BASE_DT_SMALL" \
+                             --slurpfile d "$HEAD_DT_SMALL" '
             $a[0] as $az | $b[0] as $bz | $c[0] as $ad | $d[0] as $bd
             | [range(0; $az | length)] | map(. as $i |
                 {
@@ -112,47 +228,65 @@ jobs:
                   length: ($az[$i].length),
                   base_zmp: ($az[$i].avgTime),
                   head_zmp: ($bz[$i].avgTime),
-                  base_dt:  ($ad[$i].avgTime),
-                  head_dt:  ($bd[$i].avgTime)
+                  head_dt: ($bd[$i].avgTime)
                 }
               )')
 
-          fmt() {
-            # -1 → "n/a", else format with 3 decimals
-            awk -v v="$1" 'BEGIN { if (v < 0) print "n/a"; else printf "%.3f", v }'
-          }
-
-          ratio() {
-            # speedup of $2 over $1 (higher is better for $2)
-            awk -v a="$1" -v b="$2" 'BEGIN {
-              if (a < 0 || b < 0 || b == 0) print "n/a";
-              else printf "%.2f×", a / b
-            }'
-          }
-
-          TABLE=""
-          while IFS=$'\t' read -r COUNT LENGTH BASE_ZMP_VAL HEAD_ZMP_VAL BASE_DT_VAL HEAD_DT_VAL; do
+          TABLE_SMALL=""
+          while IFS=$'\t' read -r COUNT LENGTH BASE_ZMP_VAL HEAD_ZMP_VAL HEAD_DT_VAL; do
             BASE_ZMP_F=$(fmt "$BASE_ZMP_VAL")
             HEAD_ZMP_F=$(fmt "$HEAD_ZMP_VAL")
-            BASE_DT_F=$(fmt "$BASE_DT_VAL")
             HEAD_DT_F=$(fmt "$HEAD_DT_VAL")
             ZMP_SPEEDUP=$(ratio "$BASE_ZMP_VAL" "$HEAD_ZMP_VAL")
             DT_SPEEDUP=$(ratio "$HEAD_DT_VAL" "$HEAD_ZMP_VAL")
             LENGTH_KB=$(awk -v l="$LENGTH" 'BEGIN { printf "%.0f", l / 1024 }')
-            TABLE+="| ${COUNT} (~${LENGTH_KB} KB) | ${BASE_ZMP_F} | ${HEAD_ZMP_F} | ${ZMP_SPEEDUP} | ${HEAD_DT_F} | ${DT_SPEEDUP} |"$'\n'
-          done < <(echo "$ROWS" | jq -r '.[] | [.count, .length, .base_zmp, .head_zmp, .base_dt, .head_dt] | @tsv')
+            TABLE_SMALL+="| ${COUNT} (~${LENGTH_KB} KB) | ${BASE_ZMP_F} | ${HEAD_ZMP_F} | ${ZMP_SPEEDUP} | ${HEAD_DT_F} | ${DT_SPEEDUP} |"$'\n'
+          done < <(echo "$ROWS_SMALL" | jq -r '.[] | [.count, .length, .base_zmp, .head_zmp, .head_dt] | @tsv')
+
+          # ----- Large-size scaling table (PR only) -----
+          TABLE_LARGE=""
+          while IFS=$'\t' read -r COUNT LENGTH ELAPSED; do
+            LENGTH_KB=$(awk -v l="$LENGTH" 'BEGIN { printf "%.0f", l / 1024 }')
+            ELAPSED_F=$(fmt "$ELAPSED")
+            TABLE_LARGE+="| ${COUNT} (~${LENGTH_KB} KB) | ${ELAPSED_F} |"$'\n'
+          done < <(jq -r '.[] | [.count, .length, .avgTime] | @tsv' "$HEAD_ZMP_LARGE")
+
+          # ----- DocType crash sweep table -----
+          TABLE_DT_CRASH=""
+          while IFS=$'\t' read -r COUNT LENGTH ELAPSED STATUS EXIT; do
+            LENGTH_KB=$(awk -v l="$LENGTH" 'BEGIN { printf "%.0f", l / 1024 }')
+            case "$STATUS" in
+              ok)      EMOJI="✅"; ELAPSED_F="$(fmt "$ELAPSED") s" ;;
+              timeout) EMOJI="⏱"; ELAPSED_F=">600 s (timed out)" ;;
+              *)       EMOJI="💥"; ELAPSED_F="crash (exit $EXIT)" ;;
+            esac
+            TABLE_DT_CRASH+="| ${COUNT} (~${LENGTH_KB} KB) | ${EMOJI} ${ELAPSED_F} |"$'\n'
+          done < <(jq -r '.[] | [.count, .length, .elapsed, .status, .exit] | @tsv' "$DT_CRASH")
 
           BODY=$(cat <<EOF
-          ## Benchmark sweep: PR vs \`$BASE_REF\` vs \`NSAttributedString.DocumentType.html\`
+          ## Benchmark sweep — small sizes (PR vs \`$BASE_REF\` vs DocumentType.html)
 
-          Workload: \`String(repeating: htmlString, count: N)\`, average of 3 runs per size (\`testZHTMLMarkupParserSweep\` / \`testDocumentTypeHTMLSweep\`).
-          Runner: macos-14, Xcode 15.2, \`platform=macOS\`.
+          Average of 3 runs. Runner: macos-14, Xcode 15.2, \`platform=macOS\`.
 
           | size (count, bytes) | ZMP \`$BASE_REF\` (s) | ZMP PR (s) | PR vs \`$BASE_REF\` | DocType.html PR (s) | PR vs DocType.html |
           | --- | --- | --- | --- | --- | --- |
-          $TABLE
+          $TABLE_SMALL
 
-          \`n/a\` = skipped (DocumentType.html is skipped above ~500 KB to avoid the documented CoreFoundation crash on very large inputs).
+          ## ZMarkupParser PR — large-size scaling (single run per size)
+
+          Probes whether the post-refactor renderer keeps a linear curve at sizes well past where DocumentType.html breaks.
+
+          | size (count, bytes) | ZMP PR (s) |
+          | --- | --- |
+          $TABLE_LARGE
+
+          ## NSAttributedString.DocumentType.html — crash sweep (subprocess per size)
+
+          Each size is invoked in its own subprocess so a CoreFoundation crash on a large input doesn't take the workflow down. The sweep stops at the first non-success size.
+
+          | size (count, bytes) | result |
+          | --- | --- |
+          $TABLE_DT_CRASH
 
           [Run details](https://github.com/$REPO/actions/runs/${{ github.run_id }})
           EOF

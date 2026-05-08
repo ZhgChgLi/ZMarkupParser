@@ -125,8 +125,19 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
     // by the DocumentType.html sweep to avoid the documented crash on
     // very large inputs.
 
-    private static let sweepSizes: [Int] = [300, 1000]
-    private static let sweepRuns: Int = 3
+    private static let sweepSizes: [Int] = {
+        if let raw = ProcessInfo.processInfo.environment["SWEEP_SIZES"] {
+            let parsed = raw.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+            if !parsed.isEmpty { return parsed }
+        }
+        return [300, 1000]
+    }()
+    private static let sweepRuns: Int = {
+        if let raw = ProcessInfo.processInfo.environment["SWEEP_RUNS"], let n = Int(raw), n > 0 {
+            return n
+        }
+        return 3
+    }()
     private static let documentTypeMaxLength: Int = 500_000
 
     func testZHTMLMarkupParserSweep() {
