@@ -1,0 +1,100 @@
+name: Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to post results to"
+        required: true
+        type: number
+      base_ref:
+        description: "Baseline ref (defaults to main)"
+        required: false
+        default: "main"
+        type: string
+
+jobs:
+  benchmark:
+    runs-on: macos-14
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "15.2"
+
+      - name: Checkout baseline (${{ inputs.base_ref }})
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.base_ref }}
+          path: baseline
+
+      - name: Checkout PR HEAD
+        uses: actions/checkout@v4
+        with:
+          path: pr
+
+      - name: Bench baseline
+        run: |
+          set -o pipefail
+          cd baseline
+          xcodebuild test \
+            -workspace ZMarkupParser.xcworkspace \
+            -testPlan Performance \
+            -scheme ZMarkupParser \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testZHTMLMarkupParserMeasure \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLMeasure \
+            -destination 'platform=macOS' \
+            build test | xcpretty
+
+      - name: Bench PR HEAD
+        run: |
+          set -o pipefail
+          cd pr
+          xcodebuild test \
+            -workspace ZMarkupParser.xcworkspace \
+            -testPlan Performance \
+            -scheme ZMarkupParser \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testZHTMLMarkupParserMeasure \
+            -only-testing:ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests/testDocumentTypeHTMLMeasure \
+            -destination 'platform=macOS' \
+            build test | xcpretty
+
+      - name: Post comparison comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          BASE_REF: ${{ inputs.base_ref }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          BASE_ZMP=$(jq -r '.avgTime' baseline/Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserMeasure.json)
+          BASE_DT=$(jq -r '.avgTime' baseline/Tests/ZMarkupParserPerformanceTests/Report/testDocumentTypeHTMLMeasure.json)
+          HEAD_ZMP=$(jq -r '.avgTime' pr/Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserMeasure.json)
+          HEAD_DT=$(jq -r '.avgTime' pr/Tests/ZMarkupParserPerformanceTests/Report/testDocumentTypeHTMLMeasure.json)
+
+          # Speedup of PR over baseline ZMarkupParser, and PR over DocumentType.html.
+          ZMP_SPEEDUP=$(awk "BEGIN { printf \"%.2f\", $BASE_ZMP / $HEAD_ZMP }")
+          DT_SPEEDUP=$(awk "BEGIN { printf \"%.2f\", $HEAD_DT / $HEAD_ZMP }")
+
+          BODY=$(cat <<EOF
+          ## Benchmark: PR vs \`$BASE_REF\` vs \`NSAttributedString.DocumentType.html\`
+
+          Workload: \`String(repeating: htmlString, count: 300)\`, average of 10 runs (\`testZHTMLMarkupParserMeasure\` / \`testDocumentTypeHTMLMeasure\`).
+          Runner: macos-14, Xcode 15.2, \`platform=macOS\`.
+
+          | Renderer | avg time (s) |
+          | --- | --- |
+          | \`NSAttributedString.DocumentType.html\` (PR run) | $HEAD_DT |
+          | ZMarkupParser \`$BASE_REF\` (baseline) | $BASE_ZMP |
+          | ZMarkupParser PR HEAD | $HEAD_ZMP |
+
+          - PR vs \`$BASE_REF\` ZMarkupParser: **${ZMP_SPEEDUP}×** speedup.
+          - PR vs \`NSAttributedString.DocumentType.html\`: **${DT_SPEEDUP}×** speedup.
+
+          [Run details](https://github.com/$REPO/actions/runs/${{ github.run_id }})
+          EOF
+          )
+
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$BODY"
