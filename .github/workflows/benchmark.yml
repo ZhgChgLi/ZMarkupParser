@@ -110,11 +110,16 @@ jobs:
              Tests/ZMarkupParserPerformanceTests/Report/testZHTMLMarkupParserSweep.large.json
 
       # Find DocType.html's actual crash threshold by running each size
-      # in a subprocess. If a child process crashes (SIGABRT/SIGSEGV) or
-      # times out, the parent records that and continues — without this,
-      # a CoreFoundation crash would take the whole xctest process down.
+      # in a subprocess. If a child process crashes (SIGABRT/SIGSEGV)
+      # the parent records that and continues — without this, a
+      # CoreFoundation crash would take the whole xctest process down.
       - name: DocType.html crash sweep (subprocess)
         run: |
+          # Disable errexit explicitly: GitHub Actions' default shell is
+          # `bash -eo pipefail`, and a non-success subprocess exit
+          # (e.g. CoreFoundation crash) is exactly what we want to
+          # observe and continue past.
+          set +e
           set -uo pipefail
           mkdir -p doctype_results
           cat > /tmp/doctype_bench.swift <<'SWIFT_EOF'
@@ -152,27 +157,23 @@ jobs:
 
           # Probe progressively larger sizes; first failure marks the
           # crash threshold. Sizes in count units (htmlString ~340 bytes).
+          # No timeout wrapper — macOS doesn't ship `timeout`, and each
+          # subprocess either completes or crashes quickly. The job-level
+          # timeout is the safety net.
           RESULTS_JSON='['
           FIRST=true
           for SIZE in 300 1000 3000 10000 30000 100000; do
               echo "::group::DocType count=$SIZE"
-              # 600s timeout per subprocess, captured via /usr/bin/time.
-              OUTPUT=$(/usr/bin/timeout 600 swift /tmp/doctype_bench.swift "$SIZE" 2>&1)
+              OUTPUT=$(swift /tmp/doctype_bench.swift "$SIZE" 2>&1)
               EXIT=$?
               echo "exit=$EXIT"
               echo "$OUTPUT"
               echo "::endgroup::"
 
-              # Parse subprocess output. EXIT 0 + "OK length=L elapsed=E" => success.
-              # Other exits => crash/timeout/throw.
               if [ "$EXIT" = "0" ]; then
                   LENGTH=$(echo "$OUTPUT" | grep "^OK " | sed -E 's/.*length=([0-9]+).*/\1/')
                   ELAPSED=$(echo "$OUTPUT" | grep "^OK " | sed -E 's/.*elapsed=([0-9.]+).*/\1/')
                   STATUS="ok"
-              elif [ "$EXIT" = "124" ]; then
-                  LENGTH=$(awk -v c="$SIZE" 'BEGIN { printf "%d", c * 340 }')
-                  ELAPSED="-1"
-                  STATUS="timeout"
               else
                   LENGTH=$(awk -v c="$SIZE" 'BEGIN { printf "%d", c * 340 }')
                   ELAPSED="-1"
@@ -180,7 +181,6 @@ jobs:
               fi
               if [ "$FIRST" = "true" ]; then FIRST=false; else RESULTS_JSON+=','; fi
               RESULTS_JSON+="{\"count\":$SIZE,\"length\":$LENGTH,\"elapsed\":$ELAPSED,\"status\":\"$STATUS\",\"exit\":$EXIT}"
-              # If we hit a crash/timeout, stop probing larger sizes.
               if [ "$STATUS" != "ok" ]; then
                   echo "Stopping sweep at size=$SIZE (status=$STATUS)"
                   break
