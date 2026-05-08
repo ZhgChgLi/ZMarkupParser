@@ -127,7 +127,7 @@ final class ZMarkupParserPerformanceTests: XCTestCase {
 
     private static let sweepSizes: [Int] = {
         if let raw = ProcessInfo.processInfo.environment["SWEEP_SIZES"] {
-            let parsed = raw.split(separator: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+            let parsed = raw.components(separatedBy: ",").compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
             if !parsed.isEmpty { return parsed }
         }
         return [300, 1000]
