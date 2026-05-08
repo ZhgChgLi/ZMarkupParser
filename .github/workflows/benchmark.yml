@@ -50,6 +50,11 @@ jobs:
         run: |
           set -o pipefail
           cd baseline
+          # Fix a pre-existing compile error in the perf test on main
+          # (HTMLTag(tagName: $0) over a [(HTMLTagName, MarkupStyle?)]
+          # tuple — needs $0.0). The PR HEAD already has this fix.
+          sed -i '' 's/HTMLTag(tagName: $0)/HTMLTag(tagName: $0.0)/' \
+            Tests/ZMarkupParserPerformanceTests/ZMarkupParserPerformanceTests.swift
           xcodebuild test \
             -workspace ZMarkupParser.xcworkspace \
             -testPlan Performance \
