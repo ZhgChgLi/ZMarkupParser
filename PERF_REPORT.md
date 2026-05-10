@@ -1,7 +1,16 @@
 # Performance Improvement Report
 
 Internal-only optimizations to `ZMarkupParser`'s render pipeline. All public APIs are
-preserved bit-for-bit; the four commits below are on `main` (`6753271..233c6d3`).
+preserved bit-for-bit.
+
+> **Note on the harness.** The numbers below were captured with the
+> `ZMarkupParserPerformanceTests` target that this PR also removes (the published baseline
+> was already noisy and host-dependent, and the suite ran for ~10 min per pass). If you
+> want to re-measure, the `testZMarkupParserPerformance` /
+> `testZHTMLMarkupParserMeasure` / `testDocumentTypeHTMLMeasure` test bodies can be
+> recovered from git history — the `testRootMarkupIsReleasedAfterRender` retain-cycle
+> check has already been relocated to `ZMarkupParserTests/Core/MemoryLeakTests.swift` so
+> the regression coverage stays in CI.
 
 ## Host
 

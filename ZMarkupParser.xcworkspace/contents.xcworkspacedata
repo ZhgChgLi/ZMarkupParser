@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Tests/Performance.xctestplan">
-   </FileRef>
-   <FileRef
       location = "group:ZMarkupParser-Demo/ZMarkupParser-Demo.xcodeproj">
    </FileRef>
    <FileRef
