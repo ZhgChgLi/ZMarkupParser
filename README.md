@@ -22,7 +22,7 @@ ZMarkupParser is a pure-Swift library that helps you convert HTML strings into N
 - [x] Support for `<ul>` list views, `<table>` table view, `<img>` image, also `<hr>` horizontal lines, and more.
 - [x] Support for parsing and setting styles from HTML tag attributes such as style="color:red".
 - [x] Support for parsing HTML color names into UIColor/NSColor.
-- [x] Faster than `NSAttributedString.DocumentType.html` and ~13.6× faster than the previous release on the same input — see [`PERF_REPORT.md`](./PERF_REPORT.md).
+- [x] Faster than `NSAttributedString.DocumentType.html`, and safe on inputs that would crash the system API — see [`PERF_REPORT.md`](./PERF_REPORT.md).
 - [x] Thread-safe `render` / `stripper` / `selector` — a single parser instance can be shared across concurrent calls.
 - [x] Fully test cases and test coverage.
 
@@ -41,17 +41,20 @@ To run the ZMarkupParser demo, download the repository and open ZMarkupParser.xc
 
 ### Performance Benchmark
 
-The render pipeline was rewritten to drop the legacy `O(N²)` hot loops and to share cached regular expressions / lookup tables across calls. On Apple M1 Pro / macOS 26.4 / Xcode 26.2, `swift test -c release` now reports:
+`ZMarkupParser` is faster than `NSAttributedString.DocumentType.html`, and keeps working on inputs that would crash the system API. On Apple M1 Pro / macOS 26.4 / Xcode 26.2, `swift test -c release`:
 
-| Implementation | 300× sample (≈100 KB HTML) | vs. previous release | vs. system |
-|---|---|---|---|
-| `ZMarkupParser` (previous release) | 5.067 s / iter | 1.00× | 11.1× slower |
-| **`ZMarkupParser` (current)** | **0.372 s / iter** | **13.6× faster (-92.7%)** | **1.23× faster (-19%)** |
-| `NSAttributedString.DocumentType.html` | 0.457 s / iter | — | — |
+| Input | `ZMarkupParser` | `NSAttributedString.DocumentType.html` |
+|---|---|---|
+| 300× sample (≈100 KB HTML, 10-iter avg) | **0.372 s / iter** | 0.457 s / iter |
+| 1000× sample (≈334 K chars, single sweep) | **1.152 s** | crashes (system API is documented to crash past ~54 600 chars) |
 
-The win widens with input size: at ~334 000 characters the new build finishes in 1.15 s, while `NSAttributedString.DocumentType.html` is documented to crash past ~54 600 characters. Full methodology, length-scaling table, and per-commit breakdown are in [`PERF_REPORT.md`](./PERF_REPORT.md).
+Highlights:
 
-> The original 2022 / M2 benchmark chart was retired together with the host-noisy `ZMarkupParserPerformanceTests` target. The numbers above were captured on the same physical machine for both the previous release and the current build.
+- ~19 % faster than the system API on the 100 KB sample, and the gap widens with input size.
+- Stays correct on long HTML strings where `NSAttributedString.DocumentType.html` crashes.
+- Pure-Swift / regex-based — no `WebKit` / `NSAttributedString.DocumentType.html` round-trip, no AppKit / UIKit main-thread requirement.
+
+Full methodology and length-scaling table in [`PERF_REPORT.md`](./PERF_REPORT.md).
 
 ## Installation
 

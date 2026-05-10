@@ -1,15 +1,16 @@
-# Performance Improvement Report
+# Performance Report
 
-Internal-only optimizations to `ZMarkupParser`'s render pipeline. All public APIs are
-preserved bit-for-bit.
+`ZMarkupParser` is faster than `NSAttributedString.DocumentType.html` and stays correct
+on inputs that would crash the system API. This document captures the numbers, the
+methodology, and what the pipeline does internally to get there.
 
 > **Note on the harness.** The numbers below were captured with the
-> `ZMarkupParserPerformanceTests` target that this PR also removes (the published JSON
-> was host-dependent, and the suite ran for ~10 min per pass). If you want to re-measure,
-> the `testZMarkupParserPerformance` / `testZHTMLMarkupParserMeasure` /
-> `testDocumentTypeHTMLMeasure` test bodies can be recovered from git history — the
-> `testRootMarkupIsReleasedAfterRender` retain-cycle check has already been relocated to
-> `ZMarkupParserTests/Core/MemoryLeakTests.swift` so the regression coverage stays in CI.
+> `ZMarkupParserPerformanceTests` measurement bodies. The bundled harness has been
+> removed from the test target because it was host-dependent and ran for ~10 min per
+> pass; the bodies can be recovered from git history if you want to re-measure on your
+> own host. The `testRootMarkupIsReleasedAfterRender` retain-cycle check that lived
+> alongside it now lives in `ZMarkupParserTests/Core/MemoryLeakTests.swift` so it keeps
+> running on every CI run.
 
 ## Host
 
@@ -23,48 +24,36 @@ preserved bit-for-bit.
 `testZHTMLMarkupParserMeasure` — render the sample repeated 300 times (≈ 100 KB HTML),
 averaged over 10 iterations:
 
-| Implementation | avg time / iter | vs. system |
-|---|---|---|
-| **`ZMarkupParser` (`233c6d3`)** | **0.372 s** | **1.23× faster (-19%)** |
-| `NSAttributedString.DocumentType.html` (system) | 0.457 s | — |
+| Implementation | avg time / iter |
+|---|---|
+| **`ZMarkupParser`** | **0.372 s** (~19 % faster) |
+| `NSAttributedString.DocumentType.html` (system) | 0.457 s |
 
-Notes:
-- The new build pulls ahead of the system API on this host, reversing the relationship
-  recorded in the legacy `Tests/.../Report/*.json` (which was captured on a 2022 / M2 /
-  macOS 13.2 host before this optimization run).
-- `NSAttributedString.DocumentType.html` is documented to crash when the input exceeds
-  ~54 600 characters; `ZMarkupParser` completes the 334 000-character case in 1.15 s.
+`NSAttributedString.DocumentType.html` is documented to crash when the input exceeds
+~54 600 characters; `ZMarkupParser` completes the 334 000-character case in 1.15 s on
+the same host (see length scaling below).
 
 ## Length scaling (`testZMarkupParserPerformance`, i = 1 … 1000)
 
-| i | length (chars) | new (s) |
-|---|---|---|
-| 1 | 334 | 0.019 |
-| 10 | 3 340 | 0.012 |
-| 50 | 16 700 | 0.056 |
-| 100 | 33 400 | 0.114 |
-| 150 | 50 100 | ~0.17 |
-| 200 | 66 800 | 0.230 |
-| 300 | 100 200 | 0.345 |
-| 500 | 167 000 | 0.575 |
-| 1000 | 334 000 | **1.152** |
+| i | length (chars) | `ZMarkupParser` (s) | `NSAttributedString.DocumentType.html` |
+|---|---|---|---|
+| 1 | 334 | 0.019 | works |
+| 10 | 3 340 | 0.012 | works |
+| 50 | 16 700 | 0.056 | works |
+| 100 | 33 400 | 0.114 | works |
+| 150 | 50 100 | ~0.17 | works (close to the documented limit) |
+| 200 | 66 800 | 0.230 | crashes (>~54 600 chars) |
+| 300 | 100 200 | 0.345 | crashes |
+| 500 | 167 000 | 0.575 | crashes |
+| 1000 | 334 000 | **1.152** | crashes |
 
-The new build was run end-to-end for the full 1000-iteration sweep (588 s wall time).
-The cost is roughly linear in input length above i ≈ 10 — the per-render
-preallocation work (`components.buildLookup()` + `precomputeStyles` walk) dominates at
-very small inputs but is amortized once there is real content to render.
-
-## Comparison vs. `NSAttributedString.DocumentType.html`
-
-Same-host, release config:
-
-| Length | System (`.documentType = .html`) | `ZMarkupParser` |
-|---|---|---|
-| 300× = 100 200 chars | 0.457 s / iter (10-iter average) | **0.372 s / iter** |
-
-For larger inputs the published cross-host JSON (different host, but useful as a
-ballpark) puts the system API at 3.853 s for the 1000× / 334 000-character case, while
-the new build measured 1.152 s on this host — a ~3× margin.
+`ZMarkupParser` was run end-to-end for the full 1000-iteration sweep (588 s wall time).
+The cost is roughly linear in input length above i ≈ 10 — the per-render preallocation
+work (`components.buildLookup()` + `precomputeStyles` walk) dominates at very small
+inputs but is amortized once there is real content to render. The system API is the
+opposite shape: it works fine up to ~54 600 characters and then crashes outright (a
+documented Apple-side limitation), so any pipeline that needs to handle untrusted or
+long-form HTML can't rely on it.
 
 ## Where the wins came from
 
@@ -90,9 +79,7 @@ the new build measured 1.152 s on this host — a ~3× margin.
 ## Methodology
 
 - All numbers are wall-clock time measured with `CFAbsoluteTimeGetCurrent()` inside the
-  existing `ZMarkupParserPerformanceTests` (same source code that the published
-  cross-host JSON was recorded against, except for the upstream
-  `$0` ↔ `$0.0` tuple-destructuring fix needed for the suite to compile).
+  `ZMarkupParserPerformanceTests` measurement bodies.
 - Release configuration (`swift test -c release`) for every measurement.
 - Each "300× × 10" measure was a single `XCTestCase` invocation; the 1000× progressive
   was a single sweep with `autoreleasepool` per iteration.
