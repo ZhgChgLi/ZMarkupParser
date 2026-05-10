@@ -62,14 +62,14 @@ Full methodology and length-scaling table in [`PERF_REPORT.md`](./PERF_REPORT.md
 
 - File > Swift Packages > Add Package Dependency
 - Add `https://github.com/ZhgChgLi/ZMarkupParser.git`
-- Select "Up to Next Major" with "2.0.1"
+- Select "Up to Next Major" with "2.0.2"
 
 or 
 
 ```swift
 ...
 dependencies: [
-  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "2.0.1"),
+  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "2.0.2"),
 ]
 ...
 .target(
@@ -88,7 +88,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 2.0.1'
+  pod 'ZMarkupParser', '~> 2.0.2'
 end
 ```
 
