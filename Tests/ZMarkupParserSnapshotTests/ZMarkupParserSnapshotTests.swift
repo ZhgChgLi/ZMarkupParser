@@ -102,7 +102,7 @@ final class ZHTMLToNSAttributedStringSnapshotTests: XCTestCase {
                 return
             }
             attachment.register(textView.textStorage)
-            attachment.startDownlaod()
+            attachment.startDownload()
         }
         
         
