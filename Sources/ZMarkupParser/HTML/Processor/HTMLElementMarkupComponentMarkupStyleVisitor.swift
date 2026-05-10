@@ -23,11 +23,32 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     
     let policy: MarkupStylePolicy
     let components: [HTMLElementMarkupComponent]
+    /// O(1) per-markup lookup of the same data as `components`; built once on init so the
+    /// visitor's per-element `componentsLookup.value(markup:)` runs in constant time instead of
+    /// the legacy O(N) `Array.first(where:)` scan (rendering an N-node tree was O(N^2)).
+    let componentsLookup: [ObjectIdentifier: HTMLElementMarkupComponent.HTMLElement]
     let styleAttributes: [HTMLTagStyleAttribute]
     let classAttributes: [HTMLTagClassAttribute]
     let idAttributes: [HTMLTagIdAttribute]
-    
+
     let rootStyle: MarkupStyle?
+
+    init(
+        policy: MarkupStylePolicy,
+        components: [HTMLElementMarkupComponent],
+        styleAttributes: [HTMLTagStyleAttribute],
+        classAttributes: [HTMLTagClassAttribute],
+        idAttributes: [HTMLTagIdAttribute],
+        rootStyle: MarkupStyle?
+    ) {
+        self.policy = policy
+        self.components = components
+        self.componentsLookup = components.buildLookup()
+        self.styleAttributes = styleAttributes
+        self.classAttributes = classAttributes
+        self.idAttributes = idAttributes
+        self.rootStyle = rootStyle
+    }
     
     func visit(_ markup: RootMarkup) -> Result {
         return nil
@@ -42,32 +63,32 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ExtendMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: BoldMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup), defaultStyle: .bold)
+        return defaultVisit(componentsLookup.value(markup: markup), defaultStyle: .bold)
     }
     
     func visit(_ markup: HorizontalLineMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: InlineMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: ColorMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup), defaultStyle: MarkupStyle(foregroundColor: markup.color))
+        return defaultVisit(componentsLookup.value(markup: markup), defaultStyle: MarkupStyle(foregroundColor: markup.color))
     }
     
     func visit(_ markup: ItalicMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup), defaultStyle: .italic)
+        return defaultVisit(componentsLookup.value(markup: markup), defaultStyle: .italic)
     }
     
     func visit(_ markup: LinkMarkup) -> Result {
-        var markupStyle = defaultVisit(components.value(markup: markup), defaultStyle: .link) ?? .link
-        if let href = components.value(markup: markup)?.attributes?["href"] as? String,
+        var markupStyle = defaultVisit(componentsLookup.value(markup: markup), defaultStyle: .link) ?? .link
+        if let href = componentsLookup.value(markup: markup)?.attributes?["href"] as? String,
            let url = URL(string: href) {
             markupStyle.link = url
         }
@@ -75,11 +96,11 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ListMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: ListItemMarkup) -> Result {
-        var defaultStyle = defaultVisit(components.value(markup: markup)) ?? MarkupStyle()
+        var defaultStyle = defaultVisit(componentsLookup.value(markup: markup)) ?? MarkupStyle()
         
         var currentMarkup: Markup? = markup.parentMarkup
         var parentListMarkup: ListMarkup?
@@ -140,24 +161,24 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ParagraphMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: UnderlineMarkup) -> Result {
-        let htmlElement = components.value(markup: markup)
+        let htmlElement = componentsLookup.value(markup: markup)
         return defaultVisit(htmlElement, defaultStyle: .underline)
     }
     
     func visit(_ markup: DeletelineMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup), defaultStyle: .deleteline)
+        return defaultVisit(componentsLookup.value(markup: markup), defaultStyle: .deleteline)
     }
     
     func visit(_ markup: TableMarkup) -> MarkupStyle? {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: TableRowMarkup) -> Result {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: HeadMarkup) -> Result {
@@ -176,11 +197,11 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
         case .h6:
             defaultStyle = .h6
         }
-        return defaultVisit(components.value(markup: markup), defaultStyle: defaultStyle)
+        return defaultVisit(componentsLookup.value(markup: markup), defaultStyle: defaultStyle)
     }
     
     func visit(_ markup: TableColumnMarkup) -> Result {
-        let htmlElement = components.value(markup: markup)
+        let htmlElement = componentsLookup.value(markup: markup)
         if markup.isHeader {
             return defaultVisit(htmlElement, defaultStyle: .bold)
         } else {
@@ -189,15 +210,15 @@ struct HTMLElementMarkupComponentMarkupStyleVisitor: MarkupVisitor {
     }
     
     func visit(_ markup: ImageMarkup) -> MarkupStyle? {
-        return defaultVisit(components.value(markup: markup))
+        return defaultVisit(componentsLookup.value(markup: markup))
     }
     
     func visit(_ markup: BlockQuoteMarkup) -> MarkupStyle? {
-        return  defaultVisit(components.value(markup: markup), defaultStyle: .blockQuote)
+        return  defaultVisit(componentsLookup.value(markup: markup), defaultStyle: .blockQuote)
     }
     
     func visit(_ markup: CodeMarkup) -> MarkupStyle? {
-        return defaultVisit(components.value(markup: markup), defaultStyle: .code)
+        return defaultVisit(componentsLookup.value(markup: markup), defaultStyle: .code)
     }
 }
 
