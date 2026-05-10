@@ -62,14 +62,14 @@ Full methodology and length-scaling table in [`PERF_REPORT.md`](./PERF_REPORT.md
 
 - File > Swift Packages > Add Package Dependency
 - Add `https://github.com/ZhgChgLi/ZMarkupParser.git`
-- Select "Up to Next Major" with "2.0.1"
+- Select "Up to Next Major" with "2.1.0"
 
 or 
 
 ```swift
 ...
 dependencies: [
-  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "2.0.1"),
+  .package(url: "https://github.com/ZhgChgLi/ZMarkupParser.git", from: "2.1.0"),
 ]
 ...
 .target(
@@ -88,7 +88,7 @@ platform :ios, '12.0'
 use_frameworks!
 
 target 'MyApp' do
-  pod 'ZMarkupParser', '~> 2.0.1'
+  pod 'ZMarkupParser', '~> 2.1.0'
 end
 ```
 
@@ -323,6 +323,26 @@ textView.setHtmlString(htmlString)
 
 // work with UILabel
 label.setHtmlString(htmlString)
+```
+
+### SwiftUI / `AttributedString`
+The `AttributedString` overloads return Foundation's value-type [`AttributedString`](https://developer.apple.com/documentation/foundation/attributedstring) (iOS 15+ / macOS 12+) so SwiftUI's `Text` can render the parsed result directly. Available on iOS 15 / tvOS 15 / macOS 12 / watchOS 8 and up — the existing `NSAttributedString` API is unchanged on older OS targets.
+```swift
+import SwiftUI
+
+struct ContentView: View {
+    let parser = ZHTMLParserBuilder.initWithDefault().build()
+    let html = "Hello <b>world</b>, visit <a href=\"https://zhgchg.li\">my blog</a>."
+
+    var body: some View {
+        Text(parser.attributedString(html))
+    }
+}
+
+// or asynchronously, mirroring `render(_:completionHandler:)`
+parser.attributedString(html) { attributed in
+    // delivered on the main queue
+}
 ```
 
 ### Stripper HTML String
