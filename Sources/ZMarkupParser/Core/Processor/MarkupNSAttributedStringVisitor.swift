@@ -342,10 +342,10 @@ private extension MarkupNSAttributedStringVisitor {
     
     func collectMarkupStyle(_ markup: Markup) -> MarkupStyle? {
         // Fast path: the precomputed top-down effective style already merged the entire
-        // parent chain in O(1) per markup at process() time. Just fold in the root style.
+        // parent chain *plus* `rootStyle` at process() time, so this is now an O(1) dictionary
+        // hit with no per-leaf `fillIfNil` work.
         if !effectiveStyles.isEmpty {
-            if var cached = effectiveStyles[ObjectIdentifier(markup)] {
-                cached.fillIfNil(from: rootStyle)
+            if let cached = effectiveStyles[ObjectIdentifier(markup)] {
                 return cached
             }
             return rootStyle

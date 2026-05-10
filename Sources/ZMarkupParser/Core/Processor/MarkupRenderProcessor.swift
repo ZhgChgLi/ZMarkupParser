@@ -20,10 +20,13 @@ final class MarkupRenderProcessor: ParserProcessor {
     func process(from: From) -> To {
         let (root, components) = from
         // Precompute every markup's effective style top-down so the visitor's leaf-side
-        // `collectMarkupStyle` becomes O(1) instead of O(depth) per leaf.
+        // `collectMarkupStyle` becomes O(1) instead of O(depth) per leaf. The walker also folds
+        // `rootStyle` into the seed inherited style, so the visitor never has to call
+        // `fillIfNil(from: rootStyle)` per leaf.
+        let lookup = components.buildLookup()
         var effectiveStyles: [ObjectIdentifier: MarkupStyle] = [:]
-        effectiveStyles.reserveCapacity(64)
-        precomputeStyles(root, inheritedStyle: nil, components: components, into: &effectiveStyles)
+        effectiveStyles.reserveCapacity(max(64, lookup.count))
+        precomputeStyles(root, inheritedStyle: rootStyle, lookup: lookup, into: &effectiveStyles)
 
         let visitor = MarkupNSAttributedStringVisitor(
             components: components,
@@ -36,10 +39,10 @@ final class MarkupRenderProcessor: ParserProcessor {
     private func precomputeStyles(
         _ markup: Markup,
         inheritedStyle: MarkupStyle?,
-        components: [MarkupStyleComponent],
+        lookup: [ObjectIdentifier: MarkupStyle],
         into cache: inout [ObjectIdentifier: MarkupStyle]
     ) {
-        let ownStyle = components.value(markup: markup)
+        let ownStyle = lookup.value(markup: markup)
         let merged: MarkupStyle?
         if var own = ownStyle, let parent = inheritedStyle {
             own.fillIfNil(from: parent)
@@ -51,7 +54,7 @@ final class MarkupRenderProcessor: ParserProcessor {
             cache[ObjectIdentifier(markup)] = merged
         }
         for child in markup.childMarkups {
-            precomputeStyles(child, inheritedStyle: merged, components: components, into: &cache)
+            precomputeStyles(child, inheritedStyle: merged, lookup: lookup, into: &cache)
         }
     }
 }
