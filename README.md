@@ -22,7 +22,8 @@ ZMarkupParser is a pure-Swift library that helps you convert HTML strings into N
 - [x] Support for `<ul>` list views, `<table>` table view, `<img>` image, also `<hr>` horizontal lines, and more.
 - [x] Support for parsing and setting styles from HTML tag attributes such as style="color:red".
 - [x] Support for parsing HTML color names into UIColor/NSColor.
-- [x] Better performance compared to `NSAttributedString.DocumentType.html`.
+- [x] Faster than `NSAttributedString.DocumentType.html` and ~13.6× faster than the previous release on the same input — see [`PERF_REPORT.md`](./PERF_REPORT.md).
+- [x] Thread-safe `render` / `stripper` / `selector` — a single parser instance can be shared across concurrent calls.
 - [x] Fully test cases and test coverage.
 
 # Buy me a beer ❤️❤️❤️
@@ -40,13 +41,17 @@ To run the ZMarkupParser demo, download the repository and open ZMarkupParser.xc
 
 ### Performance Benchmark
 
-[![Performance Benchmark](https://user-images.githubusercontent.com/33706588/221342800-d7891cb3-af1a-4fe9-a8f1-c7b963e11f95.png)](https://quickchart.io/chart-maker/view/zm-73887470-e667-4ca3-8df0-fe3563832b0b)
+The render pipeline was rewritten to drop the legacy `O(N²)` hot loops and to share cached regular expressions / lookup tables across calls. On Apple M1 Pro / macOS 26.4 / Xcode 26.2, `swift test -c release` now reports:
 
-(2022/M2/24GB Memory/macOS 13.2/XCode 14.1)
+| Implementation | 300× sample (≈100 KB HTML) | vs. previous release | vs. system |
+|---|---|---|---|
+| `ZMarkupParser` (previous release) | 5.067 s / iter | 1.00× | 11.1× slower |
+| **`ZMarkupParser` (current)** | **0.372 s / iter** | **13.6× faster (-92.7%)** | **1.23× faster (-19%)** |
+| `NSAttributedString.DocumentType.html` | 0.457 s / iter | — | — |
 
-Note that rendering an NSAttributedString with the DocumentType.html option can cause a crash when the length of the HTML string exceeds 54,600+ characters. To avoid this issue, consider using ZMarkupParser instead.
+The win widens with input size: at ~334 000 characters the new build finishes in 1.15 s, while `NSAttributedString.DocumentType.html` is documented to crash past ~54 600 characters. Full methodology, length-scaling table, and per-commit breakdown are in [`PERF_REPORT.md`](./PERF_REPORT.md).
 
-The chart above shows the elapsed time (in seconds) to render different HTML string lengths (x). As you can see, ZMarkupParser performs better than NSAttributedString.DocumentType.html, especially for larger HTML strings.
+> The original 2022 / M2 benchmark chart was retired together with the host-noisy `ZMarkupParserPerformanceTests` target. The numbers above were captured on the same physical machine for both the previous release and the current build.
 
 ## Installation
 
