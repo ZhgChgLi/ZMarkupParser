@@ -15,11 +15,14 @@ public final class ZHTMLParser {
     let htmlParsedResultToHTMLElementWithRootMarkupProcessor: HTMLParsedResultToHTMLElementWithRootMarkupProcessor
     let htmlElementWithMarkupToMarkupStyleProcessor: HTMLElementWithMarkupToMarkupStyleProcessor
     let markupRenderProcessor: MarkupRenderProcessor
-    
-    lazy var htmlParsedResultFormatter: HTMLParsedResultFormatterProcessor = HTMLParsedResultFormatterProcessor()
-    lazy var htmlStringToParsedResult: HTMLStringToParsedResultProcessor = HTMLStringToParsedResultProcessor()
-    lazy var markupStripperProcessor: MarkupStripperProcessor = MarkupStripperProcessor()
-    
+
+    // Eagerly initialised (instead of `lazy var`) so concurrent first-touch from multiple
+    // threads cannot race the lazy storage; every processor is stateless w.r.t. its inputs,
+    // so a single shared instance is safe to use from many threads.
+    let htmlParsedResultFormatter: HTMLParsedResultFormatterProcessor
+    let htmlStringToParsedResult: HTMLStringToParsedResultProcessor
+    let markupStripperProcessor: MarkupStripperProcessor
+
     init(
         htmlTags: [HTMLTag],
         styleAttributes: [HTMLTagStyleAttribute],
@@ -31,11 +34,14 @@ public final class ZHTMLParser {
         self.htmlTags = htmlTags
         self.styleAttributes = styleAttributes
         self.rootStyle = rootStyle
-        
+
         self.markupRenderProcessor = MarkupRenderProcessor(rootStyle: rootStyle)
-        
+
         self.htmlParsedResultToHTMLElementWithRootMarkupProcessor = HTMLParsedResultToHTMLElementWithRootMarkupProcessor(htmlTags: htmlTags)
         self.htmlElementWithMarkupToMarkupStyleProcessor = HTMLElementWithMarkupToMarkupStyleProcessor(styleAttributes: styleAttributes, classAttributes: classAttributes, idAttributes: idAttributes, policy: policy, rootStyle: rootStyle)
+        self.htmlParsedResultFormatter = HTMLParsedResultFormatterProcessor()
+        self.htmlStringToParsedResult = HTMLStringToParsedResultProcessor()
+        self.markupStripperProcessor = MarkupStripperProcessor()
     }
     
     static let dispatchQueue: DispatchQueue = DispatchQueue(label: "ZHTMLParser.Queue")
