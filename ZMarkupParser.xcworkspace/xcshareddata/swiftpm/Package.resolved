@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ZhgChgLi/SwiftRangeable",
       "state" : {
-        "revision" : "abf1f831cfc6018d957ae337a8f04f99e93c8864",
-        "version" : "1.0.0"
+        "revision" : "09e8d4c67322104346e4bbc0e67eb3fdfe3f1662",
+        "version" : "2.0.0"
       }
     },
     {
