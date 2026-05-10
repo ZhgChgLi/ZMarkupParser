@@ -143,6 +143,32 @@ final class ZHTMLParserTests: XCTestCase {
         XCTAssertTrue(mismatches.isEmpty, "concurrent renders must match the reference plain text; got \(mismatches.count) mismatches")
     }
 
+    /// Regression guard for issue #89: 12-level deeply nested `<ol>` lists used to freeze
+    /// the app because list-item style and bullet computation walked / re-visited ancestors
+    /// per item, compounding into exponential work for nested lists. After the precomputed
+    /// `ListIndexLookup` + memoised list-item visit, the same input must finish in well
+    /// under a second on developer / CI hardware.
+    func testDeeplyNestedListsRenderInLinearTime() {
+        let leaf = "<li>nested item content keeps the strings short but plural</li>"
+        let inner = String(repeating: leaf, count: 7)
+        // Tail-nest 12 levels of <ol>: each level has 7 plain leaves followed by an 8th
+        // item that hosts the next <ol>, mirroring the issue #89 reproduction.
+        var html = "<ol>" + inner + "<li>tail item</li></ol>"
+        for _ in 0..<11 {
+            html = "<ol>" + inner + "<li>tail item" + html + "</li></ol>"
+        }
+
+        let start = Date()
+        let rendered = parser.render(html)
+        let elapsed = Date().timeIntervalSince(start)
+
+        XCTAssertLessThan(elapsed, 2.0, "12-level nested lists must not regress to the pre-fix multi-second freeze (took \(elapsed)s)")
+        XCTAssertTrue(rendered.string.contains("nested item content"), "deepest content must survive the render")
+        // 12 levels * (7 leaves + 1 tail) = 96 list items; sanity-check the count.
+        let tabs = rendered.string.filter { $0 == "\t" }.count
+        XCTAssertGreaterThanOrEqual(tabs, 96, "every list item should contribute a tab between bullet and content; got \(tabs)")
+    }
+
     func testConcurrentSelectorAndStripperAreThreadSafe() {
         let html = "<div><a href=\"https://zhgchg.li\">L<b>i</b>nk</a><p>P<u>ar</u>a</p></div>"
         let referenceSelector = parser.selector(html).first("a")?.attributedString.string

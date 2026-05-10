@@ -27,7 +27,10 @@ final class HTMLElementWithMarkupToMarkupStyleProcessor: ParserProcessor {
     
     func process(from: From) -> To {
         var components: [MarkupStyleComponent] = []
-        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: policy, components: from.1, styleAttributes: styleAttributes, classAttributes: classAttributes, idAttributes: idAttributes, rootStyle: rootStyle)
+        // O(1) parent-list / sibling-index lookup so the visitor avoids the legacy
+        // O(N^2) `childMarkups.filter + firstIndex` pattern per list item (issue #89).
+        let listLookup = ListIndexLookup.build(from: from.0)
+        let visitor = HTMLElementMarkupComponentMarkupStyleVisitor(policy: policy, components: from.1, styleAttributes: styleAttributes, classAttributes: classAttributes, idAttributes: idAttributes, rootStyle: rootStyle, listLookup: listLookup)
         walk(markup: from.0, visitor: visitor, components: &components)
         return components
     }

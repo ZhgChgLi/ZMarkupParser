@@ -19,16 +19,21 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     /// Precomputed top-down effective style for each markup, keyed by `ObjectIdentifier`.
     /// Allows the leaf-side `collectMarkupStyle` to avoid walking up the parent chain.
     let effectiveStyles: [ObjectIdentifier: MarkupStyle]
+    /// Pre-built `ListItemMarkup` -> `(parent ListMarkup, sibling index)` table so
+    /// rendering each list item is O(1) instead of O(N) per item / O(N^2) per list.
+    let listLookup: ListIndexLookup
 
     init(
         components: [MarkupStyleComponent],
         rootStyle: MarkupStyle?,
-        effectiveStyles: [ObjectIdentifier: MarkupStyle] = [:]
+        effectiveStyles: [ObjectIdentifier: MarkupStyle] = [:],
+        listLookup: ListIndexLookup = .empty
     ) {
         self.components = components
         self.rootStyle = rootStyle
         self.componentsLookup = components.buildLookup()
         self.effectiveStyles = effectiveStyles
+        self.listLookup = listLookup
     }
 
     static let breakLineSymbol = "\n"
@@ -84,45 +89,63 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
     func visit(_ markup: ListItemMarkup) -> Result {
         let attributedString = collectAttributedString(markup)
         let style = collectMarkupStyle(markup)
-        
+
         // We don't set NSTextList to NSParagraphStyle directly, because NSTextList have abnormal extra spaces.
         // ref: https://stackoverflow.com/questions/66714650/nstextlist-formatting
-        
-        var parentListMarkup: ListMarkup?
-        var listStyleType: MarkupStyleType = .disc
-        var currentMarkup: Markup? = markup.parentMarkup
-        
-        while let thisMarkup = currentMarkup {
-            if let listMarkup = thisMarkup as? ListMarkup {
-                parentListMarkup = listMarkup
-                if let textListStyleType = componentsLookup.value(markup: thisMarkup)?.paragraphStyle.textListStyleType {
-                    listStyleType = textListStyleType
+
+        // Fast path: pre-built `ListIndexLookup` gives us the parent `ListMarkup` and
+        // sibling index directly. Falls back to walking the parent chain for callers
+        // that built the visitor without a lookup (legacy direct instantiation).
+        let parentListMarkup: ListMarkup?
+        let zeroBasedPosition: Int
+        if let lookedUpParent = listLookup.parentList[ObjectIdentifier(markup)] {
+            parentListMarkup = lookedUpParent
+            zeroBasedPosition = listLookup.positionInList[ObjectIdentifier(markup)] ?? 0
+        } else {
+            var found: ListMarkup?
+            var currentMarkup: Markup? = markup.parentMarkup
+            while let thisMarkup = currentMarkup {
+                if let listMarkup = thisMarkup as? ListMarkup {
+                    found = listMarkup
+                    break
                 }
-                break
+                currentMarkup = thisMarkup.parentMarkup
             }
-            
-            currentMarkup = currentMarkup?.parentMarkup
+            parentListMarkup = found
+            if let parent = found {
+                let siblingListItems = parent.childMarkups.filter({ $0 is ListItemMarkup })
+                zeroBasedPosition = siblingListItems.firstIndex(where: { $0 === markup }) ?? 0
+            } else {
+                zeroBasedPosition = 0
+            }
         }
-        
+
         guard let parentListMarkup = parentListMarkup else {
             return attributedString
         }
-        
-        
+
+        let listStyleType: MarkupStyleType = componentsLookup.value(markup: parentListMarkup)?.paragraphStyle.textListStyleType ?? .disc
+
         let string: String
         if listStyleType.isOrder() {
-            let siblingListItems = parentListMarkup.childMarkups.filter({ $0 is ListItemMarkup })
-            let position = (siblingListItems.firstIndex(where: { $0 === markup }) ?? 0) + parentListMarkup.startingItemNumber
-            
+            let position = zeroBasedPosition + parentListMarkup.startingItemNumber
             string = String(format: listStyleType.getFormat(), listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: position))
         } else {
             string = String(format: listStyleType.getFormat(), listStyleType.getItem(startingItemNumber: parentListMarkup.startingItemNumber, forItemNumber: parentListMarkup.startingItemNumber))
         }
-        
-        attributedString.insert(makeString(in: markup, string: string, style: style), at: 0)
-        attributedString.markSuffixTagBoundaryBreakline()
-        
-        return attributedString
+
+        // Build `bullet + children` by appending into a fresh mutable string instead of
+        // `insert(at: 0)` on the already-collected nested content. For deeply nested
+        // lists the inner subtree can be many KB and `insert(at: 0)` shifts it on every
+        // wrapping level — append-only avoids that O(L * depth) cost.
+        let bullet = makeString(in: markup, string: string, style: style)
+        let result = NSMutableAttributedString(attributedString: bullet)
+        result.beginEditing()
+        result.append(attributedString)
+        result.endEditing()
+        result.markSuffixTagBoundaryBreakline()
+
+        return result
     }
     
     func visit(_ markup: ListMarkup) -> Result {
