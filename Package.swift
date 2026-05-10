@@ -11,13 +11,15 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-snapshot-testing", exact: "1.12.0"),
-         .package(url: "https://github.com/ZhgChgLi/ZNSTextAttachment", from: "1.1.9")
+         .package(url: "https://github.com/ZhgChgLi/ZNSTextAttachment", from: "1.1.9"),
+         .package(url: "https://github.com/ZhgChgLi/SwiftRangeable", from: "1.0.0")
     ],
     targets: [
          .target(
              name: "ZMarkupParser",
              dependencies: [
-                "ZNSTextAttachment"
+                "ZNSTextAttachment",
+                .product(name: "Rangeable", package: "SwiftRangeable")
              ],
              path: "Sources"
          ),

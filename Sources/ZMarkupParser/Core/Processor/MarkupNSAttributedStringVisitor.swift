@@ -8,12 +8,25 @@
 import Foundation
 
 struct MarkupNSAttributedStringVisitor: MarkupVisitor {
-    
+
     typealias Result = NSAttributedString
-    
+
     let components: [MarkupStyleComponent]
     let rootStyle: MarkupStyle?
-    
+    /// Precomputed top-down effective style for each markup, keyed by `ObjectIdentifier`.
+    /// Allows the leaf-side `collectMarkupStyle` to avoid walking up the parent chain.
+    let effectiveStyles: [ObjectIdentifier: MarkupStyle]
+
+    init(
+        components: [MarkupStyleComponent],
+        rootStyle: MarkupStyle?,
+        effectiveStyles: [ObjectIdentifier: MarkupStyle] = [:]
+    ) {
+        self.components = components
+        self.rootStyle = rootStyle
+        self.effectiveStyles = effectiveStyles
+    }
+
     static let breakLineSymbol = "\n"
     
     func visit(_ markup: RootMarkup) -> Result {
@@ -323,10 +336,18 @@ private extension MarkupNSAttributedStringVisitor {
     }
     
     func collectMarkupStyle(_ markup: Markup) -> MarkupStyle? {
-        // collect from upstream
-        // String("Test") -> Bold -> Italic -> Root
-        // Result: style: Bold+Italic
-        
+        // Fast path: the precomputed top-down effective style already merged the entire
+        // parent chain in O(1) per markup at process() time. Just fold in the root style.
+        if !effectiveStyles.isEmpty {
+            if var cached = effectiveStyles[ObjectIdentifier(markup)] {
+                cached.fillIfNil(from: rootStyle)
+                return cached
+            }
+            return rootStyle
+        }
+
+        // Fallback (no cache available, e.g. legacy direct visitor instantiation): preserve
+        // the original upstream walk so visitor-only callers still work.
         var currentMarkup: Markup? = markup.parentMarkup
         var currentStyle = components.value(markup: markup)
         while let thisMarkup = currentMarkup {
@@ -344,7 +365,7 @@ private extension MarkupNSAttributedStringVisitor {
 
             currentMarkup = thisMarkup.parentMarkup
         }
-        
+
         if var currentStyle = currentStyle {
             currentStyle.fillIfNil(from: rootStyle)
             return currentStyle
