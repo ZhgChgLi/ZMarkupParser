@@ -12,16 +12,38 @@ struct ParserRegexr {
         case rawString(NSAttributedString)
         case match(NSTextCheckingResult)
     }
-    
+
     let attributedString: NSAttributedString
     let expression: NSRegularExpression
-    
+
     var totoalLength: Int {
         return self.attributedString.string.utf16.count
     }
-    
+
+    private static let expressionCacheLock = NSLock()
+    private static var expressionCache: [String: NSRegularExpression] = [:]
+
+    static func cachedExpression(pattern: String, options: NSRegularExpression.Options) -> NSRegularExpression? {
+        let key = "\(options.rawValue)|\(pattern)"
+        expressionCacheLock.lock()
+        if let cached = expressionCache[key] {
+            expressionCacheLock.unlock()
+            return cached
+        }
+        expressionCacheLock.unlock()
+
+        guard let expression = try? NSRegularExpression(pattern: pattern, options: options) else {
+            return nil
+        }
+
+        expressionCacheLock.lock()
+        expressionCache[key] = expression
+        expressionCacheLock.unlock()
+        return expression
+    }
+
     init?(attributedString: NSAttributedString, pattern: String, expressionOptions: NSRegularExpression.Options = [.caseInsensitive, .dotMatchesLineSeparators]) {
-        guard let expression = try? NSRegularExpression(pattern: pattern, options: expressionOptions) else {
+        guard let expression = Self.cachedExpression(pattern: pattern, options: expressionOptions) else {
             return nil
         }
         self.expression = expression

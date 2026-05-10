@@ -11,9 +11,14 @@ public class HTMLSelector: CustomStringConvertible {
     
     let markup: Markup
     let componets: [HTMLElementMarkupComponent]
+    /// O(1) per-markup lookup of the same data as `componets`; built once on init so
+    /// `filter` / `_get` / `convertToDict` avoid the per-call O(N) `Array.first(where:)` scan
+    /// (selecting / serialising large trees was O(N^2)).
+    let componetsLookup: [ObjectIdentifier: HTMLElementMarkupComponent.HTMLElement]
     init(markup: Markup, componets: [HTMLElementMarkupComponent]) {
         self.markup = markup
         self.componets = componets
+        self.componetsLookup = componets.buildLookup()
     }
     
     public var description: String {
@@ -36,7 +41,7 @@ public class HTMLSelector: CustomStringConvertible {
     }
     
     public func filter(_ htmlTagName: String) -> [HTMLSelector] {
-        let result = markup.childMarkups.filter({ componets.value(markup: $0)?.tag.tagName.isEqualTo(htmlTagName) ?? false })
+        let result = markup.childMarkups.filter({ componetsLookup.value(markup: $0)?.tag.tagName.isEqualTo(htmlTagName) ?? false })
         return result.map({ .init(markup: $0, componets: componets) })
     }
     
@@ -74,7 +79,7 @@ public class HTMLSelector: CustomStringConvertible {
                 "type": "string",
                 "value": (attributedString) ? (rawStringMarkup.attributedString) : (rawStringMarkup.attributedString.string)
             ]
-        } else if let htmlElement = componets.value(markup: markup) {
+        } else if let htmlElement = componetsLookup.value(markup: markup) {
             return [
                 "type": "tag",
                 "name": htmlElement.tag.tagName.string,

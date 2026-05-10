@@ -8,12 +8,29 @@
 import Foundation
 
 struct MarkupNSAttributedStringVisitor: MarkupVisitor {
-    
+
     typealias Result = NSAttributedString
-    
+
     let components: [MarkupStyleComponent]
     let rootStyle: MarkupStyle?
-    
+    /// O(1) per-markup lookup of the same data as `components`; built once on init so the visitor
+    /// avoids the per-call O(N) `Array.first(where:)` scan (legacy hot loop was O(N^2)).
+    let componentsLookup: [ObjectIdentifier: MarkupStyle]
+    /// Precomputed top-down effective style for each markup, keyed by `ObjectIdentifier`.
+    /// Allows the leaf-side `collectMarkupStyle` to avoid walking up the parent chain.
+    let effectiveStyles: [ObjectIdentifier: MarkupStyle]
+
+    init(
+        components: [MarkupStyleComponent],
+        rootStyle: MarkupStyle?,
+        effectiveStyles: [ObjectIdentifier: MarkupStyle] = [:]
+    ) {
+        self.components = components
+        self.rootStyle = rootStyle
+        self.componentsLookup = components.buildLookup()
+        self.effectiveStyles = effectiveStyles
+    }
+
     static let breakLineSymbol = "\n"
     
     func visit(_ markup: RootMarkup) -> Result {
@@ -78,7 +95,7 @@ struct MarkupNSAttributedStringVisitor: MarkupVisitor {
         while let thisMarkup = currentMarkup {
             if let listMarkup = thisMarkup as? ListMarkup {
                 parentListMarkup = listMarkup
-                if let textListStyleType = components.value(markup: thisMarkup)?.paragraphStyle.textListStyleType {
+                if let textListStyleType = componentsLookup.value(markup: thisMarkup)?.paragraphStyle.textListStyleType {
                     listStyleType = textListStyleType
                 }
                 break
@@ -310,27 +327,36 @@ extension MarkupNSAttributedStringVisitor {
 
 private extension MarkupNSAttributedStringVisitor {
     func collectAttributedString(_ markup: Markup) -> NSMutableAttributedString {
-        // collect from downstream
-        // Root -> Bold -> String("Bold")
-        //      \
-        //       > String("Test")
-        // Result: Bold Test
-        
-        return markup.childMarkups.compactMap({ visit(markup: $0) }).reduce(NSMutableAttributedString()) { partialResult, attributedString in
-            partialResult.append(attributedString)
-            return partialResult
+        // Walks the children once, batching mutations under begin/endEditing to skip the
+        // attribute fixup work `NSMutableAttributedString` does after every `append`.
+        let result = NSMutableAttributedString()
+        let children = markup.childMarkups
+        guard !children.isEmpty else { return result }
+        result.beginEditing()
+        for child in children {
+            result.append(visit(markup: child))
         }
+        result.endEditing()
+        return result
     }
     
     func collectMarkupStyle(_ markup: Markup) -> MarkupStyle? {
-        // collect from upstream
-        // String("Test") -> Bold -> Italic -> Root
-        // Result: style: Bold+Italic
-        
+        // Fast path: the precomputed top-down effective style already merged the entire
+        // parent chain *plus* `rootStyle` at process() time, so this is now an O(1) dictionary
+        // hit with no per-leaf `fillIfNil` work.
+        if !effectiveStyles.isEmpty {
+            if let cached = effectiveStyles[ObjectIdentifier(markup)] {
+                return cached
+            }
+            return rootStyle
+        }
+
+        // Fallback (no cache available, e.g. legacy direct visitor instantiation): preserve
+        // the original upstream walk so visitor-only callers still work.
         var currentMarkup: Markup? = markup.parentMarkup
-        var currentStyle = components.value(markup: markup)
+        var currentStyle = componentsLookup.value(markup: markup)
         while let thisMarkup = currentMarkup {
-            guard let thisMarkupStyle = components.value(markup: thisMarkup) else {
+            guard let thisMarkupStyle = componentsLookup.value(markup: thisMarkup) else {
                 currentMarkup = thisMarkup.parentMarkup
                 continue
             }
@@ -344,7 +370,7 @@ private extension MarkupNSAttributedStringVisitor {
 
             currentMarkup = thisMarkup.parentMarkup
         }
-        
+
         if var currentStyle = currentStyle {
             currentStyle.fillIfNil(from: rootStyle)
             return currentStyle

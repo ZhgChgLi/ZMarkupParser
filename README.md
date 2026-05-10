@@ -22,7 +22,8 @@ ZMarkupParser is a pure-Swift library that helps you convert HTML strings into N
 - [x] Support for `<ul>` list views, `<table>` table view, `<img>` image, also `<hr>` horizontal lines, and more.
 - [x] Support for parsing and setting styles from HTML tag attributes such as style="color:red".
 - [x] Support for parsing HTML color names into UIColor/NSColor.
-- [x] Better performance compared to `NSAttributedString.DocumentType.html`.
+- [x] Faster than `NSAttributedString.DocumentType.html`, and safe on inputs that would crash the system API — see [`PERF_REPORT.md`](./PERF_REPORT.md).
+- [x] Thread-safe `render` / `stripper` / `selector` — a single parser instance can be shared across concurrent calls.
 - [x] Fully test cases and test coverage.
 
 # Buy me a beer ❤️❤️❤️
@@ -40,13 +41,20 @@ To run the ZMarkupParser demo, download the repository and open ZMarkupParser.xc
 
 ### Performance Benchmark
 
-[![Performance Benchmark](https://user-images.githubusercontent.com/33706588/221342800-d7891cb3-af1a-4fe9-a8f1-c7b963e11f95.png)](https://quickchart.io/chart-maker/view/zm-73887470-e667-4ca3-8df0-fe3563832b0b)
+`ZMarkupParser` is faster than `NSAttributedString.DocumentType.html`, and keeps working on inputs that would crash the system API. On Apple M1 Pro / macOS 26.4 / Xcode 26.2, `swift test -c release`:
 
-(2022/M2/24GB Memory/macOS 13.2/XCode 14.1)
+| Input | `ZMarkupParser` | `NSAttributedString.DocumentType.html` |
+|---|---|---|
+| 300× sample (≈100 KB HTML, 10-iter avg) | **0.372 s / iter** | 0.457 s / iter |
+| 1000× sample (≈334 K chars, single sweep) | **1.152 s** | crashes (system API is documented to crash past ~54 600 chars) |
 
-Note that rendering an NSAttributedString with the DocumentType.html option can cause a crash when the length of the HTML string exceeds 54,600+ characters. To avoid this issue, consider using ZMarkupParser instead.
+Highlights:
 
-The chart above shows the elapsed time (in seconds) to render different HTML string lengths (x). As you can see, ZMarkupParser performs better than NSAttributedString.DocumentType.html, especially for larger HTML strings.
+- ~19 % faster than the system API on the 100 KB sample, and the gap widens with input size.
+- Stays correct on long HTML strings where `NSAttributedString.DocumentType.html` crashes.
+- Pure-Swift / regex-based — no `WebKit` / `NSAttributedString.DocumentType.html` round-trip, no AppKit / UIKit main-thread requirement.
+
+Full methodology and length-scaling table in [`PERF_REPORT.md`](./PERF_REPORT.md).
 
 ## Installation
 

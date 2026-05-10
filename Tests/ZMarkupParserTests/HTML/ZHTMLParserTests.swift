@@ -101,13 +101,78 @@ final class ZHTMLParserTests: XCTestCase {
     func testDecodeHTMLEntities() {
         let string = "My favorite emoji is &#x1F643;, &lt;a&gt;link&lt;/a&gt;"
         let result = parser.decodeHTMLEntities(string)
-        
+
         XCTAssertEqual(result, "My favorite emoji is 🙃, <a>link</a>")
-        
+
         let attributedString = NSAttributedString(string: "My favorite emoji is &#x1F643;, &lt;a&gt;link&lt;/a&gt;", attributes: [.kern: 100])
         let result2 = parser.decodeHTMLEntities(attributedString)
-        
+
         XCTAssertEqual(result2.string, "My favorite emoji is 🙃, <a>link</a>")
         XCTAssertEqual(result2.attributes(at: 0, effectiveRange: nil)[.kern] as? Int, 100)
+    }
+
+    /// Hammers `render(_:)` from many threads against the same parser to flush out races on the
+    /// shared processors, the static regex cache (`ParserRegexr.cachedExpression`) and the
+    /// per-process style precompute. All concurrent renders must produce the exact same result
+    /// as the single-threaded reference render.
+    func testConcurrentRenderProducesIdenticalResults() {
+        let html = "🎄 <Hottest> <b>Christmas <u>gift</b>s</u> are here<br/><a href=\"https://zhgchg.li\">link</a>!"
+        let referencePlain = parser.render(html).string
+        XCTAssertFalse(referencePlain.isEmpty)
+
+        let iterations = 200
+        let expectation = XCTestExpectation(description: #function)
+        expectation.expectedFulfillmentCount = iterations
+        let queue = DispatchQueue.global(qos: .userInitiated)
+        let lock = NSLock()
+        var mismatches: [String] = []
+
+        for _ in 0..<iterations {
+            queue.async {
+                let resultPlain = self.parser.render(html).string
+                if resultPlain != referencePlain {
+                    lock.lock()
+                    mismatches.append(resultPlain)
+                    lock.unlock()
+                }
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 30.0)
+        XCTAssertTrue(mismatches.isEmpty, "concurrent renders must match the reference plain text; got \(mismatches.count) mismatches")
+    }
+
+    func testConcurrentSelectorAndStripperAreThreadSafe() {
+        let html = "<div><a href=\"https://zhgchg.li\">L<b>i</b>nk</a><p>P<u>ar</u>a</p></div>"
+        let referenceSelector = parser.selector(html).first("a")?.attributedString.string
+        let referenceStripper = parser.stripper(html)
+
+        let iterations = 200
+        let expectation = XCTestExpectation(description: #function)
+        expectation.expectedFulfillmentCount = iterations
+        let queue = DispatchQueue.global(qos: .userInitiated)
+        let lock = NSLock()
+        var failures = 0
+
+        for i in 0..<iterations {
+            queue.async {
+                if i.isMultiple(of: 2) {
+                    let selectorResult = self.parser.selector(html).first("a")?.attributedString.string
+                    if selectorResult != referenceSelector {
+                        lock.lock(); failures += 1; lock.unlock()
+                    }
+                } else {
+                    let stripperResult = self.parser.stripper(html)
+                    if stripperResult != referenceStripper {
+                        lock.lock(); failures += 1; lock.unlock()
+                    }
+                }
+                expectation.fulfill()
+            }
+        }
+
+        wait(for: [expectation], timeout: 30.0)
+        XCTAssertEqual(failures, 0, "concurrent selector/stripper must match the reference results")
     }
 }
