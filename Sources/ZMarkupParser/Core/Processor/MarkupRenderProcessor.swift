@@ -28,10 +28,15 @@ final class MarkupRenderProcessor: ParserProcessor {
         effectiveStyles.reserveCapacity(max(64, lookup.count))
         precomputeStyles(root, inheritedStyle: rootStyle, lookup: lookup, into: &effectiveStyles)
 
+        // O(1) parent-list / sibling-index lookup so list-item rendering avoids the
+        // `parent-chain walk + childMarkups.filter + firstIndex` pattern (issue #89).
+        let listLookup = ListIndexLookup.build(from: root)
+
         let visitor = MarkupNSAttributedStringVisitor(
             components: components,
             rootStyle: rootStyle,
-            effectiveStyles: effectiveStyles
+            effectiveStyles: effectiveStyles,
+            listLookup: listLookup
         )
         return visitor.visit(markup: root)
     }
