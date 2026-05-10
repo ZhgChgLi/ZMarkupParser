@@ -10,15 +10,6 @@
       }
     },
     {
-      "identity" : "swiftrangeable",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ZhgChgLi/SwiftRangeable",
-      "state" : {
-        "revision" : "09e8d4c67322104346e4bbc0e67eb3fdfe3f1662",
-        "version" : "2.0.0"
-      }
-    },
-    {
       "identity" : "znstextattachment",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ZhgChgLi/ZNSTextAttachment",
